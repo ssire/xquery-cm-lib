@@ -1,0 +1,661 @@
+/* CSS file to be loaded after Boostrap to render forms generated with supergrid generator by S. Sire @ Oppidoc */
+.axel-core-editable.af-mandatory,
+ul.af-mandatory:not(.readonly), /* ul defined for all goals */
+a.af-mandatory,
+input.af-mandatory {	
+  border-style: solid !important;
+  border-color: #ff4444 !important;
+  border-radius: 4px !important;
+  border-width: 1px !important;
+}
+
+form.c-search {
+  margin: 0 auto 20px auto;
+}
+
+form {
+  background: #9EC0D9; /* rgb(142,176,201); #8EB0C9 */
+  border: none;
+  margin: 0 auto;
+  padding: 5px;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+  outline: 0 none;
+}
+
+div.c-display-mode > form {
+  background: white;
+}
+
+.noshow, #c-saving {
+  display: none;
+}
+
+span.c-saving:after {
+  content: url(../images/saving.gif);
+}
+
+form button {
+  margin-bottom: 10px !important;
+}
+
+#xt-photo.axel-lens-containerstyle {
+  background-color : #9EC0D9;
+}
+
+.axel-core-editable {
+  outline: none !important;
+  border: none !important;
+}
+
+div.af-validation, div.span12.af-validation {
+  display: none;
+}
+
+div.af-validation-failed {
+  display: block !important;
+}
+
+.af-error {
+  color: #FF0000;
+  display: none;
+}
+
+label.af-invalid, label.af-required {
+  color: red !important;
+}
+
+div.c-transcluded {
+  float: left;
+  width: 100%;
+}
+
+div.c-editing-mode div.c-transcluded label {
+  color: gray;
+}
+
+div.c-editing-mode div.c-transcluded {
+  padding: 20px 15px;
+  background: #F0F0F0 !important;
+  border-radius: 4px;
+  background-color: white;
+  border-color: #CCCCCC;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.024) inset;
+  -moz-box-sizing: border-box;
+  border: medium none;
+}
+
+span.uneditable-input.span {
+  white-space: normal;
+  height: 100%;
+}
+
+a.uneditable-input.nolink {
+  cursor: not-allowed;
+}
+
+a.uneditable-input {
+  cursor: pointer;
+}
+
+a.uneditable-input:focus {
+  border: 1px solid #CCC;
+  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.025);
+     -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.025);
+          box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.025);
+}
+
+.c-display-mode .uneditable-input {
+  color: #333333;
+}
+
+.c-display-mode span.c-repeat-menu, .c-display-mode .text-info {
+  display: none;
+}
+
+span.town { /* Enterprise drop down complement */
+  color: gray;
+  font-style: italic;
+}
+
+div.select2-drop-auto-width { /* overwrite select2 */
+  border-top: 1px solid #5897FB !important;
+}
+
+.year {
+  width: 6em;
+}
+
+/**************************************************
+                'html' plugin
+ **************************************************/
+
+.af-html-edit, .af-html {
+  border-radius: 4px;
+  background-color: #FCFCFC;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.024) inset;
+  color: #333333;
+  border: solid 1px #CCC;
+  min-height: 30px;
+}
+
+div.af-html {
+  padding: 10px 6px;
+  cursor: not-allowed;
+}
+
+div.af-html-edit {
+  padding: 8px 6px;
+}
+
+.af-html.c-live-copy {
+  color: #999;
+}
+
+div.af-html h3 {
+  margin-bottom: 0.75em;
+}
+
+ul.x-List > li, ol.x-List > li {
+  color: #333333 !important;
+}
+
+ul.x-List p {
+  margin-bottom: 4px !important;
+}
+
+ul.axel-choice.c-inline-choice {
+  display: inline;
+  margin-left: 0;
+}
+
+ul.axel-choice.c-inline-choice > li {
+  display: inline;
+}
+
+ul.axel-choice.c-inline-choice label {
+  display: inline;
+  font-size: 12px;
+}
+
+div.c-display-mode label.axel-choice-unset {
+  color: lightgray;
+}
+
+ul.axel-choice.c-inline-choice input {
+  float: none;
+  margin-right: 8px !important;
+  margin-left: 20px !important;
+}
+
+/**************************************************
+                      Supergrid
+ **************************************************/
+
+textarea.sg-multitext {
+  width: 100%;
+  resize: vertical;
+  overflow: auto;
+  min-height: 150px !important;
+}
+
+/* supergrid Text textarea input field */
+p.sg-textarea {
+min-height: 3em !important;
+}
+textarea.sg-textarea  {
+ margin: 0;
+ min-height: 3em !important;
+}
+p.sg-textarea, span.sg-textarea, textarea.sg-textarea  {
+ border-radius: 4px;
+ background-color: #FCFCFC;
+ border-color: #CCCCCC;
+ box-shadow: 0 1px 2px rgba(0, 0, 0, 0.024) inset;
+ vertical-align: middle;
+ display: inline-block;
+ width: 100%;
+ padding: 5px;
+}
+
+/* copied from row-fluid - required because of the vertical margins of a floated box are not collapsed */
+.a-cell-body:before,
+.a-cell-body:after {
+ display: table;
+ line-height: 0;
+ content: "";
+}
+
+.a-cell-body:after {
+ clear: both;
+}
+
+.a-cell-label h1, .a-cell-label h2, .a-cell-label h3, .a-cell-label h4, .a-cell-label h5 {
+  margin: 0 0 0.5em;
+  line-height: 1;
+}
+
+.axel-repeat-unset button {
+  display: none !important;
+}
+
+legend, p.a-cell-legend {
+ color: rgb(0,69,99);
+}
+
+p.a-cell-legend {
+ font-weight: bold;
+ font-size: 1.2em;
+ line-height: 1.2em;
+}
+
+hr.a-separator {
+color: #E5E5E5;
+}
+
+span.sg-multiline {
+  white-space:normal;
+  height:auto;
+}
+
+/* Forms inside modal dialog boxes */
+
+.modal {
+  max-height: 80%;
+  overflow-y:auto;
+}
+
+.modal-body {
+  max-height: none;
+  background: #9EC0D9;
+}
+
+/* Bootstrap extension to control Cell and Field labels with span grid units */
+
+h3[class*="a-gap"] {
+  clear: both;
+  width: 100%;
+}
+
+label.a-gap0 {
+  float: none;
+}
+
+[class*="a-gap"] {
+  float: left;
+  min-height: 1px;
+  margin-left: 0;
+}
+
+.control-label.a-gap1, .a-cell-label.a-gap1 {
+  width: 60px;
+}
+
+.control-label.a-gap1 + .controls,
+.a-cell-label.a-gap1 + .a-cell-body,
+h3.a-gap1 {
+  margin-left: 80px;
+}
+
+.control-label.a-gap2, .a-cell-label.a-gap2 {
+  width: 140px;
+}
+
+.control-label.a-gap2 + .controls,
+.a-cell-label.a-gap2 + .a-cell-body,
+h3.a-gap2 {
+  margin-left: 160px;
+}
+
+.control-label.a-gap3, .a-cell-label.a-gap3 {
+  width: 220px;
+}
+
+.control-label.a-gap3 + .controls,
+.a-cell-label.a-gap3 + .a-cell-body,
+h3.a-gap3 {
+  margin-left: 240px;
+}
+
+/* trick to get input and constant fields with appended text (works with CHF) to fill their container's width */
+
+.input-append.fill
+{
+  display: block;
+  position: relative;
+  height: 30px;
+}
+div.absolute {
+  position:absolute;
+  left:0;
+  right:52px;
+}
+input.fill {
+  position: absolute;
+  left: 0;
+  width: 100% ! important;
+}
+.uneditable-input.fill {
+  position: absolute;
+  left: 0;
+  right: 41px;
+  width: auto !important;
+}
+.add-on.fill {
+  position: absolute;
+  width: 30px;
+  right: 0px;
+  z-index:100!important;
+}
+
+/* improved Field vertical spacing control */
+
+.form-horizontal .control-group {
+  margin-bottom: 5px;
+}
+
+.control-group, div.af-html {
+  margin-bottom: 8px;
+}
+
+table div.select2-container { /* stats forms */
+  margin-bottom: 0;
+}
+
+div.select2-container { /* select2 exception */
+  margin-bottom: 10px;
+}
+
+span.a-control, input.a-control, select.a-control {
+  margin-bottom: 5px;
+}
+
+label.control-label, th.control-label, td.control-label {
+  color: #004563;
+}
+
+label.control-label.a-gap0 {
+  margin: 10px 0 6px 0;
+}
+
+div.c-v-spacer {
+  margin-bottom: 20px;
+}
+
+/* Box element */
+
+fieldgroup.a-select-box legend {
+  font-size: 14px;
+  line-height: 20px;
+  padding: 0;
+  margin: 0 0 10px 0;
+  border: none; /* border: solid 1px #E5E5E5; */
+}
+
+ul.a-select-box, div.a-select-box {
+  list-style-type: none;
+  display: relative;
+  background-color: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+  border-radius: 4px 4px 4px 4px;
+  margin-left: 0;
+  padding: 4px;
+}
+
+ul.a-select-box input {
+  float: right;
+}
+
+ul.a-select-box.readonly label.axel-choice-unset {
+  font-style: italic;
+  color: #999;
+  font-size: 80%;
+}
+
+/* Repeat element */
+
+table.a-repeat-table {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+td.a-repeat-row {
+  border: solid 1px #AAA;
+  padding: 15px 5px 5px;
+}
+
+/* spreadsheet tables */
+
+td.right {
+  text-align: right;
+}
+
+td.c-total {
+  font-weight: bold;
+  text-align: right;
+  padding-right: 2em;
+}
+
+td.spreadsheet {
+  /*background: white;*/
+}
+
+td.spreadsheet div.sg-field-nl {
+  background-color: #FFF;
+  padding: 4px 6px;
+  min-height: 20px;
+  border: 1px solid #CCC;  
+  border-color: #CCC;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.024) inset;
+  border-radius: 4px;
+}
+
+div.c-display-mode div.sg-plain {
+  background-color: #FFF;
+  border: 1px solid #CCC;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+  min-height: 20px;
+  padding: 4px;
+}
+
+p.sg-plain {
+  border-radius: 4px;
+  background-color: #FCFCFC;
+  border-color: #CCCCCC;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.024) inset;
+  vertical-align: middle;
+  padding: 5px;
+}
+
+div.sg-plain > span.axel-core-editable {
+  display: inline-block;
+  width: 100%;
+}
+
+textarea.sg-plain {
+  resize: none;
+  background: white;
+  padding: 4px 6px;
+}
+
+input.sg-number {
+  text-align: right;
+  width: 100px;
+}
+
+/*input.sg-plain:focus {
+  border: 1px solid #CCC;
+}
+*/
+tr.x-Activity.axel-repeat-unset {
+  display: none;
+}
+
+/**************************************************
+            Rich Text Component Editing
+ **************************************************/
+
+span.t_pm {
+  display: inline;
+}
+
+div.t_row:hover span.t_lstyle {
+  display:inline;
+}
+/*div.t_menu:hover span.t_pm {
+  display:inline;
+}*/
+
+div.t_menu/*:hover*/ {
+  min-height: 40px;
+}
+
+span.t_lstyle {
+  position: absolute;
+  left: -100px;
+  top: 22px;
+  display: none;
+}
+
+span.t_lstyle > input {
+  margin: 0 4px 0 0 !important;
+}
+
+div.control-group.dynamic:hover label {
+  visibility: hidden;
+}
+
+div.t_row select {
+  width: 80px;
+  font-size: 10px;
+  line-height: 1;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+}
+
+div.t_row {
+  clear: both;
+}
+
+div.t_menu {
+  position: relative;
+  float: left;
+  width: 98px; /* -2px because of textarea or input border */
+  margin-left: -100px;
+  text-align: right;
+  padding: 0;
+}
+
+body.preview div.t_row {
+  min-height: 1em;
+}
+
+li.t_item {
+  position: relative;
+  list-style-position: outside;
+  margin-bottom: 8px !important;
+}
+
+li.t_item > span.tit_menu {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+}
+
+span.tit_mask {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  z-index: -1;
+  display: block;
+}
+
+span.tit_menu:hover + span.tit_mask {
+  border: dotted 1px gray;
+  z-index: 0;
+}
+
+p.tit_content {
+  vertical-align: text-top;
+  margin: 3px !important;
+  background: transparent;
+}
+
+p.tit_content > span.tit_submenu {
+  display: none;
+}
+
+p.tit_content:hover > span.tit_submenu {
+  display: inline-block;
+}
+
+span.tit_submenu img {
+  vertical-align: middle;
+  z-index: -1;
+}
+
+/******** inside menu variant (.t_row.t_inside) *************/
+div.t_row.t_inside {
+  margin-left: 100px;
+}
+
+/******** dynamical menu variant (.t_row.t_dyn) *************/
+div.t_row.t_dyn {
+  min-height: 1em !important;
+  /* to augment "menu" sensibility */
+  margin-left: -50px;
+  padding-left: 50px;
+}
+div.t_dyn > div.t_menu {
+  height: 1em;
+  display: none;
+}
+div.t_dyn:hover div.t_menu {
+  display: block;
+}
+div.t_menu_content {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+div.t_menu_mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100px; /* same as .t_dyn.t_menu  */
+  height: 2em;
+  padding: 0;
+}
+
+p.x-ListHeader {
+  margin-bottom: 8px;
+  position: relative;
+}
+
+p.x-ListHeader > input.axel-option-checkbox {
+  margin: 0 5px 0 0;
+  vertical-align: top;
+}
+
+/********************* LinesBlock *********************/
+ul.x-LinesBlock {
+  list-style: none none inside;
+  padding: 0;
+  margin-left: 0;
+}
+
+/* custom editors */
+
+.x-OtherExpenses.axel-repeat-unset div.a-cell-body {
+  display: none;
+}
+
+label.mandatory.empty {
+  color: red;
+}

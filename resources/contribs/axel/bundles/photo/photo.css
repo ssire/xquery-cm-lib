@@ -1,0 +1,31 @@
+/* XTiger Photo Plugin basic style */
+
+#xt-photo {
+	min-width: 300px;
+	min-height: 260px;
+}
+
+#xt-photo-info {
+	text-align: center;
+	margin: 20px;
+}
+
+#xt-photo-error {
+	display: none;	
+	text-align: center;
+	font-family: sans-serif;
+	color: red;
+	margin: 20px;
+}
+
+#xt-photo-menu {
+	position: absolute;
+	bottom: 20px;
+	margin: 0 20px;
+	text-align: center;
+}
+
+#xt-photo img {
+	max-height: 200px;
+	max-width: 120px; /* customized for Person : 'photo' plugin parameter ? */
+}

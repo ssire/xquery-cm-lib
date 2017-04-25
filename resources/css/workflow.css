@@ -1,0 +1,384 @@
+i[data-file]{
+  cursor: pointer;
+}
+
+h1 {
+  text-align: center;
+  margin: 0;
+}
+
+h2 {
+  margin: 20px 0 15px;
+  text-align: center;
+}
+
+div.x-ContactPerson .img-polaroid {
+  max-height: 150px;
+}
+table.c-empty {
+  display: none;
+}
+
+td.text-right {
+  text-align: right;
+}
+
+#c-legacy {
+  opacity: 0.5;
+}
+
+#c-watermark {
+  position: relative;
+  left: 20px;
+  top: 20px;
+  color: red;
+  font-size: 30px;
+  transform: translate(40px, -70px) rotate(-10deg);
+}
+
+tr.current {
+  background-color: #CCC;
+}
+
+/*h3.c-w-header {
+  text-align: center;
+  margin: 0;
+  clear: both;
+}
+
+h3.c-w-header:last-of-type { 
+  margin-bottom: 1em
+}*/
+
+div.accordion-inner > div > form { /* non modal form inside an accordion */
+  background: white;
+  padding: 0;
+}
+
+div.accordion-inner.c-editing-mode, div.accordion-inner.c-editing-mode > div > form {
+  background: #9EC0D9;
+}
+
+/* to be improved */
+#c-editor-foundr[data-template$=readonly] .text-info {
+  display: none;
+}
+#c-editor-foundr[data-template$=readonly] img[class^=axel-repeat], #c-editor-opinions img[class^=axel-repeat] {
+  display: none;
+}
+
+#c-editor-foundr h1 {
+  text-align: left;
+  margin: 0.5em 0;
+}
+
+#c-editor-foundr table {
+  width: 100%;
+}
+
+/* Tabs */
+
+div.c-tab-heading {
+    background: #9EC0D9;
+    margin: 0 0 20px;
+    padding: 4px 15px;
+    position: relative;
+}
+
+div.c-tab-heading.case {
+  background: #ffaf24;
+}
+
+div.tab-pane li {
+  color: #004563;
+}
+
+div.tab-pane a {
+  text-decoration: none;
+}
+
+/* Alerts table */
+
+tr.header {
+  background: #9EC0D9;
+}
+
+tr.header.case {
+  background: #ffaf24;
+}
+
+/**** Accordion ****/
+
+h3.c-document-title:before {
+  content: "\25B6";
+  text-align: top;
+  margin-right: 10px;
+}
+
+div.accordion-group.c-opened h3.c-document-title:before, div.accordion-group.c-opened h3.c-drawer-title:before {
+  content: "\25BC";
+  text-align: top;
+  margin-right: 10px;
+}
+
+/* FIX : desactivated because it breaks spell checker ! */
+/*.accordion-body.in:hover {
+  overflow:visible;
+}
+*/
+div.accordion-inner {
+  padding: 9px 10px; /* overwrite Bootstrap */
+}
+
+div.accordion-heading {
+  background: #9EC0D9;
+  padding: 4px 15px;
+  margin: 0;
+  position: relative;
+}
+
+div.accordion-heading.case {
+  background: #ffaf24;
+}
+
+a.c-accordion-toggle {
+  color: #004563;
+  text-decoration: none;
+}
+
+div.c-annexes {
+  margin: 0 0 10px;
+  padding: 5px 0 0;
+  border-bottom: solid 1px #999;
+}
+
+a.c-annex-link {
+  display:inline;
+  line-height: 20px;
+  height: 20px;
+  text-decoration: none;
+}
+
+a.c-annex-link:after {
+  content: ", ";
+}
+
+a.c-annex-link:last-of-type:after {
+  content: "";
+}
+
+span.c-editor-menu, div.c-editor-menu {
+  display: none;
+  padding: 5px 0;
+}
+
+span.c-editor-menu {
+  float: right;
+}
+
+span.c-document-menu.c-hidden {
+  display: none !important; /* to overwrite .c-opened on accordion panel */
+}
+
+span.c-document-menu {
+  display: none;
+/*  position: absolute;
+  right: 20px;
+  top: 10px;*/
+  float: right;
+  padding: 5px 0;
+}
+
+span.c-document-menu > button {
+  margin-left: 10px;
+}
+
+div.accordion-group.c-opened span.c-document-menu, span.c-document-menu.c-perm-menu {
+  display: inline;
+}
+
+div.c-editor-menu {
+  text-align: center;
+}
+
+div.c-editor-menu.c-perm-menu {
+  display: block;
+}
+
+/**** Workflow strip ****/
+
+/* Inspired by http://www.red-team-design.com/css3-breadcrumbs
+   See also http://css-tricks.com/examples/ShapesOfCSS/
+*/
+
+#c-workflow{
+  margin: 0 0 1em;
+}
+
+#c-workflow, #c-states {
+  font-size: 13px;
+}
+
+#c-states {
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  width: 180px;
+}
+
+#c-states li {
+  font-size: 12px;
+  height: 30px;
+  line-height: auto;
+  list-style-type: none;
+}
+
+#c-states span.c-decision {
+  font-weight: bold;
+  -moz-user-select: none;
+  background-clip: padding-box;
+  background-color: #E4E4E4;
+  background-image: -moz-linear-gradient(center top , #F4F4F4 20%, #F0F0F0 50%, #E8E8E8 52%, #EEEEEE 100%);
+  border: 1px solid #AAAAAA;
+  border-radius: 3px;
+  box-shadow: 0 0 2px #FFFFFF inset, 0 1px 0 rgba(0, 0, 0, 0.05);
+  color: #333333;
+  cursor: default;
+  line-height: 13px;
+  margin: 3px 0 3px 3px;
+  padding: 3px 5px 3px 5px;
+  position: relative;  
+}
+
+#c-states span.c-timestamp {
+ font-size: 11px;
+}
+
+#c-workflow li {
+  float: left;
+  margin: 0 5px 0 14px;
+  list-style-type: none;
+}
+
+#c-workflow li:first-of-type {
+  margin-left: 0;
+}
+
+#c-workflow span {
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 12px;
+  height: 40px;
+  line-height: 14px;
+  background: #ddd;
+  padding: .7em 1em;
+  text-decoration: none;
+  color: #444;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  position: relative;
+}
+
+#c-workflow p {
+  margin-left: 1em;
+}
+
+#c-workflow.ActivityWorkflowStatus span {
+  max-width: 62px;
+  padding: .7em 1em .7em 0.5em;
+}
+
+#c-workflow.Activity p {
+  margin-left: 0.5em;
+}
+
+/*#c-workflow a:hover{
+  background: #efc9ab;
+}*/
+
+#c-workflow span::before{
+  content: "";
+  position: absolute;
+  top: 50%;
+  margin-top: -1.5em;
+  border-width: 1.5em 0 1.5em 1em;
+  border-style: solid;
+  border-color: #ddd #ddd #ddd transparent;
+  left: -1em;
+}
+
+/*#c-workflow a:hover::before{
+  border-color: #efc9ab #efc9ab #efc9ab transparent;
+}*/
+
+#c-workflow span::after{
+  content: "";
+  position: absolute;
+  top: 50%;
+  margin-top: -1.5em;
+  border-top: 1.5em solid transparent;
+  border-bottom: 1.5em solid transparent;
+  border-left: 1em solid #ddd;
+  right: -1em;
+}
+
+/*#c-workflow a:hover::after{
+  border-left-color: #efc9ab;
+}*/
+
+span.c-decision.c-current{
+  background: #5BB75B !important;
+}
+
+#c-workflow span.c-current{
+  font-weight: bold;
+  background: #5BB75B;
+  text-align: center;
+}
+
+#c-workflow span.c-current::before{
+  border-top-color: #5BB75B;
+  border-bottom-color: #5BB75B;
+}
+
+#c-workflow span.c-current::after{
+  border-left-color: #5BB75B;
+}
+
+/*#c-workflow .c-done {
+  background: #99db76;
+}*/
+
+#c-workflow span.c-done::before{
+  border-top-color: #99db76;
+  border-bottom-color: #99db76;
+}
+
+/*#c-workflow a.c-done::after{
+  border-left-color: #99db76;
+}*/
+
+#c-workflow span.c-start::before{
+  content: "";
+  border: none;
+}
+
+#c-workflow span.c-end::after{
+  content: "";
+  border: none;
+}
+
+#c-workflow span.c-start {
+  border-radius: 5px 0 0 5px;
+}
+
+#c-workflow span.c-end {
+  border-radius: 0 5px 5px 0;
+}
+
+#c-workflow span.c-start.c-end {
+  border-radius: 5px;
+}
+
+#collapse-case-init.in {
+  overflow: visible;
+}

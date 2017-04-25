@@ -1,0 +1,165 @@
+<GlobalInformation>
+  <Description Lang="en">
+    <!-- TODO: converts to selector model -->
+    <CaseImpact>
+      <Sections>
+        <Section>
+          <Id>1</Id>
+          <SectionName>Business innovation vectors</SectionName>
+          <SectionRoot>Vectors</SectionRoot>
+          <SubSections>
+            <SubSection>
+              <Id>1</Id>
+              <SubSectionName>Offering</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>2</Id>
+              <SubSectionName>Process</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>4</Id>
+              <SubSectionName>Distribution</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>3</Id>
+              <SubSectionName>Customer</SubSectionName>
+            </SubSection>
+          </SubSections>
+        </Section>
+        <Section>
+          <Id>2</Id>
+          <SectionName>Sources of business innovation ideas</SectionName>
+          <SectionRoot>Ideas</SectionRoot>
+          <SubSections>
+            <SubSection>
+              <Id>1</Id>
+              <SubSectionName>Internal</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>10</Id>
+              <SubSectionName>Distributors</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>5</Id>
+              <SubSectionName>Customers</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>6</Id>
+              <SubSectionName>Suppliers</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>7</Id>
+              <SubSectionName>Education and research</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>9</Id>
+              <SubSectionName>Others</SubSectionName>
+            </SubSection>
+            <!-- <SubSection>
+              <Id>2</Id>
+              <SubSectionName>Competitors</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>3</Id>
+              <SubSectionName>Meetings, Exhibitions</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>4</Id>
+              <SubSectionName>Support organisation</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>8</Id>
+              <SubSectionName>Newspaper, Internet</SubSectionName>
+            </SubSection> -->
+          </SubSections>
+        </Section>
+        <Section>
+          <Id>3</Id>
+          <SectionName>Internal Resources</SectionName>
+          <SectionRoot>Resources</SectionRoot>
+          <SubSections>
+            <SubSection>
+              <Id>1</Id>
+              <SubSectionName>Strategy</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>2</Id>
+              <SubSectionName>Organisation</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>5</Id>
+              <SubSectionName>Qualification</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>6</Id>
+              <SubSectionName>Market</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>3</Id>
+              <SubSectionName>Innovation process</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>4</Id>
+              <SubSectionName>Intellectual property</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>7</Id>
+              <SubSectionName>Finances</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>10</Id>
+              <SubSectionName>Culture</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>9</Id>
+              <SubSectionName>Leadership</SubSectionName>
+            </SubSection>
+            <!-- <SubSection>
+              <Id>8</Id>
+              <SubSectionName>Other</SubSectionName>
+            </SubSection> -->
+          </SubSections>
+        </Section>
+        <Section>
+          <Id>4</Id>
+          <SectionName>Partnerships</SectionName>
+          <SectionRoot>Partners</SectionRoot>
+          <SubSections>
+            <SubSection>
+              <Id>2</Id>
+              <SubSectionName>Customer</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>9</Id>
+              <SubSectionName>Distributor</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>5</Id>
+              <SubSectionName>Supplier</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>4</Id>
+              <SubSectionName>Manufacturer</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>7</Id>
+              <SubSectionName>Education and research</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>6</Id>
+              <SubSectionName>Private investor</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>10</Id>
+              <SubSectionName>Public support</SubSectionName>
+            </SubSection>
+            <SubSection>
+              <Id>1</Id>
+              <SubSectionName>Others</SubSectionName>
+            </SubSection>
+          </SubSections>
+        </Section>
+      </Sections>
+    </CaseImpact>
+  </Description>
+</GlobalInformation>

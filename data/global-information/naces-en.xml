@@ -1,0 +1,485 @@
+<?xml version="1.0"?>
+<GlobalInformation>
+  <Description Lang="en">
+    <Selector Name="DomainActivities" Value="Code" Label="V+Name" Test="Domains of activities (NACE nomenclature)">
+      <Group>
+        <Code>A</Code>
+        <Name>Agriculture, forestry and fishing</Name>
+        <Selector>
+          <Option>
+            <Code>A1</Code>
+            <Name>Crop and animal production, hunting and related service activities</Name>
+          </Option>
+          <Option>
+            <Code>A2</Code>
+            <Name>Foresty and logging</Name>
+          </Option>
+          <Option>
+            <Code>A3</Code>
+            <Name>Fishing and aquaculture</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>B</Code>
+        <Name>Mining and quarrying </Name>
+        <Selector>
+          <Option>
+            <Code>B5</Code>
+            <Name>Mining of coal and ligmite</Name>
+          </Option>
+          <Option>
+            <Code>B6</Code>
+            <Name>Extraction of crude petroleum and natural</Name>
+          </Option>
+          <Option>
+            <Code>B7</Code>
+            <Name>Mining of metal ores</Name>
+          </Option>
+          <Option>
+            <Code>B8</Code>
+            <Name>Other mining and quarrying</Name>
+          </Option>
+          <Option>
+            <Code>B9</Code>
+            <Name>Mining support service activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>C</Code>
+        <Name>Manufacturing </Name>
+        <Selector>
+          <Option>
+            <Code>C10</Code>
+            <Name>Manufacture of food products</Name>
+          </Option>
+          <Option>
+            <Code>C11</Code>
+            <Name>Manufacture of beverages</Name>
+          </Option>
+          <Option>
+            <Code>C12</Code>
+            <Name>Manufacture of tobacco products</Name>
+          </Option>
+          <Option>
+            <Code>C13</Code>
+            <Name>Manufacture of textiles</Name>
+          </Option>
+          <Option>
+            <Code>C14</Code>
+            <Name>Manufacture of wearing apparel</Name>
+          </Option>
+          <Option>
+            <Code>C15</Code>
+            <Name>Manufacture of leather and related products</Name>
+          </Option>
+          <Option>
+            <Code>C16</Code>
+            <Name>Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials</Name>
+          </Option>
+          <Option>
+            <Code>C17</Code>
+            <Name>Manufacture of paper and paper products</Name>
+          </Option>
+          <Option>
+            <Code>C18</Code>
+            <Name>Printing and reproduction of recorded media</Name>
+          </Option>
+          <Option>
+            <Code>C19</Code>
+            <Name>Manufacture of coke and refined petroleum products</Name>
+          </Option>
+          <Option>
+            <Code>C20</Code>
+            <Name>Manufacture of chemicals and chemical products</Name>
+          </Option>
+          <Option>
+            <Code>C21</Code>
+            <Name>Manufacture of basic pharmaceutical products and pharmaceutical preparations</Name>
+          </Option>
+          <Option>
+            <Code>C22</Code>
+            <Name>Manufacture of rubber and plastic products</Name>
+          </Option>
+          <Option>
+            <Code>C23</Code>
+            <Name>Manufacture of other non-metallic mineral products</Name>
+          </Option>
+          <Option>
+            <Code>C24</Code>
+            <Name>Manufacture of basic metals</Name>
+          </Option>
+          <Option>
+            <Code>C25</Code>
+            <Name>Manufacture of fabricated metal products, except machinery and equipment</Name>
+          </Option>
+          <Option>
+            <Code>C26</Code>
+            <Name>Manufacture of computer, electronic and optical products</Name>
+          </Option>
+          <Option>
+            <Code>C27</Code>
+            <Name>Manufacture of electrical equipment</Name>
+          </Option>
+          <Option>
+            <Code>C28</Code>
+            <Name>Manufacture of machinery and equipment n.e.c.</Name>
+          </Option>
+          <Option>
+            <Code>C29</Code>
+            <Name>Manufacture of motor vehicles, trailers and semi-trailers</Name>
+          </Option>
+          <Option>
+            <Code>C30</Code>
+            <Name>Manufacture of other transport equipment</Name>
+          </Option>
+          <Option>
+            <Code>C31</Code>
+            <Name>Manufacture of furniture</Name>
+          </Option>
+          <Option>
+            <Code>C32</Code>
+            <Name>Other manufacturing</Name>
+          </Option>
+          <Option>
+            <Code>C33</Code>
+            <Name>Repair and installation of machinery and equipment</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>D</Code>
+        <Name>Electricity, gas, steam and air conditioning supply </Name>
+        <Selector>
+          <Option>
+            <Code>D35</Code>
+            <Name>Electricity, gas, steam and air-conditioning supply</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>E</Code>
+        <Name>Water supply; sewerage, waste management and remediation activities </Name>
+        <Selector>
+          <Option>
+            <Code>E36</Code>
+            <Name>Water collection, treatment and supply</Name>
+          </Option>
+          <Option>
+            <Code>E37</Code>
+            <Name>Sewerage</Name>
+          </Option>
+          <Option>
+            <Code>E38</Code>
+            <Name>Waste collection, treatment and disposal activities; materials recovery</Name>
+          </Option>
+          <Option>
+            <Code>E39</Code>
+            <Name>Remediation activities and other waste management services</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>F</Code>
+        <Name>Construction </Name>
+        <Selector>
+          <Option>
+            <Code>F41</Code>
+            <Name>Construction of buildings</Name>
+          </Option>
+          <Option>
+            <Code>F42</Code>
+            <Name>Civil engineering</Name>
+          </Option>
+          <Option>
+            <Code>F43</Code>
+            <Name>Specialised construction activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>G</Code>
+        <Name>Wholesale and retail trade; repair of motor vehicles and motorcycles </Name>
+        <Selector>
+          <Option>
+            <Code>G45</Code>
+            <Name>Wholesale and retail trade and repair of motor vehicles and motorcycles</Name>
+          </Option>
+          <Option>
+            <Code>G46</Code>
+            <Name>Wholesale trade, except of motor vehicles and motorcycles</Name>
+          </Option>
+          <Option>
+            <Code>G47</Code>
+            <Name>Retail trade, except of motor vehicles and motorcycles</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>H</Code>
+        <Name>Transportation and storage </Name>
+        <Selector>
+          <Option>
+            <Code>H49</Code>
+            <Name>Land transport and transport via pipelines</Name>
+          </Option>
+          <Option>
+            <Code>H50</Code>
+            <Name>Water transport</Name>
+          </Option>
+          <Option>
+            <Code>H51</Code>
+            <Name>Air transport</Name>
+          </Option>
+          <Option>
+            <Code>H52</Code>
+            <Name>Warehousing and support activities for transportation</Name>
+          </Option>
+          <Option>
+            <Code>H53</Code>
+            <Name>Postal and courier activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>I</Code>
+        <Name>Accommodation and food service activities </Name>
+        <Selector>
+          <Option>
+            <Code>I55</Code>
+            <Name>Accommodation</Name>
+          </Option>
+          <Option>
+            <Code>I56</Code>
+            <Name>Food and beverage service activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>J</Code>
+        <Name>Information and communication </Name>
+        <Selector>
+          <Option>
+            <Code>J58</Code>
+            <Name>Publishing activities</Name>
+          </Option>
+          <Option>
+            <Code>J59</Code>
+            <Name>Motion picture, video and television programme production, sound recording and music publishing activities</Name>
+          </Option>
+          <Option>
+            <Code>J60</Code>
+            <Name>Programming and broadcasting activities</Name>
+          </Option>
+          <Option>
+            <Code>J61</Code>
+            <Name>Telecommunications</Name>
+          </Option>
+          <Option>
+            <Code>J62</Code>
+            <Name>Computer programming, consultancy and related activities</Name>
+          </Option>
+          <Option>
+            <Code>J63</Code>
+            <Name>Information service activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>K</Code>
+        <Name>Financial and insurance activities </Name>
+        <Selector>
+          <Option>
+            <Code>K64</Code>
+            <Name>Financial service activities, except insurance and pension funding</Name>
+          </Option>
+          <Option>
+            <Code>K65</Code>
+            <Name>Insurance, reinsurance and pension funding, except compulsory social security</Name>
+          </Option>
+          <Option>
+            <Code>K66</Code>
+            <Name>Activities auxiliary to financial services and insurance activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>L</Code>
+        <Name>Real estate activities </Name>
+        <Selector>
+          <Option>
+            <Code>L68</Code>
+            <Name>Real estate activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>M</Code>
+        <Name>Professional, scientific and technical activities </Name>
+        <Selector>
+          <Option>
+            <Code>M69</Code>
+            <Name>Legal and accounting activities</Name>
+          </Option>
+          <Option>
+            <Code>M70</Code>
+            <Name>Activities of head offices; management consultancy activities</Name>
+          </Option>
+          <Option>
+            <Code>M71</Code>
+            <Name>Architectural and engineering activities; technical testing and analysis</Name>
+          </Option>
+          <Option>
+            <Code>M72</Code>
+            <Name>Scientific research and development</Name>
+          </Option>
+          <Option>
+            <Code>M73</Code>
+            <Name>Advertising and market research</Name>
+          </Option>
+          <Option>
+            <Code>M74</Code>
+            <Name>Other professional, scientific and technical activities</Name>
+          </Option>
+          <Option>
+            <Code>M75</Code>
+            <Name>Veterinary activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>N</Code>
+        <Name>Administrative and support service activities </Name>
+        <Selector>
+          <Option>
+            <Code>N77</Code>
+            <Name>Rental and leasing activities</Name>
+          </Option>
+          <Option>
+            <Code>N78</Code>
+            <Name>Employment activities</Name>
+          </Option>
+          <Option>
+            <Code>N79</Code>
+            <Name>Travel agency, tour operator reservation service and related activities</Name>
+          </Option>
+          <Option>
+            <Code>N80</Code>
+            <Name>Security and investigation activities</Name>
+          </Option>
+          <Option>
+            <Code>N81</Code>
+            <Name>Services to buildings and landscape activities</Name>
+          </Option>
+          <Option>
+            <Code>N82</Code>
+            <Name>Office administrative, office support and other business support activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>O</Code>
+        <Name>Public administration and defence; compulsory social security </Name>
+        <Selector>
+          <Option>
+            <Code>O84</Code>
+            <Name>Public administration and defence; compulsory social security</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>P</Code>
+        <Name>Education </Name>
+        <Selector>
+          <Option>
+            <Code>P85</Code>
+            <Name>Education</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>Q</Code>
+        <Name>Human health and social work activities </Name>
+        <Selector>
+          <Option>
+            <Code>Q86</Code>
+            <Name>Human health activities</Name>
+          </Option>
+          <Option>
+            <Code>Q87</Code>
+            <Name>Residential care activities</Name>
+          </Option>
+          <Option>
+            <Code>Q88</Code>
+            <Name>Social work activities without accommodation</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>R</Code>
+        <Name>Arts, entertainment and recreation </Name>
+        <Selector>
+          <Option>
+            <Code>R90</Code>
+            <Name>Creative, arts and entertainment activities</Name>
+          </Option>
+          <Option>
+            <Code>R91</Code>
+            <Name>Libraries, archives, museums and other cultural activities</Name>
+          </Option>
+          <Option>
+            <Code>R92</Code>
+            <Name>Gambling and betting activities</Name>
+          </Option>
+          <Option>
+            <Code>R93</Code>
+            <Name>Sports activities and amusement and recreation activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>S</Code>
+        <Name>Other service activities </Name>
+        <Selector>
+          <Option>
+            <Code>S94</Code>
+            <Name>Activities of membership organisations</Name>
+          </Option>
+          <Option>
+            <Code>S95</Code>
+            <Name>Repair of computers and personal and household goods</Name>
+          </Option>
+          <Option>
+            <Code>S96</Code>
+            <Name>Other personal service activities</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>T</Code>
+        <Name>Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use</Name>
+        <Selector>
+          <Option>
+            <Code>T97</Code>
+            <Name>Activities of households as employers of domestic personnel</Name>
+          </Option>
+          <Option>
+            <Code>T98</Code>
+            <Name>Undifferentiated goods- and services-producing activities of private households for own use</Name>
+          </Option>
+        </Selector>
+      </Group>
+      <Group>
+        <Code>U</Code>
+        <Name>Activities of extraterritorial organisations and bodies </Name>
+        <Selector>
+          <Option>
+            <Code>U99</Code>
+            <Name>Activities of extraterritorial organisations and bodies</Name>
+          </Option>
+        </Selector>
+      </Group>
+    </Selector>
+  </Description>
+</GlobalInformation>
