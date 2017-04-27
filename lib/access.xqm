@@ -103,7 +103,10 @@ declare function access:check-user-can( $action as xs:string, $type as xs:string
   let $security-model := fn:doc(oppidum:path-to-config('application.xml'))//Security/Resources/Resource[@Name = $type]
   let $rules := $security-model/Action[@Type eq $action]
   return
-    access:assert-access-rules($rules, $resource)
+    if ($rules) then
+      access:assert-access-rules($rules, $resource)
+    else
+      false()
 };
 
 (: ======================================================================
@@ -196,7 +199,7 @@ declare function access:assert-access-rules(
 declare function access:assert-rule( 
   $user as xs:string, 
   $groups as xs:string*, 
-  $rule as element()?, 
+  $rule as element(), 
   $resource as element()? 
   ) as xs:boolean 
 {

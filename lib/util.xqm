@@ -504,63 +504,9 @@ declare function misc:increment-variable( $name as xs:string, $host as element()
 };
 
 (: ======================================================================
-   Creates the $path hierarchy of collections directly below the $base-uri collection.
-   The $path is a relative path not starting with '/'
-   The $base-uri collection MUST be available.
-   Returns the database URI to the terminal collection whatever the outcome.
-   ======================================================================
-:)
-declare function misc:create-collection-lazy ( $base-uri as xs:string, $path as xs:string, $user as xs:string, $group as xs:string, $perms as xs:string ) as xs:string*
-{
-  let $set := tokenize($path, '/')
-  return (
-    for $t at $i in $set
-    let $parent := concat($base-uri, '/', string-join($set[position() < $i], '/'))
-    let $path := concat($base-uri, '/', string-join($set[position() < $i + 1], '/'))
-    return
-     if (xdb:collection-available($path)) then
-       ()
-     else
-       if (xdb:collection-available($parent)) then
-         if (xdb:create-collection($parent, $t)) then
-           compat:set-owner-group-permissions($path, $user, $group, $perms)
-         else
-           ()
-       else
-         (),
-    concat($base-uri, '/', $path)
-    )[last()]
-};
-
-(: ======================================================================
-   TODO: throw error
-   ======================================================================
-:)
-declare function misc:create-entity( $base-url as xs:string, $name as xs:string, $entity as element() ) as empty() {
-  let $spec := fn:doc(concat('/db/www/', globals:app-collection(), '/config/database.xml'))//Entity[@Name = $name]
-  let $policy := fn:doc(concat('/db/www/', globals:app-collection(), '/config/database.xml'))//Policy[@Name = $spec/@Policy]
-  let $col-uri := misc:create-collection-lazy($base-url, $spec/@Collection, $policy/@Owner, $policy/@Group, $policy/@Perms)
-  return
-    if ($col-uri) then
-      let $res-uri := concat($col-uri, '/', $spec/@Resource)
-      return
-        if (fn:doc-available($res-uri)) then (: append to resource file :)
-           update insert $entity into fn:doc($res-uri)/*[1]
-        else (: first time creation :)
-        let $data := element { string($spec/@Root) } { $entity }
-        let $stored-path := xdb:store($col-uri, string($spec/@Resource), $data)
-        return
-          if(not($stored-path eq ())) then
-            compat:set-owner-group-permissions($stored-path, $policy/@Owner, $policy/@Group, $policy/@Perms)
-          else
-            ()
-    else
-      ()
-};
-
-(: ======================================================================
    Resolve $proxy_name cache with $insert as parent node using remote
    subdocument declared into $proxy_name/Destination
+   DEPRECATED: should be removed
    ======================================================================
 :)
 declare function misc:create-proxy( $host as element(), $proxy_name as xs:string) as element()* {
@@ -580,6 +526,7 @@ declare function misc:create-proxy( $host as element(), $proxy_name as xs:string
 
 (: ======================================================================
    Load data from a cache located in $host
+   DEPRECATED: should be removed
    ======================================================================
 :)
 declare function misc:read-proxy-cache($host as element(), $proxy_name as xs:string) as element()* {
@@ -588,6 +535,7 @@ declare function misc:read-proxy-cache($host as element(), $proxy_name as xs:str
 
 (: ======================================================================
    Load data directly from the document located in $doc
+   DEPRECATED: should be removed
    ======================================================================
 :)
 declare function misc:read-proxy-doc($doc as element(), $proxy_name as xs:string) as element()* {
@@ -606,6 +554,7 @@ declare function misc:read-proxy-doc($doc as element(), $proxy_name as xs:string
 (: =======================================================================
    Save $data in remote document with node $parent
    AXIOM : $data parent node explicitly defines the proxy used
+   DEPRECATED: should be removed
    =======================================================================
 :)
 declare function misc:save-proxy($host as element(), $data as element()?) {
@@ -636,6 +585,7 @@ declare function misc:save-proxy($host as element(), $data as element()?) {
 
 (: =======================================================================
    Update cached proxy data in $host
+   DEPRECATED: should be removed
    =======================================================================
 :)
 declare function misc:record-proxy($host as element(), $data as element()?) {
@@ -658,19 +608,3 @@ declare function misc:rest-to-Root( $name as xs:string ) as xs:string {
     )
 };
 
-(: =======================================================================
-   Implements XAL (XML Aggregation Language) update protocol
-   FIXME: currently only XALAction with 'replace' @Type
-   =======================================================================
-:)
-declare function misc:apply-updates( $parent as element(), $spec as element() ) {
-  for $fragment in $spec/XALAction[@Type eq 'replace']
-  return
-    for $cur in $fragment/*
-    let $legacy := $parent/*[local-name(.) eq local-name($cur)]
-    return
-      if (exists($legacy)) then
-        update replace $legacy with $cur
-      else
-        update insert $cur into $parent
-};

@@ -249,8 +249,8 @@ declare function media:send-email(
                  <message><text>{ if ($content) then $content else 'no content' }</text></message>
                </mail>
   let $plug := media:is-plugged($category)
-  let $debug := fn:doc('settings-uri')/Settings/Media/Debug/Category/text()
-  let $server := fn:doc('settings-uri')/Settings/SMTPServer/text()
+  let $debug := globals:doc('settings-uri')/Settings/Media/Debug/Category/text()
+  let $server := globals:doc('settings-uri')/Settings/SMTPServer/text()
   return (
     let $sent :=
       if ($plug) then

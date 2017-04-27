@@ -27,10 +27,10 @@ declare function user:get-current-person-id () as xs:string? {
 declare function user:get-current-person-id ( $user as xs:string ) as xs:string? {
   let $realm := oppidum:get-current-user-realm()
   return
-    if (empty($realm)) then
-      globals:doc('persons-uri')/Persons/Person[UserProfile/Username eq $user]/Id/text()
+    if (empty($realm) or ($realm eq 'EXIST')) then
+      globals:collection('persons-uri')//Person[UserProfile/Username eq $user]/Id/text()
     else
-      globals:doc('persons-uri')/Persons/Person[UserProfile/Remote[@Name eq $realm] eq $user]/Id/text()
+      globals:collection('persons-uri')//Person[UserProfile/Remote[@Name eq $realm] eq $user]/Id/text()
 };
 
 (:~
@@ -41,10 +41,10 @@ declare function user:get-user-profile() as element()? {
   let $realm := oppidum:get-current-user-realm()
   let $user := oppidum:get-current-user()
   return
-    if (empty($realm)) then
-      globals:doc('persons-uri')/Persons/Person/UserProfile[Username eq $user]
+    if (empty($realm) or ($realm eq 'EXIST')) then
+      globals:collection('persons-uri')//Person/UserProfile[Username eq $user]
     else
-      globals:doc('persons-uri')/Persons/Person/UserProfile[Remote[@Name eq $realm] eq $user]
+      globals:collection('persons-uri')//Person/UserProfile[Remote[@Name eq $realm] eq $user]
 };
 
 (:~

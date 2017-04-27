@@ -17,7 +17,6 @@ xquery version "1.0";
 module namespace ajax = "http://oppidoc.com/ns/xcm/ajax";
 
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
-import module namespace misc = "http://oppidoc.com/ns/xcm/misc" at "util.xqm";
 
 (: ======================================================================
    Ajax error reporting function for AXEL 'file' plugin module
