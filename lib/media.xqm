@@ -28,7 +28,7 @@ import module namespace user = "http://oppidoc.com/ns/xcm/user" at "user.xqm";
 :)
 declare function media:gen-current-user-email( $explain as xs:boolean ) as xs:string? {
   let $uid := user:get-current-person-id()
-  let $user := globals:doc('persons-uri')/Persons/Person[Id = $uid]
+  let $user := globals:collection('persons-uri')//Person[Id = $uid]
   let $res := $user/Contacts/Email/text()
   return
     if ($res) then (: TODO: check syntax ? :)

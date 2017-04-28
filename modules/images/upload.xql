@@ -1,6 +1,6 @@
 xquery version "1.0";
 (: ------------------------------------------------------------------
-   Oppidum module: image
+   XQuery Content Management Library
 
    Author: Stéphane Sire <s.sire@opppidoc.fr>
 

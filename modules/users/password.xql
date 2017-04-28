@@ -40,7 +40,7 @@ declare function local:validate-password-submission( $password as xs:string ) as
    ======================================================================
 :)
 declare function local:validate-user( $login as xs:string, $mail as xs:string ) as element() {
-  let $user := globals:doc('persons-uri')/Persons/Person[UserProfile/Username = normalize-space($login)]
+  let $user := globals:collection('persons-uri')//Person[UserProfile/Username = normalize-space($login)]
   return
     if (($login ne '') and ($mail ne '')) then
       if ($user) then
@@ -140,7 +140,7 @@ return
       else
         ajax:throw-error('URI-NOT-SUPPORTED', ())
     else if ($cmd/resource/@name = 'me') then (: tunnel to change password :)
-      let $user := globals:doc('persons-uri')/Persons/Person[UserProfile/Username = xdb:get-current-user()]
+      let $user := globals:collection('persons-uri')//Person[UserProfile/Username = xdb:get-current-user()]
       return
         if ($user) then
           if ($m eq 'GET') then

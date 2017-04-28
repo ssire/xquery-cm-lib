@@ -17,6 +17,7 @@ import module namespace access = "http://oppidoc.com/ns/xcm/access" at "../../li
 import module namespace user = "http://oppidoc.com/ns/xcm/user" at "../../lib/user.xqm";
 import module namespace ajax = "http://oppidoc.com/ns/xcm/ajax" at "../../lib/ajax.xqm";
 import module namespace misc = "http://oppidoc.com/ns/xcm/misc" at "../../lib/util.xqm";
+import module namespace database = "http://oppidoc.com/ns/xcm/database" at "../../lib/database.xqm";
 import module namespace enterprise = "http://oppidoc.com/ns/xcm/enterprise" at "../enterprises/enterprise.xqm";
 
 import module namespace search = "http://oppidoc.com/ns/xcm/search" at "search.xqm";
@@ -46,10 +47,10 @@ declare function local:validate-person-submission( $data as element(), $curNo as
   (:  
   let $key1 := local:normalize($data/Name/LastName/text())
   let $key2 := local:normalize($data/Name/SortString/text())
-  let $ckey1 := globals:doc('persons-uri')/Persons/Person[local:normalize(Name/LastName) = $key1]
-  let $ckey2 := globals:doc('persons-uri')/Persons/Person[local:normalize(Name/SortString) = $key2]
+  let $ckey1 := globals:collection('persons-uri')//Person[local:normalize(Name/LastName) = $key1]
+  let $ckey2 := globals:collection('persons-uri')//Person[local:normalize(Name/SortString) = $key2]
   return (
-      if ($curNo and empty(globals:doc('persons-uri')/Persons/Person[Id = $curNo])) then
+      if ($curNo and empty(globals:collection('persons-uri')//Person[Id = $curNo])) then
         ajax:throw-error('UNKNOWN-PERSON', $curNo)
       else (),
       if ($ckey1) then 
@@ -137,16 +138,11 @@ declare function local:gen-person-for-writing( $current as element()?, $new as e
 :)
 declare function local:create-person( $cmd as element(), $data as element(), $lang as xs:string ) as element() {
   let $next := request:get-parameter('next', ())
-  let $newkey := 
-    if (exists(globals:doc('persons-uri')/Persons/Person/Id)) then
-      max(for $key in globals:doc('persons-uri')/Persons/Person/Id
-      return if ($key castable as xs:integer) then number($key) else 0) + 1
-    else
-      1
+  let $newkey := database:make-new-key-for($cmd/@db, 'person')
   let $person := local:gen-person-for-writing((), $data, $newkey)
   return
     (
-    misc:create-entity($cmd/@db, 'person', $person),
+    database:create-entity($cmd/@db, 'person', $person),
     if ($next eq 'redirect') then
       ajax:report-success-redirect('ACTION-CREATE-SUCCESS', (), concat($cmd/@base-url, $cmd/@trail, '?preview=', $newkey))
     else (: short ajax protocol with 'augment' or 'autofill' plugin (no table row update) :)
@@ -260,7 +256,7 @@ return
           return
             if (empty($errors)) then
               if ($creating) then
-                util:exclusive-lock(globals:doc('persons-uri')/Persons, local:create-person($cmd, $data, $lang))
+                util:exclusive-lock(fn:doc(oppidum:path-to-ref())/Persons, local:create-person($cmd, $data, $lang))
               else
                 local:update-person($person, $data, $lang)
             else

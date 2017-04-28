@@ -108,7 +108,7 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
         if ($omni) then attribute { 'Update' } { 'y' } else (),
         if (empty($country)) then
           (: classical search :)
-          for $p in globals:doc('persons-uri')/Persons/Person[empty($person) or Id/text() = $person]
+          for $p in globals:collection('persons-uri')//Person[empty($person) or Id/text() = $person]
           let $id := $p/Id/text()
           where (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
             and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
@@ -130,18 +130,18 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
             globals:doc('persons-uri')//Person[.//Role[FunctionRef = ('3', '5')][RegionalEntityRef = $region-refs]]/Id[not(. = $with-country-refs) and not(. = $by-coaching-refs)][empty($person) or Id/text() = $person]
             )
           return (
-            for $p in globals:doc('persons-uri')/Persons/Person[Id = $with-country-refs]
+            for $p in globals:collection('persons-uri')//Person[Id = $with-country-refs]
             where (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return
               search:gen-person-sample($p, (), $region-role-ref, 'en', not($omni) and $uid eq $p/Id/text()),
-            for $p in globals:doc('persons-uri')/Persons/Person[Id = ($by-coaching-refs)]
+            for $p in globals:collection('persons-uri')//Person[Id = ($by-coaching-refs)]
             where (empty($person) or $p/Id = $person)
               and (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return
               search:gen-person-sample($p, 'C', $region-role-ref, 'en', not($omni) and $uid eq $p/Id/text()),
-            for $p in globals:doc('persons-uri')/Persons/Person[Id = ($by-region-refs)]
+            for $p in globals:collection('persons-uri')//Person[Id = ($by-region-refs)]
             where (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return

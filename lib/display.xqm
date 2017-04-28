@@ -97,7 +97,7 @@ declare function display:gen-name-for ( $name as xs:string, $refs as element()*,
 :)
 declare function display:gen-person-name( $ref as xs:string?, $lang as xs:string ) {
   if ($ref) then
-    let $p := globals:doc('persons-uri')/Persons/Person[Id = $ref]
+    let $p := globals:collection('persons-uri')//Person[Id = $ref]
     return
       if ($p) then
         concat($p/Name/FirstName, ' ', $p/Name/LastName)
@@ -117,7 +117,7 @@ declare function display:gen-person-name( $ref as xs:string?, $lang as xs:string
 :)
 declare function display:gen-name-person( $ref as xs:string?, $lang as xs:string ) {
   if ($ref) then
-    let $p := globals:doc('persons-uri')/Persons/Person[Id = $ref]
+    let $p := globals:collection('persons-uri')//Person[Id = $ref]
     return
       if ($p) then
         concat($p/Name/LastName, ' ', $p/Name/FirstName)
@@ -138,7 +138,7 @@ declare function display:gen-name-person( $ref as xs:string?, $lang as xs:string
 :)
 declare function display:gen-person-email( $ref as xs:string?, $lang as xs:string ) {
   if ($ref) then
-    let $p := globals:doc('persons-uri')/Persons/Person[Id = $ref]
+    let $p := globals:collection('persons-uri')//Person[Id = $ref]
     return
       if ($p) then
         $p/Contacts/Email/text()

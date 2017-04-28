@@ -260,14 +260,13 @@
   <!-- Called from Cell when no @Render or @Level
        used by default for instance for plain forms by opposition to document forms  -->
   <xsl:template match="Title">
-    <p class="a-cell-legend"><xsl:copy-of select="@loc"/><xsl:value-of select="./text()"/><xsl:apply-templates select="Menu | Hint"/></p>
+    <p class="a-cell-legend"><xsl:copy-of select="@loc|@style"/><xsl:value-of select="./text()"/><xsl:apply-templates select="Menu | Hint"/></p>
   </xsl:template>
 
   <!-- Called from Form (main Title) or Cell -->
   <xsl:template match="Title[@Render]">
     <xsl:element name="{@Render}">
-      <xsl:copy-of select="@loc"/>
-      <xsl:apply-templates select="@style"/>
+      <xsl:copy-of select="@loc|@style"/>
       <xsl:apply-templates select="@Offset"/>
       <xsl:apply-templates select="*|text()"/>
     </xsl:element>
@@ -277,9 +276,8 @@
   <xsl:template match="Title[@Level]">
     <xsl:variable name="level"><xsl:value-of select="/Form/@StartLevel + @Level - 1"/></xsl:variable>
     <xsl:element name="h{$level}">
-      <xsl:copy-of select="@loc"/>
+      <xsl:copy-of select="@loc|@style"/>
       <xsl:apply-templates select="@Offset"/>
-      <xsl:apply-templates select="@style"/>
       <xsl:apply-templates select="* | text()"/>
     </xsl:element>
   </xsl:template>

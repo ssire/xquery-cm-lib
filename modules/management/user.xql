@@ -24,7 +24,7 @@ declare option exist:serialize "method=xml media-type=text/xml";
 declare function local:gen-users-for-viewing() as element()* {
   <Persons>
   {
-  for $p in globals:doc('persons-uri')/Persons/Person
+  for $p in globals:collection('persons-uri')//Person
   let $login := $p//Username
   order by lower-case($p/Name/LastName), $p/Name/FirstName
   return

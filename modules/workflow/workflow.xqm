@@ -38,19 +38,19 @@ declare function workflow:get-persons-for-role ( $role as xs:string, $case as el
   let $suffix := substring-after($role, ':')
   return
     if ($prefix eq 'u') then (: targets specific user :)
-      globals:doc('persons-uri')/Persons/Person[UserProfile/Username = $suffix]/Id/text()  (: FIXME: which realm has to be used in that case :)
+      globals:collection('persons-uri')//Person[UserProfile/Username = $suffix]/Id/text()  (: FIXME: which realm has to be used in that case :)
     else if ($prefix eq 'g') then (: targets users belonging to a generic group :)
       let $group-ref := globals:get-normative-selector-for('Functions')/Option[@Role eq $suffix]/Id/text()
                         (: TODO: factorize as form:gen-function-ref( $suffix ) ?  :)
       return
-        globals:doc('persons-uri')/Persons/Person[UserProfile/Roles/Role/FunctionRef eq $group-ref]/Id/text()
+        globals:collection('persons-uri')//Person[UserProfile/Roles/Role/FunctionRef eq $group-ref]/Id/text()
     else  if ($prefix eq 'r') then
       let $func-ref := globals:get-normative-selector-for('Functions')/Option[@Role eq $suffix]/Id/text()
       return
         if ($suffix eq 'region-manager') then
           let $region-entity := $case/Information/ManagingEntity/RegionalEntityRef/text()
           return
-            for $role in globals:doc('persons-uri')//Role[(FunctionRef eq $func-ref) and (RegionalEntityRef eq $region-entity)]
+            for $role in globals:collection('persons-uri')//Role[(FunctionRef eq $func-ref) and (RegionalEntityRef eq $region-entity)]
             return $role/ancestor::Person/Id/text()
         else if ($suffix eq 'kam') then
           $case/Management/AccountManagerRef/text()
@@ -59,7 +59,7 @@ declare function workflow:get-persons-for-role ( $role as xs:string, $case as el
         else if ($suffix eq 'service-head') then
           let $service := $activity/Assignment/ServiceRef/text()
           return
-            globals:doc('persons-uri')/Persons/Person[UserProfile/Roles/Role[(FunctionRef eq $func-ref) and (ServiceRef eq $service)]]/Id/text()
+            globals:collection('persons-uri')//Person[UserProfile/Roles/Role[(FunctionRef eq $func-ref) and (ServiceRef eq $service)]]/Id/text()
         else if ($suffix eq 'project-officer') then
           $case/Information/ProjectOfficerRef/text()
         else

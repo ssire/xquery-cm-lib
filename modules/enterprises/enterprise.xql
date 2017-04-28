@@ -14,6 +14,7 @@ import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../../
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../../oppidum/lib/util.xqm";
 import module namespace display = "http://oppidoc.com/ns/xcm/display" at "../../lib/display.xqm";
 import module namespace misc = "http://oppidoc.com/ns/xcm/misc" at "../../lib/util.xqm";
+import module namespace database = "http://oppidoc.com/ns/xcm/database" at "../../lib/database.xqm";
 import module namespace access = "http://oppidoc.com/ns/xcm/access" at "../../lib/access.xqm";
 import module namespace ajax = "http://oppidoc.com/ns/xcm/ajax" at "../../lib/ajax.xqm";
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "../../lib/cache.xqm";
@@ -31,13 +32,8 @@ declare function local:create-enterprise( $cmd as element(), $data as element(),
   let $next := request:get-parameter('next', ())
   return
     if (empty($errors)) then
-      let $newkey := 
-        if (exists(globals:doc('enterprises-uri')/Enterprises/Enterprise/Id)) then
-          max(for $key in globals:doc('enterprises-uri')/Enterprises/Enterprise/Id
-              return if ($key castable as xs:integer) then number($key) else 0) + 1
-        else
-          1
-      let $result := 
+      let $newkey := database:make-new-key-for($cmd/@db, 'enterprise')
+      let $response := 
         <Response Status="success">
           <Payload>
             <Name>{$data/Name/text()}</Name>
@@ -45,16 +41,20 @@ declare function local:create-enterprise( $cmd as element(), $data as element(),
           </Payload>
         </Response>
       let $enterprise := enterprise:gen-enterprise-for-writing((), $data, $newkey)
-      return (
-        misc:create-entity($cmd/@db, 'enterprise', $enterprise),
-        cache:invalidate('enterprise', $lang),
-        cache:invalidate('town', $lang),
-        (: FIXME: invalidate 'beneficiary' in case of creation from a Case ? :)
-        if ($next = 'redirect') then
-          ajax:report-success-redirect('ACTION-CREATE-SUCCESS', (), concat($cmd/@base-url, $cmd/@trail, '?preview=', $newkey))
-        else
-          ajax:report-success('ACTION-CREATE-SUCCESS', (), $result)
-        )
+      return 
+        let $result := database:create-entity($cmd/@db, 'enterprise', $enterprise)
+        return
+          if (local-name($result) ne 'error') then (
+            cache:invalidate('enterprise', $lang),
+            cache:invalidate('town', $lang),
+            (: FIXME: invalidate 'beneficiary' in case of creation from a Case ? :)
+            if ($next = 'redirect') then
+              ajax:report-success-redirect('ACTION-CREATE-SUCCESS', (), concat($cmd/@base-url, $cmd/@trail, '?preview=', $newkey))
+            else
+              ajax:report-success('ACTION-CREATE-SUCCESS', (), $response)
+          )
+      else
+        $result
     else
       ajax:report-validation-errors($errors)
 };

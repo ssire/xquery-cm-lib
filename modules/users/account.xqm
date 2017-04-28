@@ -47,7 +47,7 @@ declare function account:set-user-groups( $login as xs:string, $groups as xs:str
    ======================================================================
 :)
 declare function local:gen-user-name( $prefix as xs:string, $ref as xs:string? ) as element()* {
-  let $person := globals:doc('persons-uri')/Persons/Person[Id = $ref]
+  let $person := globals:collection('persons-uri')//Person[Id = $ref]
   return
     if ($person) then (
       <var name="{$prefix}_First_Name">{ $person/Name/FirstName/text() }</var>,

@@ -25,7 +25,7 @@ declare namespace xt = "http://ns.inria.org/xtiger";
 :)
 declare function person:gen-person-selector ( $lang as xs:string, $params as xs:string ) as element() {
   let $pairs :=
-      for $p in globals:doc('persons-uri')/Persons/Person
+      for $p in globals:collection('persons-uri')//Person
       let $fn := $p/Name/FirstName
       let $ln := $p/Name/LastName
       where ($p/Name/LastName/text() ne '')
@@ -46,7 +46,7 @@ declare function person:gen-person-selector ( $lang as xs:string, $params as xs:
 declare function person:gen-person-with-role-selector ( $roles as xs:string+, $lang as xs:string, $params as xs:string, $class as xs:string? ) as element() {
   let $roles-ref := user:get-function-ref-for-role($roles)
   let $pairs :=
-      for $p in globals:doc('persons-uri')/Persons/Person[UserProfile//Role[FunctionRef = $roles-ref]]
+      for $p in globals:collection('persons-uri')//Person[UserProfile//Role[FunctionRef = $roles-ref]]
       let $fn := $p/Name/FirstName
       let $ln := $p/Name/LastName
       where ($p/Name/LastName/text() ne '')
@@ -70,7 +70,7 @@ declare function person:gen-person-with-role-selector ( $roles as xs:string+, $l
 :)
 declare function person:gen-person-enterprise-selector ( $lang as xs:string, $params as xs:string ) as element() {
   let $pairs :=
-      for $p in globals:doc('persons-uri')/Persons/Person
+      for $p in globals:collection('persons-uri')//Person
       let $fn := $p/Name/FirstName
       let $ln := $p/Name/LastName
       let $pe := $p/EnterpriseRef/text()

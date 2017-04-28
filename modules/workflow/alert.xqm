@@ -34,7 +34,7 @@ declare function alert:gen-user-name-for( $prefix as xs:string, $refs as xs:stri
     <var name="{$prefix}_Last_Name">(WARNING) {upper-case($prefix)} NOT ASSIGNED YET</var>
   else
     for $ref in $refs
-    let $person := globals:doc('persons-uri')/Persons/Person[Id = $ref]
+    let $person := globals:collection('persons-uri')//Person[Id = $ref]
     return
       if ($person) then (
         <var name="{$prefix}_First_Name">{ $person/Name/FirstName/text() }</var>,
@@ -50,7 +50,7 @@ declare function alert:gen-user-name-for( $prefix as xs:string, $refs as xs:stri
 :)
 declare function alert:gen-current-user-name() as element()* {
   let $uid := user:get-current-person-id()
-  let $user := globals:doc('persons-uri')/Persons/Person[Id = $uid]
+  let $user := globals:collection('persons-uri')//Person[Id = $uid]
   return (
     <var name="User_First_Name">{ $user/Name/FirstName/text() }</var>,
     <var name="User_Last_Name">{ $user/Name/LastName/text() }</var>
@@ -76,7 +76,7 @@ declare function alert:gen-action-status-names( $from as xs:string?, $to as xs:s
 :)
 declare function alert:check-user-has-login( $ref as element()? ) as xs:string {
   if ($ref) then 
-    let $login := normalize-space(globals:doc('persons-uri')/Persons/Person[Id = $ref/text()]/UserProfile/Username) (: FIXME: become inconsistent since using ECAS we cannot assert it (?) :)
+    let $login := normalize-space(globals:collection('persons-uri')//Person[Id = $ref/text()]/UserProfile/Username) (: FIXME: become inconsistent since using ECAS we cannot assert it (?) :)
     return 
       if ($login and xdb:exists-user($login)) then '' else '-nologin'
   else
@@ -104,7 +104,7 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
       if (check:is-email($ref)) then
         $ref
       else 
-        let $p := globals:doc('persons-uri')/Persons/Person[Id eq $ref]
+        let $p := globals:collection('persons-uri')//Person[Id eq $ref]
         return
           if (check:is-email($p/Contacts/Email)) then
             $p/Contacts/Email/text()
@@ -112,7 +112,7 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
             ()
   return
     for $ref in $to[. != '-1']
-    let $p := globals:doc('persons-uri')/Persons/Person[Id = $ref]
+    let $p := globals:collection('persons-uri')//Person[Id = $ref]
     let $email := if (check:is-email($ref)) then $ref else $p/Contacts/Email/text()
     return
       if ($email) then

@@ -5,6 +5,7 @@ module namespace crud = "http://oppidoc.com/ns/xcm/crud";
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
 import module namespace misc = "http://oppidoc.com/ns/xcm/misc" at "util.xqm";
+import module namespace xal = "http://oppidoc.com/ns/xcm/xal" at "xal.xqm";
 import module namespace user = "http://oppidoc.com/ns/xcm/user" at "user.xqm";
 import module namespace custom = "http://oppidoc.com/ns/xcm/custom" at "../app/custom.xqm";
 
@@ -48,7 +49,7 @@ declare function crud:save-document(
     if ($src) then
       let $delta := misc:prune(util:eval(string-join($src/text(), '')))
       return (
-        misc:apply-updates(if ($activity) then $activity else $case, $delta),
+        xal:apply-updates(if ($activity) then $activity else $case, $delta),
         oppidum:throw-message('ACTION-UPDATE-SUCCESS', ())
         )
     else
@@ -69,7 +70,7 @@ declare function crud:save-vanilla(
     if ($src) then
       let $delta := misc:prune(util:eval(string-join($src/text(), '')))
       return (
-        misc:apply-updates(if ($activity) then $activity else $case, $delta),
+        xal:apply-updates(if ($activity) then $activity else $case, $delta),
         oppidum:throw-message('ACTION-UPDATE-SUCCESS', ())
         )
     else

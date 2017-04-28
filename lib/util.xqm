@@ -119,7 +119,7 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
         return $node
 };
 
-declare function local:unref_display_attribute( $ref as element(), $lang as xs:string ) as attribute() {
+declare function local:unref_display_attribute( $ref as element(), $lang as xs:string ) as attribute()? {
   let $label := util:eval(concat($ref/@_Unref, '($ref, $lang)'))
   return
     if ($label) then
@@ -370,7 +370,7 @@ declare function misc:same-filter( $src as item()*, $dest as item()*, $blacklist
 :)
 declare function misc:gen-person-email( $ref as xs:string? ) as xs:string? {
   if ($ref) then
-    globals:doc('persons-uri')/Persons/Person[Id = $ref]/Contacts/Email/text()
+    globals:collection('persons-uri')//Person[Id = $ref]/Contacts/Email/text()
   else
     ''
 };

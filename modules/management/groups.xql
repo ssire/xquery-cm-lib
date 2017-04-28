@@ -30,7 +30,7 @@ declare option exist:serialize "method=xml media-type=text/xml";
    ======================================================================
 :)
 declare function local:find-users-that-need-repair() {
-  for $p in globals:doc('persons-uri')/Persons/Person
+  for $p in globals:collection('persons-uri')//Person
   let $login := $p//Username/text()
   where $login
   order by lower-case($login)
@@ -52,7 +52,7 @@ declare function local:find-users-that-need-repair() {
    ======================================================================
 :)
 declare function local:repair-users() {
-  for $p in globals:doc('persons-uri')/Persons/Person
+  for $p in globals:collection('persons-uri')//Person
   let $login := $p//Username/text()
   where $login
   order by lower-case($login)
