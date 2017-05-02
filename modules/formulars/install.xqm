@@ -13,8 +13,8 @@ import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../../
    Precondition: - login as "admin" (DBA role)
    ======================================================================
 :)
-declare function sg:gen-and-save-form( $name as xs:string, $base-url as xs:string ) {
-  let $fs-xcm-home := concat(system:get-exist-home(), '/webapp/', globals:app-folder(), '/', $globals:xcm-name)
+declare function sg:gen-and-save-form( $name as xs:string, $base-url as xs:string, $sg-folder as xs:string ) {
+  let $fs-xcm-home := concat(system:get-exist-home(), '/webapp/', globals:app-folder(), '/', $sg-folder)
   let $fs-app-home := concat(system:get-exist-home(), '/webapp/', globals:app-folder(), '/', globals:app-name())
   let $col-uri := concat('/db/www/', globals:app-collection(), '/mesh')
   let $filename := concat($name, '.xhtml')
@@ -53,7 +53,7 @@ declare function sg:gen-and-save-form( $name as xs:string, $base-url as xs:strin
    into the '/db/www/{global:app-collection()}/mesh' collection
    ======================================================================
 :)
-declare function sg:gen-and-save-forms( $names as xs:string, $base-url as xs:string ) {
+declare function sg:gen-and-save-forms( $names as xs:string, $base-url as xs:string, $sg-folder as xs:string ) {
   let $targets := tokenize($names, '\+')
   return
     if (empty($targets)) then
@@ -61,5 +61,5 @@ declare function sg:gen-and-save-forms( $names as xs:string, $base-url as xs:str
     else
       for $t in $targets
       return
-        sg:gen-and-save-form($t, $base-url)
+        sg:gen-and-save-form($t, $base-url, $sg-folder)
 };
