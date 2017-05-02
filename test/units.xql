@@ -38,6 +38,8 @@ declare variable $local:tests :=
     <Module>
       <Name>Misc</Name>
       <Test Format="xml">misc:gen-current-date('Date')</Test>
+      <Test>misc:get-extension('hello')</Test>
+      <Test>misc:get-extension('foobar.jpg')</Test>
       <Test Format="xml"><![CDATA[misc:unreference(<Countries><Country>UK</Country><Country>DE</Country></Countries>)]]></Test>
     </Module>
     <Module>

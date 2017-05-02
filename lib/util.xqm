@@ -384,7 +384,7 @@ declare function misc:gen-person-email( $ref as xs:string? ) as xs:string? {
 declare function misc:get-extension( $filename as xs:string ) as xs:string
 {
   let $fn := normalize-space($filename)
-  let $unparsed-extension := lower-case((text:groups($fn, '\.(\w+)$'))[2])
+  let $unparsed-extension := if (contains($fn, '.')) then lower-case((tokenize($fn, '\.'))[last()]) else ''
   return
     replace($unparsed-extension, 'jpg', 'jpeg')
     (: special jpg handling for xdb:store to get correct mime-type :)
