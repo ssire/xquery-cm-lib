@@ -15,8 +15,6 @@
                 xmlns:site="http://oppidoc.com/oppidum/site"
                 xmlns="http://www.w3.org/1999/xhtml">
 
-  <xsl:output encoding="UTF-8" indent="yes" method="xml" />
-
   <xsl:template match="SearchMask">
     <xsl:apply-templates select="Title"/>
     <table class="table table-bordered">
