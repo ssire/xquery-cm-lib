@@ -22,7 +22,7 @@ declare namespace request = "http://exist-db.org/xquery/request";
 
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../../oppidum/lib/util.xqm";
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../../lib/globals.xqm";
-import module namespace services = "http://oppidoc.com/ns/xcm/service" at "../../lib/services.xqm";
+import module namespace services = "http://oppidoc.com/ns/xcm/services" at "../../lib/services.xqm";
 import module namespace cas = "http://oppidoc.com/ns/cas" at "../../cas.xqm";
 
 declare option exist:serialize "method=xml media-type=text/xml";

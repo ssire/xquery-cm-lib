@@ -9,7 +9,7 @@ xquery version "1.0";
    July 2015 - (c) Copyright 2015 Oppidoc SARL. All Rights Reserved.
    ------------------------------------------------------------------ :)
 
-module namespace services = "http://oppidoc.com/ns/xcm/service";
+module namespace services = "http://oppidoc.com/ns/xcm/services";
 
 declare namespace request = "http://exist-db.org/xquery/request";
 
