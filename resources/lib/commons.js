@@ -448,7 +448,7 @@
 
     // Forwards $.ajax errors to application global error handler
     _jqForwardError : function ( xhr, status, e )  {
-      $('#' + this.spec.attr('data-busy')).show();
+      $('#' + this.spec.attr('data-busy')).hide();
       $('body').trigger('axel-network-error', { xhr : xhr, status : status, e : e });
     },
     
