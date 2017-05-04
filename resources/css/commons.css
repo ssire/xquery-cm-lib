@@ -1,0 +1,14 @@
+/* XQuery Content Management widgets CSS */
+
+.xcm-singular, .xcm-plural {
+  display: none;
+}
+
+.xcm-search-summary {
+  clear:both;
+  display: none;
+}
+
+.xcm-search-results {
+  display: none;
+}
