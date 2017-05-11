@@ -113,6 +113,7 @@ declare function access:check-user-can( $action as xs:string, $type as xs:string
    Tests if action on the document of given case or activity is allowed.
    The document is identified by its root element name.
    Returns true if allowed or false otherwise
+   DEPRECATED: should be renamed because workflow dependant !
    ======================================================================
 :)
 declare function access:check-user-can( $action as xs:string, $root as xs:string, $case as element(), $activity as element()? ) as xs:boolean {

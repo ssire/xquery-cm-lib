@@ -33,6 +33,22 @@ declare function local:by-year-month-key( $key as item() ) {
 };
 
 (: ======================================================================
+   Collection path sharding algorithm
+   Returns a 4 digits collection name starting at 0000 where to store the resource.
+   TODO: implement bucket $width and $size parameters
+   ======================================================================
+:)
+declare function local:by-bucket ( $key as xs:integer, $width as xs:integer, $size as xs:integer  ) as xs:string {
+  let $bucket := ($key mod 10000) idiv 50
+  return
+    concat(
+       string-join((for $i in 1 to (4 - string-length(string($bucket))) return '0'),
+                   ''),
+       $bucket
+       )
+};
+
+(: ======================================================================
    Creates the $path hierarchy of collections directly below the $db-uri collection.
    The $path is a relative path not starting with '/'
    The $db-uri collection MUST be available.
@@ -178,6 +194,9 @@ declare function database:create-collection-for-key (
       if (exists($policy)) then
         let $path := if ($spec/Collection/@Sharding eq 'by-year-month-key') then
                        concat($spec/Collection, '/', local:by-year-month-key($key))
+                     else if (starts-with($spec/Collection/@Sharding, 'bucket')) then
+                       concat($spec/Collection, '/', local:by-bucket(xs:integer($key), 4, 50))
+                       (: TODO: decode and implement bucket($widht,$size) :)
                      else
                        $spec/Collection
         return 
@@ -221,7 +240,7 @@ declare function database:create-entity-for-key(
                                 element { string($spec/Resource/@Root) } { $data } 
                               else 
                                 $data
-                let $stored-path := xdb:store($result, string($spec/Resource), $store)
+                let $stored-path := xdb:store($result, replace(string($spec/Resource), '\$_', $key), $store)
                 return
                   if(not($stored-path eq ())) then
                     <success>

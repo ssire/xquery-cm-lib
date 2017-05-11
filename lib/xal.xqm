@@ -14,9 +14,10 @@ xquery version "1.0";
 module namespace xal = "http://oppidoc.com/ns/xcm/xal";
 
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
+import module namespace database = "http://oppidoc.com/ns/xcm/database" at "database.xqm";
 
 declare variable $xal:xal-actions := ('replace');
-declare variable $xal:xal-pivot-actions := ('replace', 'insert', 'timestamp');
+declare variable $xal:xal-pivot-actions := ('replace', 'insert', 'timestamp', 'create');
 
 (: ======================================================================
    XAL replace action implementation
@@ -62,6 +63,16 @@ declare function local:apply-xal-timestamp( $parent as element()?, $fragment as 
     ()
 };
 
+(: ======================================================================
+   XAL timestamp create action implementation
+   Adds a new document to the database using database module and database.xml
+   TODO: throw exception if missing @Entity or @Key
+   ====================================================================== 
+:)
+declare function local:apply-xal-create( $parent as element()?, $xal-create-spec as element() ) {
+  database:create-entity-for-key(oppidum:get-command()/@db, $xal-create-spec/@Entity, $xal-create-spec/*, $xal-create-spec/@Key)
+};
+
 (: =======================================================================
    Implements XAL (XML Aggregation Language) update protocol
    Basic version for single container element update
@@ -89,7 +100,7 @@ declare function xal:apply-updates( $parent as element(), $spec as element() ) {
    Throws an Oppdum error if some action is not implemented
    ====================================================================== 
 :)
-declare function xal:apply-updates( $subject as element(), $object as element()?, $spec as element() ) {
+declare function xal:apply-updates( $subject as element()?, $object as element()?, $spec as element() ) {
   if (every $fragment in $spec/XALAction satisfies $fragment/@Type = $xal:xal-pivot-actions) then (: sanity check :)
     for $fragment in $spec/XALAction
     let $pivot := if (exists($fragment/@Pivot)) then util:eval(string($fragment/@Pivot)) else $subject
@@ -103,6 +114,8 @@ declare function xal:apply-updates( $subject as element(), $object as element()?
       else if ($fragment/@Type eq 'timestamp') then
         for $cur in $fragment/*
         return local:apply-xal-timestamp($pivot, $cur, $fragment)
+      else if ($fragment/@Type eq 'create') then
+        local:apply-xal-create($pivot, $fragment)
       else
         ()
   else
