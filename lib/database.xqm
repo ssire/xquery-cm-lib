@@ -178,6 +178,36 @@ declare function database:make-new-key-for( $db-uri as xs:string, $name as xs:st
 };
 
 (: ======================================================================
+   Generates collection path to store given type of entity with a given key
+   Returns a <success>path</success> or <error> element
+   ====================================================================== 
+:)
+declare function database:gen-collection-for-key ( 
+  $db-uri as xs:string, 
+  $entity as xs:string, 
+  $key as item()? ) as element()
+{
+  if (exists($key)) then
+    let $spec := database:get-entity-for($entity)
+    let $policy := database:get-policy-for($spec/Collection/@Policy)
+    return
+      if (exists($policy)) then
+        let $path := if ($spec/Collection/@Sharding eq 'by-year-month-key') then
+                       concat($spec/Collection, '/', local:by-year-month-key($key))
+                     else if (starts-with($spec/Collection/@Sharding, 'bucket')) then
+                       concat($spec/Collection, '/', local:by-bucket(xs:integer($key), 4, 50))
+                       (: TODO: decode and implement bucket($widht,$size) :)
+                     else
+                       $spec/Collection
+        return
+          <success>{ concat($db-uri, $path) }</success>
+      else
+        oppidum:throw-error('UNKNOWN-DATABASE-POLICY', $spec/Collection/@Policy)
+  else
+    oppidum:throw-error('MISSING-DATABASE-KEY', $entity)
+};
+
+(: ======================================================================
    Creates collection to store given type of entity with a given key
    Returns a <success> or <error> element
    ====================================================================== 
@@ -243,7 +273,7 @@ declare function database:create-entity-for-key(
                 let $stored-path := xdb:store($result, replace(string($spec/Resource), '\$_', $key), $store)
                 return
                   if(not($stored-path eq ())) then
-                    <success>
+                    <success type="create" key="{ $key }" >
                       {
                       compat:set-owner-group-permissions($stored-path, $policy/@Owner, $policy/@Group, $policy/@Perms),
                       $stored-path
