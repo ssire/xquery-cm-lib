@@ -35,6 +35,7 @@ declare function local:apply-xal-replace( $parent as element(), $fragment as ele
 (: ======================================================================
    XAL insert action implementation
    Returns the empty sequence
+   TODO: version with parent hierarchy lazy creation ?
    ====================================================================== 
 :)
 declare function local:apply-xal-insert( $parent as element()?, $fragment as element() ) as element()? {
@@ -96,14 +97,14 @@ declare function xal:apply-updates( $subject as element(), $spec as element() ) 
    of success without any explicit <success/> generated)
    ====================================================================== 
 :)
-declare function xal:apply-updates( $subject as element()?, $object as element()?, $spec as element() ) as element() {
+declare function xal:apply-updates( $subject as item()*, $object as item()*, $spec as element() ) as element() {
   if (every $fragment in $spec/XALAction satisfies $fragment/@Type = $xal:xal-actions) then (: sanity check :)
     let $res := xal:apply-updates-iter((), $subject, $object, $spec/XALAction, ())
     return
       if (empty($res)) then
         <success/>
       else
-        $res
+        $res[last()]
   else
     oppidum:throw-error('XAL-UNKOWN-ACTION', $spec/XALAction/@Type[not(. = $xal:xal-actions)])
 };
@@ -114,13 +115,13 @@ declare function xal:apply-updates( $subject as element()?, $object as element()
 :)
 declare function xal:apply-updates-iter( 
   $pivot as element()?, 
-  $subject as element()?, 
-  $object as element()?, 
+  $subject as item()*, 
+  $object as item()*, 
   $actions as element()*, 
-  $accu as element()? ) as element()? 
+  $accu as element()* ) as element()* 
 {
   (: stops on <error/> collapses <success/> to keep only latest :)
-  if (empty($actions) or (local-name($accu) eq 'error')) then 
+  if (empty($actions) or (local-name($accu[last()]) eq 'error')) then 
     $accu
   else
     let $cur := $actions[1]
@@ -131,7 +132,7 @@ declare function xal:apply-updates-iter(
         $subject, 
         $object, 
         subsequence($actions, 2), 
-        xal:apply-xal-action($pivot, $subject, $object, $cur)
+        ($accu, xal:apply-xal-action($pivot, $subject, $object, $cur))
         )
 };
 
@@ -139,7 +140,7 @@ declare function xal:apply-updates-iter(
    Implementation
    ====================================================================== 
 :)
-declare function xal:apply-xal-action( $pivot as element()?, $subject as element()?, $object as element()?, $action as element() ) as element()? {
+declare function xal:apply-xal-action( $pivot as element()?, $subject as item()*, $object as item()*, $action as element() ) as element()* {
   if ($action/@Type eq 'create') then (: atomic 1 fragment action - TODO: check cardinality :)
     local:apply-xal-create($pivot, $action)
   else if ($action/@Type eq 'timestamp') then
@@ -155,13 +156,13 @@ declare function xal:apply-xal-action( $pivot as element()?, $subject as element
 declare function xal:apply-xal-action-iter( 
   $type as xs:string, 
   $pivot as element()?, 
-  $subject as element()?, 
-  $object as element()?, 
+  $subject as item()*, 
+  $object as item()*, 
   $fragments as element()*, 
-  $accu as element()? ) as element()? 
+  $accu as element()* ) as element()* 
 {
   (: stops on <error/> collapses <success/> to keep only latest :)
-  if (empty($fragments) or (local-name($accu) eq 'error')) then 
+  if (empty($fragments) or (local-name($accu[last()]) eq 'error')) then 
     $accu
   else 
     let $cur := $fragments[1]
@@ -172,11 +173,13 @@ declare function xal:apply-xal-action-iter(
         $subject,
         $object,
         subsequence($fragments, 2), 
+        ($accu,
         if ($type eq 'replace') then
           local:apply-xal-replace($pivot, $cur)
         else if ($type eq 'insert') then
           local:apply-xal-insert($pivot, $cur)
         else
           ()
+        )
         )
 };

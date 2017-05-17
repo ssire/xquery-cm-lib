@@ -7,7 +7,6 @@ import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "global
 import module namespace misc = "http://oppidoc.com/ns/xcm/misc" at "util.xqm";
 import module namespace xal = "http://oppidoc.com/ns/xcm/xal" at "xal.xqm";
 import module namespace user = "http://oppidoc.com/ns/xcm/user" at "user.xqm";
-import module namespace custom = "http://oppidoc.com/ns/xcm/custom" at "../app/custom.xqm";
 
 declare function crud:get-document( $name as xs:string, $case as element(), $lang as xs:string ) as element() {
   crud:get-document($name, $case, (), $lang)
