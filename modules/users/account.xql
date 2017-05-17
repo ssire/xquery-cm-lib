@@ -70,13 +70,13 @@ declare function local:update-user-account( $person as element(), $data as eleme
                    account:gen-groups-for-user($person)
   let $to := normalize-space($person/Contacts/Email)
   return (
-    system:as-user($account:usecret, $account:psecret, xdb:create-user($new-login, $new-pwd, $groups, ())),
+    system:as-user(account:get-secret-user(), account:get-secret-password(), xdb:create-user($new-login, $new-pwd, $groups, ())),
     if (xdb:exists-user($new-login)) then (: check operation was successful :)
       (
       update value $person/UserProfile/Username with $new-login,
       (: TODO: add a test case to prevent admin system to delete herself ? :)
       if (($old-login ne $new-login) and xdb:exists-user($old-login)) then (: sanity check :)
-        system:as-user($account:usecret, $account:psecret, xdb:delete-user($old-login))
+        system:as-user(account:get-secret-user(), account:get-secret-password(), xdb:delete-user($old-login))
       else
         (),
       if (account:send-updated-login($person, $new-login, $new-pwd, $to)) then
@@ -102,7 +102,7 @@ declare function local:create-user-account( $person as element(), $data as eleme
   let $groups := account:gen-groups-for-user($person)
   let $to := normalize-space($person/Contacts/Email)
   return (
-    system:as-user($account:usecret, $account:psecret, xdb:create-user($new-login, $new-pwd, $groups, ())),
+    system:as-user(account:get-secret-user(), account:get-secret-password(), xdb:create-user($new-login, $new-pwd, $groups, ())),
     if (xdb:exists-user($new-login)) then (: check operation was successful :)
       (
       if ($person/UserProfile) then
@@ -183,7 +183,7 @@ declare function local:delete-account( $person as element() ) {
       else
         (
         if (xdb:exists-user(normalize-space($uname))) then
-          system:as-user($account:usecret, $account:psecret, xdb:delete-user(normalize-space($uname)))
+          system:as-user(account:get-secret-user(), account:get-secret-password(), xdb:delete-user(normalize-space($uname)))
         else
           (),
         update delete $person/UserProfile/Username,
@@ -205,7 +205,7 @@ declare function local:regenerate-pwd( $user as element() ) {
   let $new-pwd := account:gen-password($user/UserProfile/Username, $to)
   return
     if ($user/UserProfile/Username and xdb:exists-user(normalize-space($user/UserProfile/Username))) then (
-      system:as-user($account:usecret, $account:psecret, xdb:change-user($user/UserProfile/Username, $new-pwd, (), ())),
+      system:as-user(account:get-secret-user(), account:get-secret-password(), xdb:change-user($user/UserProfile/Username, $new-pwd, (), ())),
       if (account:send-new-password($user, $new-pwd, $to, false())) then
         ajax:report-success('ACCOUNT-PWD-CHANGED-MAIL', concat($to, " (new password : ", $new-pwd, ")"))
       else

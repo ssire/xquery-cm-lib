@@ -6,6 +6,8 @@ xquery version "1.0";
 
    Utility functions to manage user's accounts
 
+   FIXME: this module should be factorized and moved to lib
+
    April 2014 - (c) Copyright 2014 Oppidoc SARL. All Rights Reserved. 
    ------------------------------------------------------------------ :)
 
@@ -13,15 +15,31 @@ module namespace account = "http://oppidoc.com/ns/xcm/account";
 
 import module namespace sm = "http://exist-db.org/xquery/securitymanager";
 
+import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../../oppidum/lib/util.xqm";
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../../lib/globals.xqm";
 import module namespace user = "http://oppidoc.com/ns/xcm/user" at "../../lib/user.xqm";
 import module namespace form = "http://oppidoc.com/ns/xcm/form" at "../../lib/form.xqm";
 import module namespace media = "http://oppidoc.com/ns/xcm/media" at "../../lib/media.xqm";
 
-(: we need a DBA user to create / change user's login inside databse :)
-(: TODO: store into settings.xml instead :)
-declare variable $account:usecret := 'admin';
-declare variable $account:psecret := 'foo';
+(: ======================================================================
+   Returns secret user to call system:as-user
+   ====================================================================== 
+:)
+declare function account:get-secret-user() as xs:string {
+  if (exists(fn:doc($globals:settings-uri)/Settings/Sudoer/User)) then 
+    fn:doc($globals:settings-uri)/Settings/Sudoer/User
+  else 
+    let $err := oppidum:throw-error('INCOMPLETE-APP-CONFIG', ())
+    return 'guest'
+};
+
+(: ======================================================================
+   Returns secret user password to call system:as-user
+   ====================================================================== 
+:)
+declare function account:get-secret-password() as xs:string? {
+  fn:doc($globals:settings-uri)/Settings/Sudoer/Password
+};
 
 (: ======================================================================
    Sets eXist-DB groups of user

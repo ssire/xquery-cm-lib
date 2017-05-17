@@ -86,7 +86,7 @@ declare function local:synch-user-groups( $person as element() ) {
         if ( (every $x in $has satisfies $x = $should) and (every $y in $should satisfies $y = $has) ) then
           ()
         else
-          system:as-user($account:usecret, $account:psecret, account:set-user-groups($login, $should)),
+          system:as-user(account:get-secret-user(), account:get-secret-password(), account:set-user-groups($login, $should)),
         let $msg := concat($uname, " (", string-join($should, ", "), ")")
         return
           ajax:report-success('PROFILE-UPDATED', $msg, $results)

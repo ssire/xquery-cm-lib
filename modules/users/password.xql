@@ -78,7 +78,7 @@ declare function local:gen-new-password( $user as element() ) {
   let $new-pwd := account:gen-password($user/UserProfile/Username, $to)
   return (
     if (account:send-new-password($user, $new-pwd, $to, true())) then (
-      system:as-user($account:usecret, $account:psecret, sm:passwd($user/UserProfile/Username, $new-pwd)),
+      system:as-user(account:get-secret-user(), account:get-secret-password(), sm:passwd($user/UserProfile/Username, $new-pwd)),
       (: redirect in POST does not seem to work hence we generate a page content :)
       (:        ajax:report-success-redirect('NEW-PASSWORD-SENT', $to, $redirect):)
       <New>
@@ -105,7 +105,7 @@ declare function local:change-password( $user as element() ) {
   return
     if ($change and $check and ($change eq $check)) then
       if (local:validate-password-submission($change)) then (
-        system:as-user($account:usecret, $account:psecret, sm:passwd($user/UserProfile/Username, $change)),
+        system:as-user(account:get-secret-user(), account:get-secret-password(), sm:passwd($user/UserProfile/Username, $change)),
         <Changed/>
         )
       else
