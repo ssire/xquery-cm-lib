@@ -47,6 +47,28 @@
           _mySorts = {},
           _name = name;
 
+      // Forwards $.ajax errors to application global error handler
+      function _jqForwardError ( xhr, status, e )  {
+        // TODO: hide spoining wheel $('#' + this.spec.attr('data-busy')).hide();
+        $('body').trigger('axel-network-error', { xhr : xhr, status : status, e : e });
+      }
+
+      // Return datum used to generate target's row
+      // FIXME: not robust
+      function _getDatum ( target ) {
+        return d3.select(target.parent().parent().get(0)).data()[0];
+      }
+
+      // Utility to encode $_ and $.name variables in a string
+      // Useful to interpret URL string in results table specification language
+      function _encodeVariables ( str, datum ) {
+        var buffer = str;
+        if (buffer.indexOf('$.') !== -1) {
+          buffer = buffer.replace(/\$\.([\w-]*)/g, function (str, varname) { return datum[varname]; });
+        }
+        return buffer.replace('$_', datum.Id);
+      }
+
       // Generic column sort callback
       function _sortByHeaderCallback (ev) {
         var t = $(ev.target).closest('th'),
@@ -275,8 +297,10 @@
         },
 
         // Interprets JSON Ajax success response protocol
+        // Event handler tailored for AXEL 'save' command callback parameters
         // By default subscribed to 'axel-save-done' and 'axel-delete-done' from modal editors
         // TODO: implement remove Action
+        // TODO: use Oppidum parse function to handle other Ajax reponses (message, forward)
         ajaxSuccessResponse : function (event, editor, command, xhr) {
           var response = JSON.parse(xhr.responseText),
               table, payload;
@@ -300,22 +324,31 @@
           }
         },
 
+        submitAjaxSuccess : function ( data, status, xhr ) {
+          this.ajaxSuccessResponse('axel-save-done', null, null, xhr);
+        },
+
         // Table click event dispatcher based on table model
         handleAction : function (ev) {
           var target = $(ev.target),
-              key, modal, uid, src, ctrl, template, wrapper, action,
+              key, modal, uid, src, ctrl, template, wrapper, action, callback, ajax,
               GEN = _myRowModel,
               hotspot = ev.target.nodeName.toUpperCase();
           if ((hotspot === 'A') || (hotspot === 'BUTTON')) {
             // 1. find key to identify target editor or action
-            uid = d3.select(target.parent().parent().get(0)).data()[0].Id; // tr datum
+            uid = _getDatum(target).Id; // tr datum
             key = d3.select(target.parent().get(0)).data()[0].key; // td datum
             editor = GEN[key].editor;
             action = target.attr('data-action');
             if (action) {
-              callback = GEN[key].callback[action];
+              if (GEN[key].callback) {
+                callback = GEN[key].callback[action];
+              } else if (GEN[key].ajax) {
+                ajax = GEN[key].ajax[action];
+              }
             } else {
               callback = GEN[key].callback;
+              ajax = GEN[key].ajax;
             }
             // 2. transform editor, load data, show modal
             if (editor) { // shows corresponding modal editor
@@ -362,13 +395,28 @@
                 $('#' + editor).bind('axel-delete-done', this.modals[editor]);
               }
             } else if (GEN[key].open) { //open url action
-              target.attr('href', GEN[key].open.replace('$_', uid)); // dynamically sets URL and opens link
+              action = _encodeVariables(GEN[key].open, _getDatum(target))
+              target.attr('href', action); // dynamically sets URL and opens link
               target.click(function (event) { // avoid too much recursion due to recursive clicking on table
                 event.stopPropagation();
               });
               target.click();
             } else if (callback) {
               callback(uid, key, target);
+            } else if (ajax) {
+              // TODO: deactivate command - spining wheel $('#cm-mgt-busy').show();
+              $.ajax({
+                url : _encodeVariables(ajax.url, _getDatum(target)),
+                type : 'post',
+                async : false,
+                data : ajax.payload,
+                dataType : 'json',
+                cache : false,
+                timeout : 50000,
+                contentType : "application/xml; charset=UTF-8",
+                success : $.proxy(this, "submitAjaxSuccess"),
+                error : _jqForwardError
+              });
             } else if (GEN[key].modal) { // loads content into modal box
               src = GEN[key].resource ? GEN[key].resource.replace('$_', uid).replace('$\#', _name) : undefined;
               modal = $('#' + GEN[key].modal);

@@ -133,11 +133,15 @@ declare function xal:apply-updates( $subject as element(), $spec as element() ) 
    TODO: use XQuery exceptions inside each XALAction and stops on first error ?
    ====================================================================== 
 :)
-declare function xal:apply-updates( $subject as item()*, $object as item()*, $spec as element() ) as element() {
+declare function xal:apply-updates( $subject as item()*, $object as item()*, $spec as element()? ) as element() {
+  if ($spec/@Debug eq 'on') then
+    update insert <XALApply Date="{ current-dateTime() }">{ $spec }</XALApply> into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
   if (every $fragment in $spec/XALAction satisfies $fragment/@Type = $xal:xal-actions) then (: sanity check :) 
     (
     if (exists($spec/XALAction[@Debug eq 'on'])) then
-      update insert <Processing Date="current-dateTime()">xal:apply-updates processing { count($spec/XALAction) } actions</Processing> into fn:doc($xal:debug-uri)/*[1]
+      update insert <Processing Date="{ current-dateTime() }">xal:apply-updates processing { count($spec/XALAction) } actions</Processing> into fn:doc($xal:debug-uri)/*[1]
     else
       (),
     let $res :=
