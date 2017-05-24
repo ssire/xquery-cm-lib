@@ -20,6 +20,58 @@ declare variable $xal:debug-uri := '/db/sites/debug/xal.xml'; (: FIXME: move to 
 declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create');
 
 (: ======================================================================
+   Filters nodes and evaluates <node>{ "expression" }</node> type nodes
+   Used to evaluate xal:auto-increment in data-templates that contains
+   <Id>{{ xal:auto-increment($subject, 'LastIndex') }}</Id>
+   ====================================================================== 
+:)
+declare function local:auto-eval( $subject as element()?, $nodes as item()* ) as item()* {
+  for $node in $nodes
+  return
+    typeswitch($node)
+      case text()
+        return 
+            if (matches($node,'\{.*\}')) then
+              util:eval(substring-after(substring-before($node, '}' ), '{'))
+            else
+              $node
+      case attribute()
+        return $node
+      case element()
+        return
+            element { local-name($node) } { $node/attribute(), local:auto-eval($subject, $node/node()) }
+      default
+        return $node
+};
+
+(: ======================================================================
+   Generates an index using a local attribute containing a last index
+   on the subject. Returns the index or the empty sequence and throws 
+   an Oppidum error in case of failure.
+   ====================================================================== 
+:)
+declare function xal:auto-increment( $subject as element()?, $name as xs:string ) as xs:string? {
+  if ($subject/@*[local-name() eq $name]) then
+    let $cur := $subject/@*[local-name() eq $name]
+    let $next := 
+      if ($cur castable as xs:integer) then
+        string(xs:integer($cur) + 1)
+      else
+        '1'
+    return (
+      update value $cur with $next,
+      $next
+      )
+  else if ($subject) then (
+    update insert attribute { $name } { '1' } into $subject,
+    '1'
+    )
+  else 
+    let $err := oppidum:throw-error('CUSTOM', 'xal:auto-increment $subject not found')
+    return ()
+};
+
+(: ======================================================================
    XAL update action implementation
    Pre-condition: @Source available
    Returns the empty sequence
@@ -68,7 +120,10 @@ declare function local:apply-xal-insert( $subject as element()?, $fragment as el
   else
     (),
   if (exists($subject)) then
-    update insert $fragment into $subject
+    if (contains(string($fragment), '{')) then 
+      update insert local:auto-eval($subject, $fragment) into $subject
+    else
+      update insert $fragment into $subject
   else
     ()
 };
@@ -150,7 +205,7 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
       let $pivot := if (exists($action/@Pivot)) then util:eval(string($action/@Pivot)) else $subject
       return
         if (count($pivot) > 1) then
-          oppidum:throw-error('XAL-UNKOWN-ACTION', (string($action/@Pivot), count($pivot)))
+          oppidum:throw-error('XAL-PIVOT-ERROR', (string($action/@Pivot), count($pivot)))
         else
           if ($action/@Type eq 'create') then (: atomic 1 fragment action - TODO: check cardinality :)
             local:apply-xal-create($pivot, $action)
