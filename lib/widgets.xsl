@@ -265,14 +265,21 @@
     </xsl:call-template>
   </xsl:template>
 
+  <!-- Button-looking navigation link labelled as Cancel
+       TODO: implement version for use inside document editor context (triggering axel-cancel-edit event method) -->
   <xsl:template match="Cancel">
-    <button class="btn btn-primary btn-small">
+    <a class="btn btn-primary btn-small" href="{Action}">
       <xsl:apply-templates select="Label"/>
-    </button>
+    </a>
   </xsl:template>
 
+  <!-- Loads empty XML document inside ancestor's Formular editor 
+       TODO: implement version for use in other document editor contexts -->
   <xsl:template match="Clear">
     <button class="btn btn-primary btn-small">
+      <xsl:if test="ancestor::Formular/@Id">
+        <xsl:attribute name="onclick">javascript:$axel('#<xsl:value-of select="ancestor::Formular/@Id" />').load('&lt;Reset/>')</xsl:attribute>
+      </xsl:if>
       <xsl:apply-templates select="Label"/>
     </button>
   </xsl:template>
