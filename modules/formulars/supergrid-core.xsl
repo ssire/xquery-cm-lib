@@ -992,6 +992,7 @@
       <xsl:choose>
         <xsl:when test="//Form/Plugins/Input[contains(@Keys, $key)]">input</xsl:when>
         <xsl:when test="//Form/Plugins/Text[contains(@Keys, $key) or (@Prefix and starts-with($key, @Prefix))]">p</xsl:when>
+        <xsl:when test="//Form/Plugins/MultiText[contains(@Keys, $key) or (@Prefix and starts-with($key, @Prefix))]">textarea</xsl:when>
         <xsl:otherwise>ul</xsl:otherwise> <!-- assuming dynamically generated item lists/radio buttons (ie select2/choice2) -->
       </xsl:choose>
     </xsl:attribute>
@@ -1041,7 +1042,7 @@
     <xsl:variable name="filter">
       <xsl:if test="@Filter"><xsl:value-of select="@Filter"/><xsl:text> </xsl:text></xsl:if>
       <xsl:text>optional</xsl:text>
-      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)]"><xsl:text> </xsl:text>event</xsl:if>
+      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[contains(@Tags, $tag)]"><xsl:text> </xsl:text>event</xsl:if>
     </xsl:variable>
     <xsl:variable name="klass">
       <xsl:if test="@Class"><xsl:text> </xsl:text><xsl:value-of select="@Class"/></xsl:if>
@@ -1060,9 +1061,6 @@
     </xsl:variable>
     <xsl:variable name="uppercase">
       <xsl:if test="@Filter[. = 'list']">;list_uppercase=true</xsl:if>
-    </xsl:variable>
-    <xsl:variable name="event">
-      <xsl:if test="//Form/Hints/Mandatory[contains(@Tags, $tag)]"> event</xsl:if>
     </xsl:variable>
     <xt:use label="{//Field[@Key = $key]/@Tag}" param="{$type}filter={$filter};class={$span} a-control{$klass}{$required}{$media}{$xvalue}{$uppercase}" types="input"/>
   </xsl:template>
@@ -1121,8 +1119,14 @@
   </xsl:template>
 
   <xsl:template match="MultiText">
-    <xsl:param name="key"></xsl:param>
+    <xsl:param name="key"/>
+    <xsl:param name="tag"/>
     <xsl:attribute name="signature">multitext</xsl:attribute>
+    <xsl:variable name="filter">
+      <xsl:if test="@Filter"><xsl:value-of select="@Filter"/><xsl:text> </xsl:text></xsl:if>
+      <xsl:text>optional</xsl:text>
+      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[contains(@Tags, $tag)]"><xsl:text> </xsl:text>event</xsl:if>
+    </xsl:variable>
     <xsl:variable name="required">
       <xsl:if test="//Form/Bindings/Require[contains(@Keys, $key)]">;required=true</xsl:if>
     </xsl:variable>
@@ -1132,7 +1136,10 @@
         <xsl:otherwise>normal</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-    <xt:use types="input" label="{//Field[@Key = $key]/@Tag}" param="type=textarea;multilines={$mode};class=sg-multitext span a-control;filter=optional{$required}"/>
+    <xsl:variable name="event">
+      <xsl:if test="//Form/Hints/Mandatory[contains(@Tags, $tag)]"> event</xsl:if>
+    </xsl:variable>
+    <xt:use types="input" label="{//Field[@Key = $key]/@Tag}" param="type=textarea;multilines={$mode};class=sg-multitext span a-control;filter={$filter}{$required}"/>
   </xsl:template>
   
   <!-- Warning: do not make confusion with <Constant> field (w/o label) -->

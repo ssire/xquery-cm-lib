@@ -2,7 +2,8 @@
 .axel-core-editable.af-mandatory,
 ul.af-mandatory:not(.readonly), /* ul defined for all goals */
 a.af-mandatory,
-input.af-mandatory {	
+input.af-mandatory,
+textarea.af-mandatory {
   border-style: solid !important;
   border-color: #ff4444 !important;
   border-radius: 4px !important;
