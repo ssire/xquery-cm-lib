@@ -14,6 +14,8 @@ xquery version "1.0";
 declare default element namespace "http://www.w3.org/1999/xhtml";
 
 declare namespace site = "http://oppidoc.com/oppidum/site";
+declare namespace xhtml = "http://www.w3.org/1999/xhtml";
+declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../lib/globals.xqm";
@@ -58,8 +60,8 @@ declare variable $local:tests :=
       <Test><![CDATA[access:assert-rule('test', 'users', <Avoid>u:admin</Avoid>, ())]]></Test>
       <Test><![CDATA[access:assert-access-rules(<Rule xmlns=""><Meet>u:admin</Meet></Rule>, ())]]></Test>
       <Test><![CDATA[access:assert-access-rules(<Rule xmlns=""><Avoid>u:admin</Avoid></Rule>, ())]]></Test>
-      <Test>access:check-user-can('delete', 'Person')</Test>
-      <Test>access:check-user-can('do', 'Something')</Test>
+      <Test>access:assert-resource('delete', 'Person', ())</Test>
+      <Test>access:assert-resource('do', 'Something', ())</Test>
     </Module>
     <Module>
       <Name>Media</Name>
@@ -67,26 +69,35 @@ declare variable $local:tests :=
     </Module>
   </Tests>;
 
-declare function local:apply-module-tests( $module as element() ) {
-  <h2>{ $module/site:Name }</h2>,
-  <table class="table">
-    {
-    for $test in $module/site:Test
-    return 
-      <tr>
-        <td>{ $test/text() }</td>
-        <td style="width:50%">
-          {
-          if ($test/@Format eq 'xml') then 
-            <pre xmlns="">{ util:eval($test) }</pre>
-          else 
-            util:eval($test)
-          }
-          </td>
-      </tr>
-    }
-  </table>
-};
+  declare function local:apply-module-tests( $module as element() ) {
+    <xhtml:h2>{ $module/site:Name }</xhtml:h2>,
+    <xhtml:table class="table">
+      {
+      for $test in $module/site:Test
+      return 
+        <xhtml:tr xmlns="">
+          <xhtml:td>{ $test/text() }</xhtml:td>
+          <xhtml:td style="width:50%">
+            {
+            if ($test/@Format eq 'xml') then 
+              <xhtml:pre xmlns="">
+                { 
+                fn:serialize(
+                  util:eval($test),
+                  <output:serialization-parameters>
+                    <output:indent value="yes"/>
+                  </output:serialization-parameters>
+                )
+                }
+              </xhtml:pre>
+            else 
+              util:eval($test)
+            }
+            </xhtml:td>
+        </xhtml:tr>
+      }
+    </xhtml:table>
+  };
 
 let $lang := 'en'
 return

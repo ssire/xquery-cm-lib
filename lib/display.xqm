@@ -24,7 +24,7 @@ module namespace display = "http://oppidoc.com/ns/xcm/display";
 
 declare namespace site = "http://oppidoc.com/oppidum/site";
 
-import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../lib/globals.xqm";
+import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "lib/globals.xqm";
 
 (: ======================================================================
    Returns a hard coded string in case of an unkown reference
@@ -54,7 +54,7 @@ declare function display:gen-display-date( $date as xs:string?, $lang as xs:stri
 :)
 declare function display:gen-name-for-sref ( $name as xs:string, $ref as xs:string?, $lang as xs:string ) as xs:string+ {
   if ($ref) then
-    let $defs := fn:collection($globals:global-info-uri)//Description[@Lang = $lang]//Selector[@Name eq $name]
+    let $defs := globals:collection('global-info-uri')//Description[@Lang = $lang]//Selector[@Name eq $name]
     let $option := $defs//Option[Value eq $ref]/Name
     return
       if ($option) then
