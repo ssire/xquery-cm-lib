@@ -53,10 +53,9 @@ declare function display:gen-display-date( $date as xs:string?, $lang as xs:stri
    ======================================================================
 :)
 declare function display:gen-name-for-sref ( $name as xs:string, $ref as xs:string?, $lang as xs:string ) as xs:string+ {
-  if ($ref) then 
-    let $defs := globals:collection('global-info-uri')//Description[@Lang = $lang]//Selector[@Name eq $name]
-    let $label := if (starts-with($defs/@Label, 'V+')) then substring-after($defs/@Label, 'V+') else string($defs/@Label)
-    let $option := $defs//Option[*[local-name(.) eq string($defs/@Value)]/text() eq $ref]/*[local-name(.) eq $label]
+  if ($ref) then
+    let $defs := fn:collection($globals:global-info-uri)//Description[@Lang = $lang]//Selector[@Name eq $name]
+    let $option := $defs//Option[Value eq $ref]/Name
     return
       if ($option) then
         if (contains($option, '::')) then (: satellite :)

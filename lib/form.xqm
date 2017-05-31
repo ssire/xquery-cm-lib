@@ -79,17 +79,18 @@ declare function form:gen-radio-selector-for( $name as xs:string, $lang as xs:st
    Generates XTiger XML 'choice' element for a given selector as a drop down list
    TODO:
    - caching
+   - fix deprecated Label="V+Name" syntax
    ======================================================================
 :)
 declare function form:gen-selector-for ( $name as xs:string, $lang as xs:string, $params as xs:string ) as element() {
   let $defs := globals:collection('global-info-uri')//Description[@Lang = $lang]//Selector[@Name eq $name]
-  let $concat := if (starts-with($defs/@Label, 'V+')) then true() else false()
-  let $label := if ($concat) then substring-after($defs/@Label, 'V+') else string($defs/@Label)
+  let $concat := if (exists($defs/@Label) and starts-with($defs/@Label, 'V+')) then true() else false()
+  let $label := if ($concat) then substring-after($defs/@Label, 'V+') else 'Name'
   return
      let $pairs :=
         for $p in $defs//Option
-        let $v := $p/*[local-name(.) eq string($defs/@Value)]/text()
-        let $l := if ($concat) then concat($v, ' ', $p/*[local-name(.) eq $label]) else $p/*[local-name(.) eq $label]
+        let $v := $p/Value
+        let $l := if ($concat) then concat($v, ' ', $p/*[local-name(.) eq $label]) else $p/Name
         return
            <Name id="{$v}">{(replace($l,' ','\\ '))}</Name>
     return
@@ -107,7 +108,7 @@ declare function form:gen-selector-for ( $name as xs:string, $lang as xs:string,
   return
      let $pairs :=
         for $p in $defs//Option
-        let $v := $p/*[local-name(.) eq string($defs/@Value)]/text()
+        let $v := $p/Value
         let $l := $p/*[local-name(.) eq $label]
         return
            <Name id="{$v}">{(replace($l,' ','\\ '))}</Name>
@@ -130,12 +131,12 @@ declare function form:gen-json-selector-for ( $name as xs:string, $lang as xs:st
       {
       for $g in globals:collection('global-info-uri')//Description[@Lang = $lang]//Selector[@Name eq $name]/Group
       return
-        element { concat('_', $g/Code/text()) }
+        element { concat('_', $g/Value/text()) }
         {(
         element { '__label' } { $g/Name/text() },
         for $o in $g//Option
         return
-          element { concat('_', $o/Code/text()) } {
+          element { concat('_', $o/Value/text()) } {
             $o/Name/text()
           }
         )}
