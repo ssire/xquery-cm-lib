@@ -15,9 +15,10 @@ module namespace xal = "http://oppidoc.com/ns/xcm/xal";
 
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
 import module namespace database = "http://oppidoc.com/ns/xcm/database" at "database.xqm";
+import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
-declare variable $xal:debug-uri := '/db/sites/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create');
+declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -169,6 +170,19 @@ declare function local:apply-xal-create( $subject as element()?, $xal-spec as el
   database:create-entity-for-key(oppidum:get-command()/@db, $xal-spec/@Entity, $xal-spec/*, $xal-spec/@Key)
 };
 
+(: ======================================================================
+   XAL invalidate action to invalidate a cache entry
+   ====================================================================== 
+:)
+declare function local:apply-xal-invalidate( $xal-spec as element() ) {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert $xal-spec into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  for $entry in $xal-spec/Cache
+  return cache:invalidate($entry, $xal-spec/@Lang)
+};
+
 (: =======================================================================
    Implements XAL (XML Aggregation Language) update protocol
    Basic version for single container element update
@@ -220,6 +234,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
                 local:apply-xal-update($pivot, $fragment, $action)
               else if ($type eq 'insert') then
                 local:apply-xal-insert($pivot, $fragment, $action)
+              else if (($type eq 'invalidate') and (empty($spec/@Mode) or ($spec/@Mode ne 'batch'))) then
+                local:apply-xal-invalidate($action)
               else
                 ()
     return

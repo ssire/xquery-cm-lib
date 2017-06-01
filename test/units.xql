@@ -40,6 +40,7 @@ declare variable $local:tests :=
     <Module>
       <Name>Form</Name>
       <Test Format="xml">form:gen-selector-for ('Countries', 'en', '')</Test>
+      <Test Format="xml">form:gen-cached-selector-for ('Countries', 'en', '')</Test>
     </Module>
     <Module>
       <Name>Misc</Name>

@@ -78,7 +78,6 @@ declare function form:gen-radio-selector-for( $name as xs:string, $lang as xs:st
 (: ======================================================================
    Generates XTiger XML 'choice' element for a given selector as a drop down list
    TODO:
-   - caching
    - fix deprecated Label="V+Name" syntax
    ======================================================================
 :)
@@ -101,7 +100,32 @@ declare function form:gen-selector-for ( $name as xs:string, $lang as xs:string,
 };
 
 (: ======================================================================
+   Cached version of form:gen-selector-for
+   ======================================================================
+:)
+declare function form:gen-cached-selector-for ( $name as xs:string, $lang as xs:string, $params as xs:string ) as element() {
+  let $inCache := cache:lookup($name, $lang)
+  return
+    if ($inCache) then
+      <xt:use hit="1" types="choice" param="{form:setup-select2($params)}" values="{$inCache/Values}">
+        { 
+        if ($inCache/I18n) then 
+          attribute { 'i18n'} { $inCache/I18n/text() }
+        else
+          ()
+        }
+      </xt:use>
+    else
+      let $res := form:gen-selector-for($name, $lang, $params)
+      return (
+        cache:update($name, $lang, $res/@values, $res/@i18n),
+        $res
+        )
+};
+
+(: ======================================================================
    Same as above but uses an explicit label to identify the selector's label
+   DEPRECATED
    ======================================================================
 :)declare function form:gen-selector-for ( $name as xs:string, $lang as xs:string, $params as xs:string, $label as xs:string ) as element() {
   let $defs := globals:collection('global-info-uri')//Description[@Lang = $lang]//Selector[@Name eq $name]
@@ -119,10 +143,27 @@ declare function form:gen-selector-for ( $name as xs:string, $lang as xs:string,
         <xt:use types="choice" values="{$ids}" i18n="{$names}" param="{form:setup-select2($params)}"/>
 };
 
+
+(: ======================================================================
+   Cached version of form:gen-json-selector-for
+   ======================================================================
+:)
+declare function form:gen-cached-json-selector-for ( $name as xs:string, $lang as xs:string, $params as xs:string ) as element() {
+  let $inCache := cache:lookup(concat($name,'/json'), $lang)
+  return
+    if ($inCache) then
+      <xt:use hit="1"  types='choice2' param="{$params}" values='{$inCache/Values}'/>
+    else
+      let $res := form:gen-json-selector-for($name, $lang, $params)
+      return (
+        cache:update(concat($name, '/json'), $lang, $res/@values, ()),
+        $res
+        )
+};
+
 (: ======================================================================
    Generates a 'choice2' selector with JSON menu definition
    Notes : only applies to two level selection (NOGA and Markets)
-   TODO: cache
    ======================================================================
 :)
 declare function form:gen-json-selector-for ( $name as xs:string, $lang as xs:string, $params as xs:string ) as element() {
