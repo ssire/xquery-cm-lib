@@ -29,6 +29,10 @@ import module namespace access = "http://oppidoc.com/ns/xcm/access" at "../lib/a
 declare variable $local:tests := 
   <Tests xmlns="http://oppidoc.com/oppidum/site">
     <Module>
+      <Name>Oppidum</Name>
+      <Test>string(oppidum:get-command()/@db)</Test>
+    </Module>
+    <Module>
       <Name>Display</Name>
       <Test><![CDATA[display:gen-name-for('Countries', <Country>FR</Country>, 'en')]]></Test>
       <Test>display:gen-person-name('10', 'en')</Test>
@@ -46,6 +50,7 @@ declare variable $local:tests :=
     </Module>
     <Module>
       <Name>User</Name>
+      <Test>oppidum:get-current-user-groups()</Test>
       <Test>user:get-current-person-id()</Test>
       <Test Format="xml">user:get-user-profile()</Test>
       <Test>user:get-current-person-id('test')</Test>
@@ -53,6 +58,7 @@ declare variable $local:tests :=
     </Module>
     <Module>
       <Name>Access</Name>
+      <Test Format="xml">session:get-attribute('cas-user')</Test>
       <Test>oppidum:get-current-user-realm()</Test>
       <Test>access:check-omnipotent-user()</Test>
       <Test>access:assert-access-rules((), ())</Test>
@@ -60,8 +66,8 @@ declare variable $local:tests :=
       <Test><![CDATA[access:assert-rule('test', 'users', <Avoid>u:admin</Avoid>, ())]]></Test>
       <Test><![CDATA[access:assert-access-rules(<Rule xmlns=""><Meet>u:admin</Meet></Rule>, ())]]></Test>
       <Test><![CDATA[access:assert-access-rules(<Rule xmlns=""><Avoid>u:admin</Avoid></Rule>, ())]]></Test>
-      <Test>access:assert-resource('delete', 'Person', ())</Test>
-      <Test>access:assert-resource('do', 'Something', ())</Test>
+      <Test>access:check-entity-permissions('delete', 'Person', ())</Test>
+      <Test>access:check-entity-permissions('do', 'Something', ())</Test>
     </Module>
     <Module>
       <Name>Media</Name>

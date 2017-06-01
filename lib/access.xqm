@@ -84,6 +84,7 @@ declare function access:check-rules( $user as xs:string, $roles as xs:string* ) 
    Interprets application access control rules (see application.xml)
    Context independent version: returns true() if current user is allowed
    to do some action on a given type of resource independently of its content
+   DEPRECATED : use access:check-entity-permissions instead
    ======================================================================
 :)
 declare function access:check-user-can( $action as xs:string, $type as xs:string ) as xs:boolean {
@@ -97,6 +98,7 @@ declare function access:check-user-can( $action as xs:string, $type as xs:string
    Interprets application access control rules (see application.xml)
    Mono-dimensional version with one context resource: returns true() if
    current user is allowed to do some action on a given resource of a given type
+   DEPRECATED : use access:check-entity-permissions instead
    ======================================================================
 :)
 declare function access:check-user-can( $action as xs:string, $type as xs:string, $resource as element()? ) as xs:boolean {
@@ -113,7 +115,8 @@ declare function access:check-user-can( $action as xs:string, $type as xs:string
    Tests if action on the document of given case or activity is allowed.
    The document is identified by its root element name.
    Returns true if allowed or false otherwise
-   DEPRECATED: should be renamed because workflow dependant !
+   DEPRECATED: use access:check-document-permissions or access:check-tab-permissions
+   or access:check-workfow-permissions instead
    ======================================================================
 :)
 declare function access:check-user-can( $action as xs:string, $root as xs:string, $case as element(), $activity as element()? ) as xs:boolean {
@@ -124,7 +127,7 @@ declare function access:check-user-can( $action as xs:string, $root as xs:string
       let $item := if ($activity) then $activity else $case
       let $workflow := if ($activity) then 'Activity' else 'Case'
       return
-        access:assert-workflow-state($action, $workflow, $control, $item/StatusHistory/CurrentStatusRef/text())
+        access:assert-workflow-state($action, $workflow, $control, $item/StatusHistory/CurrentStatusRef)
     else
       false()
 };
@@ -138,45 +141,34 @@ declare function access:assert-sight(
   $suffix as xs:string 
   ) as xs:boolean 
 {
-  let $groups-ref := globals:collection('global-info-uri')//Description[@Role = 'normative']/Selector[@Name eq 'Functions']/Option[@Sight eq $suffix]/Id/text()
+  let $groups-ref := globals:collection('global-info-uri')//Description[@Role = 'normative']/Selector[@Name eq 'Functions']/Option[@Sight eq $suffix]/Id
   let $user-profile := user:get-user-profile()
   return
     $user-profile//FunctionRef = $groups-ref
 };
 
 (: ======================================================================
-   Interprets access control rules micro-language (Meet | Avoid)* against 
-   an optional single resource
+   Stub function to call access:assert-access-rules w/o object
+   DEPRECATED: you should call a access:check-*-permissions function 
    ======================================================================
 :)
-declare function access:assert-access-rules( 
-  $rules as element()?, 
-  $resource as element()? 
-  ) as xs:boolean
+declare function access:assert-access-rules( $rules as element()?, $subject as element()? ) as xs:boolean
 {
-  let $user := oppidum:get-current-user()
-  let $groups := oppidum:get-current-user-groups()
-  return
-    if (empty($rules/Meet[@Policy eq 'strict']) and access:check-omnipotent-user()) then
-      true()
-    else
-      (empty($rules/Meet) or (some $rule in $rules/Meet satisfies access:assert-rule($user, $groups, $rule, $resource)))
-      and
-      (empty($rules/Avoid) or not(some $rule in $rules/Avoid satisfies access:assert-rule($user, $groups, $rule, $resource)))
-      and
-      (exists($rules/Meet) or exists($rules/Avoid))
+  access:assert-access-rules($rules, $subject, ())
 };
 
 (: ======================================================================
    Interprets access control rules micro-language (Meet | Avoid)* against 
-   a case and an optional activity
+   a subject and an object. 
+   DEPRECATED: implementation function that should move to local: prefix
+   You should call a access:check-*-permissions function.
    @return An xs:boolean
    ======================================================================
 :)
 declare function access:assert-access-rules( 
   $rules as element()?, 
-  $case as element()?, 
-  $activity as element()? 
+  $subject as element()?, 
+  $object as element()? 
   ) as xs:boolean 
 {
   let $user := oppidum:get-current-user()
@@ -185,23 +177,38 @@ declare function access:assert-access-rules(
     if (empty($rules/Meet[@Policy eq 'strict']) and access:check-omnipotent-user()) then
       true()
     else
-      (empty($rules/Meet) or (some $rule in $rules/Meet satisfies access:assert-rule($user, $groups, $rule/text(), $case, $activity)))
+      (empty($rules/Meet) or (some $rule in $rules/Meet satisfies access:assert-rule($user, $groups, $rule, $subject, $object)))
       and
-      (empty($rules/Avoid) or not(some $rule in $rules/Avoid satisfies access:assert-rule($user, $groups, $rule/text(), $case, $activity)))
+      (empty($rules/Avoid) or not(some $rule in $rules/Avoid satisfies access:assert-rule($user, $groups, $rule, $subject, $object)))
       and
       (exists($rules/Meet) or exists($rules/Avoid))
 };
 
 (: ======================================================================
-   Interprets role specification micro-language (role tokens)
-   with or without context dependent resource
+   Stub function to call access:assert-rule w/o object
    ======================================================================
 :)
 declare function access:assert-rule( 
   $user as xs:string, 
   $groups as xs:string*, 
   $rule as element(), 
-  $resource as element()? 
+  $subject as element()? 
+  ) as xs:boolean 
+{
+  access:assert-rule($user, $groups, $rule, $subject, ())
+};
+
+(: ======================================================================
+   Returns true if any of the token role definition from the rule
+   yields for current user, groups, case, optional activity
+   ======================================================================
+:)
+declare function access:assert-rule( 
+  $user as xs:string, 
+  $groups as xs:string*, 
+  $rule as element(), 
+  $subject as element()?, 
+  $object as element()? 
   ) as xs:boolean 
 {
   if ($rule/@Format eq 'eval') then
@@ -214,42 +221,21 @@ declare function access:assert-rule(
         return
           (($prefix eq 'u') and ($user eq $suffix))
           or (($prefix eq 'g') and ($groups = $suffix))
-          or (($prefix eq 'r') and access:assert-semantic-role($suffix, $resource, ()))
-          or (($prefix eq 's') and access:assert-sight($suffix))
-};
-
-(: ======================================================================
-   Returns true if any of the token role definition from the rule
-   yields for current user, groups, case, optional activity
-   ======================================================================
-:)
-declare function access:assert-rule( 
-  $user as xs:string, 
-  $groups as xs:string*, 
-  $rule as xs:string, 
-  $case as element()?, 
-  $activity as element()? 
-  ) as xs:boolean 
-{
-  some $token in tokenize($rule, " ")
-    satisfies
-      let $prefix := substring-before($token, ':')
-      let $suffix := substring-after($token, ':')
-      return
-        (($prefix eq 'u') and ($user eq $suffix))
-        or (($prefix eq 'g') and ($groups = $suffix))
-        or (($prefix eq 'r') and access:assert-semantic-role($suffix, $case, $activity))
-        or (($prefix eq 's') and access:assert-sight($suffix)) (: FIXME: actually only 'omni' sight :)
-        or false()
+          or (($prefix eq 'r') and access:assert-semantic-role($suffix, $subject, $object))
+          or (($prefix eq 's') and access:assert-sight($suffix)) (: FIXME: actually only 'omni' sight :)
+          or false()
 };
 
 (: ======================================================================
    Tests current user is compatible with semantic role given as parameter
 
    See also default email recipients list generation in workflow/alert.xql
+
+   FIXME: should we complete $subject and $object with $profile 
+   and get $profile from caller to factorize calls to user:get-user-profile() ?
    ======================================================================
 :)
-declare function access:assert-semantic-role( $suffix as xs:string, $case as element(), $activity as element()? ) as xs:boolean {
+declare function access:assert-semantic-role( $suffix as xs:string, $subject as element()?, $object as element()? ) as xs:boolean {
   let $uid := user:get-current-person-id() 
   return
     if ($uid) then
@@ -285,7 +271,7 @@ declare function access:assert-user-role-for( $action as xs:string, $control as 
    Returns a boolean
    ======================================================================
 :)
-declare function access:assert-user-role-for( $action as xs:string, $control as element()?, $case as element(), $activity as element()? ) {
+declare function access:assert-user-role-for( $action as xs:string, $control as element()?, $subject as element(), $object as element()? ) {
   let $rules := $control/Action[@Type eq $action]
   return
     if (empty($rules)) then
@@ -294,7 +280,7 @@ declare function access:assert-user-role-for( $action as xs:string, $control as 
       else (: any other action requires an explicit rule :)
         false()
     else
-      access:assert-access-rules($rules, $case, $activity)
+      access:assert-access-rules($rules, $subject, $object)
 };
 
 (: ======================================================================
@@ -324,10 +310,10 @@ declare function access:assert-workflow-state( $action as xs:string, $workflow a
    This can be used to suggest transition to user or to prevent it
    ======================================================================
 :)
-declare function access:assert-transition( $from as xs:string, $to as xs:string, $case as element(), $activity as element()? ) as xs:boolean {
-  let $workflow := if ($activity) then 'Activity' else 'Case'
+declare function access:assert-transition( $from as xs:string, $to as xs:string, $subject as element(), $object as element()? ) as xs:boolean {
+  let $workflow := if ($object) then 'Activity' else 'Case'
   let $transition := globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From eq $from][@To eq $to]
-  return access:assert-transition($transition, $case, $activity)
+  return access:assert-transition($transition, $subject, $object)
 };
 
 (: ======================================================================
@@ -335,8 +321,8 @@ declare function access:assert-transition( $from as xs:string, $to as xs:string,
    First checks current status compatibility with transition
    ====================================================================== 
 :)
-declare function access:assert-transition( $transition as element()?, $case as element(), $activity as element()? ) as xs:boolean {
-  let $item := if ($activity) then $activity else $case
+declare function access:assert-transition( $transition as element()?, $subject as element(), $object as element()? ) as xs:boolean {
+  let $item := if ($object) then $object else $subject
   return
     if ($transition and ($item/StatusHistory/CurrentStatusRef eq string($transition/@From))) then
       every $check in 
@@ -385,15 +371,127 @@ declare function access:assert-transition-partly( $item as element(), $assert as
    to interpret the false result
    ======================================================================
 :)
-declare function access:check-status-change( $transition as element(), $case as element(), $activity as element()? ) as xs:boolean {
+declare function access:check-status-change( $transition as element(), $subject as element(), $activity as element()? ) as xs:boolean {
   let $status :=
     if ($activity) then
       $activity/StatusHistory/CurrentStatusRef/text()
     else
-      $case/StatusHistory/CurrentStatusRef/text()
+      $subject/StatusHistory/CurrentStatusRef/text()
   return
     if ($transition/@From = $status) then (: see pre-condition :)
-      access:assert-access-rules($transition, $case, $activity)
+      access:assert-access-rules($transition, $subject, $activity)
     else
       false()
+};
+
+(: ======================================================================
+   Implements access control rules in Resources element of application.xml
+   Checks $action is allowed on resource $type
+   Interprets semantic rules against a $subject element (optional)
+   ======================================================================
+:)
+declare function access:check-entity-permissions( $action as xs:string, $type as xs:string, $subject as element()?, $object as element()? ) as xs:boolean 
+{
+  let $security-model := fn:doc(oppidum:path-to-config('application.xml'))//Security/Resources/Resource[@Name = $type]
+  let $rules := $security-model/Action[@Type eq $action]
+  return
+    access:assert-access-rules($rules, $subject, $object)
+};
+
+(: ======================================================================
+   Stub function to call access:check-entity-permissions w/o object
+   ====================================================================== 
+:)
+declare function access:check-entity-permissions( $action as xs:string, $type as xs:string, $subject as element()? ) as xs:boolean 
+{
+  access:check-entity-permissions($action, $type, $subject, ())
+};
+
+(: ======================================================================
+   Stub function to call access:check-entity-permissions w/o subject
+   ====================================================================== 
+:)
+declare function access:check-entity-permissions( $action as xs:string, $type as xs:string ) as xs:boolean 
+{
+  access:check-entity-permissions($action, $type, (), ())
+};
+
+(: ======================================================================
+   Implements access control rules in Documents element of application.xml
+   Checks $action is allowed on document with root $root
+   Interprets semantic rules against $subject and $object elements
+   ======================================================================
+:)
+declare function access:check-document-permissions( $action as xs:string, $root as xs:string, $subject as element()?, $object as element()? ) as xs:boolean 
+{
+  let $security-model := fn:doc(oppidum:path-to-config('application.xml'))//Security/Documents/Document[@Root = $root]
+  let $rules := $security-model/Action[@Type eq $action]
+  return
+    access:assert-access-rules($rules, $subject, $object)
+};
+
+(: ======================================================================
+   Stub function to call access:check-document-permissions w/o object
+   ====================================================================== 
+:)
+declare function access:check-document-permissions( $action as xs:string, $root as xs:string, $subject as element()? ) as xs:boolean 
+{
+  access:check-document-permissions($action, $root, $subject, ())
+};
+
+(: ======================================================================
+   Implements access control rules in Documents element of application.xml
+   Checks $action is allowed on document in tab $tab
+   Interprets semantic rules against $subject and $object elements
+   ======================================================================
+:)
+declare function access:check-tab-permissions( $action as xs:string, $tab as xs:string, $subject as element()?, $object as element()? ) as xs:boolean 
+{
+  let $security-model := fn:doc(oppidum:path-to-config('application.xml'))//Security/Documents/Document[@TabRef = $tab]
+  let $rules := $security-model/Action[@Type eq $action]
+  return
+    access:assert-access-rules($rules, $subject, $object)
+};
+
+(: ======================================================================
+   Stub function to call access:check-tab-permissions w/o object
+   ====================================================================== 
+:)
+declare function access:check-tab-permissions( $action as xs:string, $tab as xs:string, $subject as element()? ) as xs:boolean 
+{
+  access:check-tab-permissions($action, $tab, $subject, ())
+};
+
+(: ======================================================================
+   Implements access control rules in Workflow element of application.xml
+   Checks $action is allowed in workflow $workflow on document with root $root
+   Interprets semantic rules against optional $subject and $object elements 
+   (typically a Case and an Activity) using $object as first choice 
+   when it is defined and has a StatusHistory or $subject otherwise 
+   to assert compatibility with current workflow status
+   ======================================================================
+:)
+declare function access:check-workflow-permissions( $action as xs:string, $workflow as xs:string, $root as xs:string, $subject as element()?, $object as element()? ) as xs:boolean 
+{
+  let $security-model := fn:doc(oppidum:path-to-config('application.xml'))//Security/Documents/Document[@Root = $root]
+  let $rules := $security-model/Action[@Type eq $action]
+  return
+    if (access:assert-user-role-for($action, $security-model, $subject, $object)) then
+      if (exists($object/StatusHistory/CurrentStatusRef)) then
+        access:assert-workflow-state($action, $workflow, $security-model, $object/StatusHistory/CurrentStatusRef)
+      else if (exists($subject/StatusHistory/CurrentStatusRef)) then 
+        access:assert-workflow-state($action, $workflow, $security-model, $subject/StatusHistory/CurrentStatusRef)
+      else (: FIXME: throw exception :)
+        false
+    else
+      false()
+};
+
+(: ======================================================================
+   Stub function to call access:check-workflow-permissions w/o object
+   ====================================================================== 
+:)
+declare function access:check-workflow-permissions( $action as xs:string, $workflow as xs:string, $root as xs:string, $subject as element()? ) as xs:boolean 
+{
+  access:check-workflow-permissions($action, $workflow, $root, $subject, ())
 };
