@@ -49,7 +49,6 @@
 
       // Forwards $.ajax errors to application global error handler
       function _jqForwardError ( xhr, status, e )  {
-        // TODO: hide spoining wheel $('#' + this.spec.attr('data-busy')).hide();
         $('body').trigger('axel-network-error', { xhr : xhr, status : status, e : e });
       }
 
@@ -324,6 +323,7 @@
           }
         },
 
+        // TODO: implement more response actions ($axel.oppidum.handleMessage, etc.)
         submitAjaxSuccess : function ( data, status, xhr ) {
           this.ajaxSuccessResponse('axel-save-done', null, null, xhr);
         },
@@ -490,6 +490,7 @@
     this.key = identifier;
     this.spec = $(node);
     this.spec.bind('click', $.proxy(this, 'execute'));
+    this.spec.removeAttr('disabled');
   }
 
   TableCommand.prototype = {
@@ -497,6 +498,7 @@
     // Forwards $.ajax errors to application global error handler
     _jqForwardError : function ( xhr, status, e )  {
       $('#' + this.spec.attr('data-busy')).hide();
+      this.spec.removeAttr('disabled');
       $('body').trigger('axel-network-error', { xhr : xhr, status : status, e : e });
     },
     
@@ -508,6 +510,7 @@
           jsum = $('#' + data.Table + '-summary'),
           nb;
       $('#' + this.spec.attr('data-busy')).hide();
+      this.spec.removeAttr('disabled');
       if (DB) { // something to show
         //$('#no-sample').hide();
         nb = data.Users ? data.Users.length || 1 : 0;
@@ -538,6 +541,7 @@
     execute : function (event) {
       var payload = $axel("#" + this.key).xml();
       $('#' + this.spec.attr('data-busy')).show();
+      this.spec.attr('disabled', true);
       $.ajax({
         url : this.spec.attr('data-controller'),
         type : 'post',
