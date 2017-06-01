@@ -221,10 +221,12 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
         if (count($pivot) > 1) then
           oppidum:throw-error('XAL-PIVOT-ERROR', (string($action/@Pivot), count($pivot)))
         else
-          if ($action/@Type eq 'create') then (: atomic 1 fragment action - TODO: check cardinality :)
+          if ($type eq 'create') then (: atomic 1 fragment action - TODO: check cardinality :)
             local:apply-xal-create($pivot, $action)
-          else if ($action/@Type eq 'timestamp') then
+          else if ($type eq 'timestamp') then
             local:apply-xal-timestamp($pivot, $action)
+          else if (($type eq 'invalidate') and (empty($spec/@Mode) or ($spec/@Mode ne 'batch'))) then
+            local:apply-xal-invalidate($action)
           else (: iterated actions on 1 or more fragments :)
             for $fragment in $action/*
             return
@@ -234,8 +236,6 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
                 local:apply-xal-update($pivot, $fragment, $action)
               else if ($type eq 'insert') then
                 local:apply-xal-insert($pivot, $fragment, $action)
-              else if (($type eq 'invalidate') and (empty($spec/@Mode) or ($spec/@Mode ne 'batch'))) then
-                local:apply-xal-invalidate($action)
               else
                 ()
     return
