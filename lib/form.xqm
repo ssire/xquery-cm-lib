@@ -47,18 +47,19 @@ declare function form:gen-unfinished-selector ( $lang as xs:string, $params as x
 (: ======================================================================
    Generates XTiger XML 'choice' element for a given selector as a radio button box
    TODO:
-   - caching
+   - cached version
+   - fix deprecated Label="V+Name" syntax
    ======================================================================
 :)
 declare function form:gen-radio-selector-for( $name as xs:string, $lang as xs:string, $noedit as xs:boolean, $class as xs:string ) as element()* {
   let $defs := globals:collection('global-info-uri')//Description[@Lang = $lang]//Selector[@Name eq $name]
-  let $concat := if (starts-with($defs/@Label, 'V+')) then true() else false()
-  let $label := if ($concat) then substring-after($defs/@Label, 'V+') else string($defs/@Label)
+  let $concat := if (exists($defs/@Label) and starts-with($defs/@Label, 'V+')) then true() else false()
+  let $label := if ($concat) then substring-after($defs/@Label, 'V+') else 'Name'
   return
      let $pairs :=
         for $p in $defs//Option
-        let $v := $p/*[local-name(.) eq string($defs/@Value)]/text()
-        let $l := if ($concat) then concat($v, ' ', $p/*[local-name(.) eq $label]) else $p/*[local-name(.) eq $label]
+        let $v := $p/Value/text()
+        let $l := if ($concat) then concat($v, ' ', $p/*[local-name(.) eq $label]) else $p/Name
         return
            <Name id="{$v}">{(replace($l,' ','\\ '))}</Name>
     return

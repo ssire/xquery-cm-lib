@@ -1,481 +1,481 @@
 <?xml version="1.0"?>
 <GlobalInformation>
   <Description Lang="en">
-    <Selector Name="DomainActivities" Value="Code" Label="V+Name" Test="Domains of activities (NACE nomenclature)">
+    <Selector Name="DomainActivities" Label="V+Name" Test="Domains of activities (NACE nomenclature)">
       <Group>
-        <Code>A</Code>
+        <Value>A</Value>
         <Name>Agriculture, forestry and fishing</Name>
         <Selector>
           <Option>
-            <Code>A1</Code>
+            <Value>A1</Value>
             <Name>Crop and animal production, hunting and related service activities</Name>
           </Option>
           <Option>
-            <Code>A2</Code>
+            <Value>A2</Value>
             <Name>Foresty and logging</Name>
           </Option>
           <Option>
-            <Code>A3</Code>
+            <Value>A3</Value>
             <Name>Fishing and aquaculture</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>B</Code>
+        <Value>B</Value>
         <Name>Mining and quarrying </Name>
         <Selector>
           <Option>
-            <Code>B5</Code>
+            <Value>B5</Value>
             <Name>Mining of coal and ligmite</Name>
           </Option>
           <Option>
-            <Code>B6</Code>
+            <Value>B6</Value>
             <Name>Extraction of crude petroleum and natural</Name>
           </Option>
           <Option>
-            <Code>B7</Code>
+            <Value>B7</Value>
             <Name>Mining of metal ores</Name>
           </Option>
           <Option>
-            <Code>B8</Code>
+            <Value>B8</Value>
             <Name>Other mining and quarrying</Name>
           </Option>
           <Option>
-            <Code>B9</Code>
+            <Value>B9</Value>
             <Name>Mining support service activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>C</Code>
+        <Value>C</Value>
         <Name>Manufacturing </Name>
         <Selector>
           <Option>
-            <Code>C10</Code>
+            <Value>C10</Value>
             <Name>Manufacture of food products</Name>
           </Option>
           <Option>
-            <Code>C11</Code>
+            <Value>C11</Value>
             <Name>Manufacture of beverages</Name>
           </Option>
           <Option>
-            <Code>C12</Code>
+            <Value>C12</Value>
             <Name>Manufacture of tobacco products</Name>
           </Option>
           <Option>
-            <Code>C13</Code>
+            <Value>C13</Value>
             <Name>Manufacture of textiles</Name>
           </Option>
           <Option>
-            <Code>C14</Code>
+            <Value>C14</Value>
             <Name>Manufacture of wearing apparel</Name>
           </Option>
           <Option>
-            <Code>C15</Code>
+            <Value>C15</Value>
             <Name>Manufacture of leather and related products</Name>
           </Option>
           <Option>
-            <Code>C16</Code>
+            <Value>C16</Value>
             <Name>Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials</Name>
           </Option>
           <Option>
-            <Code>C17</Code>
+            <Value>C17</Value>
             <Name>Manufacture of paper and paper products</Name>
           </Option>
           <Option>
-            <Code>C18</Code>
+            <Value>C18</Value>
             <Name>Printing and reproduction of recorded media</Name>
           </Option>
           <Option>
-            <Code>C19</Code>
+            <Value>C19</Value>
             <Name>Manufacture of coke and refined petroleum products</Name>
           </Option>
           <Option>
-            <Code>C20</Code>
+            <Value>C20</Value>
             <Name>Manufacture of chemicals and chemical products</Name>
           </Option>
           <Option>
-            <Code>C21</Code>
+            <Value>C21</Value>
             <Name>Manufacture of basic pharmaceutical products and pharmaceutical preparations</Name>
           </Option>
           <Option>
-            <Code>C22</Code>
+            <Value>C22</Value>
             <Name>Manufacture of rubber and plastic products</Name>
           </Option>
           <Option>
-            <Code>C23</Code>
+            <Value>C23</Value>
             <Name>Manufacture of other non-metallic mineral products</Name>
           </Option>
           <Option>
-            <Code>C24</Code>
+            <Value>C24</Value>
             <Name>Manufacture of basic metals</Name>
           </Option>
           <Option>
-            <Code>C25</Code>
+            <Value>C25</Value>
             <Name>Manufacture of fabricated metal products, except machinery and equipment</Name>
           </Option>
           <Option>
-            <Code>C26</Code>
+            <Value>C26</Value>
             <Name>Manufacture of computer, electronic and optical products</Name>
           </Option>
           <Option>
-            <Code>C27</Code>
+            <Value>C27</Value>
             <Name>Manufacture of electrical equipment</Name>
           </Option>
           <Option>
-            <Code>C28</Code>
+            <Value>C28</Value>
             <Name>Manufacture of machinery and equipment n.e.c.</Name>
           </Option>
           <Option>
-            <Code>C29</Code>
+            <Value>C29</Value>
             <Name>Manufacture of motor vehicles, trailers and semi-trailers</Name>
           </Option>
           <Option>
-            <Code>C30</Code>
+            <Value>C30</Value>
             <Name>Manufacture of other transport equipment</Name>
           </Option>
           <Option>
-            <Code>C31</Code>
+            <Value>C31</Value>
             <Name>Manufacture of furniture</Name>
           </Option>
           <Option>
-            <Code>C32</Code>
+            <Value>C32</Value>
             <Name>Other manufacturing</Name>
           </Option>
           <Option>
-            <Code>C33</Code>
+            <Value>C33</Value>
             <Name>Repair and installation of machinery and equipment</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>D</Code>
+        <Value>D</Value>
         <Name>Electricity, gas, steam and air conditioning supply </Name>
         <Selector>
           <Option>
-            <Code>D35</Code>
+            <Value>D35</Value>
             <Name>Electricity, gas, steam and air-conditioning supply</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>E</Code>
+        <Value>E</Value>
         <Name>Water supply; sewerage, waste management and remediation activities </Name>
         <Selector>
           <Option>
-            <Code>E36</Code>
+            <Value>E36</Value>
             <Name>Water collection, treatment and supply</Name>
           </Option>
           <Option>
-            <Code>E37</Code>
+            <Value>E37</Value>
             <Name>Sewerage</Name>
           </Option>
           <Option>
-            <Code>E38</Code>
+            <Value>E38</Value>
             <Name>Waste collection, treatment and disposal activities; materials recovery</Name>
           </Option>
           <Option>
-            <Code>E39</Code>
+            <Value>E39</Value>
             <Name>Remediation activities and other waste management services</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>F</Code>
+        <Value>F</Value>
         <Name>Construction </Name>
         <Selector>
           <Option>
-            <Code>F41</Code>
+            <Value>F41</Value>
             <Name>Construction of buildings</Name>
           </Option>
           <Option>
-            <Code>F42</Code>
+            <Value>F42</Value>
             <Name>Civil engineering</Name>
           </Option>
           <Option>
-            <Code>F43</Code>
+            <Value>F43</Value>
             <Name>Specialised construction activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>G</Code>
+        <Value>G</Value>
         <Name>Wholesale and retail trade; repair of motor vehicles and motorcycles </Name>
         <Selector>
           <Option>
-            <Code>G45</Code>
+            <Value>G45</Value>
             <Name>Wholesale and retail trade and repair of motor vehicles and motorcycles</Name>
           </Option>
           <Option>
-            <Code>G46</Code>
+            <Value>G46</Value>
             <Name>Wholesale trade, except of motor vehicles and motorcycles</Name>
           </Option>
           <Option>
-            <Code>G47</Code>
+            <Value>G47</Value>
             <Name>Retail trade, except of motor vehicles and motorcycles</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>H</Code>
+        <Value>H</Value>
         <Name>Transportation and storage </Name>
         <Selector>
           <Option>
-            <Code>H49</Code>
+            <Value>H49</Value>
             <Name>Land transport and transport via pipelines</Name>
           </Option>
           <Option>
-            <Code>H50</Code>
+            <Value>H50</Value>
             <Name>Water transport</Name>
           </Option>
           <Option>
-            <Code>H51</Code>
+            <Value>H51</Value>
             <Name>Air transport</Name>
           </Option>
           <Option>
-            <Code>H52</Code>
+            <Value>H52</Value>
             <Name>Warehousing and support activities for transportation</Name>
           </Option>
           <Option>
-            <Code>H53</Code>
+            <Value>H53</Value>
             <Name>Postal and courier activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>I</Code>
+        <Value>I</Value>
         <Name>Accommodation and food service activities </Name>
         <Selector>
           <Option>
-            <Code>I55</Code>
+            <Value>I55</Value>
             <Name>Accommodation</Name>
           </Option>
           <Option>
-            <Code>I56</Code>
+            <Value>I56</Value>
             <Name>Food and beverage service activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>J</Code>
+        <Value>J</Value>
         <Name>Information and communication </Name>
         <Selector>
           <Option>
-            <Code>J58</Code>
+            <Value>J58</Value>
             <Name>Publishing activities</Name>
           </Option>
           <Option>
-            <Code>J59</Code>
+            <Value>J59</Value>
             <Name>Motion picture, video and television programme production, sound recording and music publishing activities</Name>
           </Option>
           <Option>
-            <Code>J60</Code>
+            <Value>J60</Value>
             <Name>Programming and broadcasting activities</Name>
           </Option>
           <Option>
-            <Code>J61</Code>
+            <Value>J61</Value>
             <Name>Telecommunications</Name>
           </Option>
           <Option>
-            <Code>J62</Code>
+            <Value>J62</Value>
             <Name>Computer programming, consultancy and related activities</Name>
           </Option>
           <Option>
-            <Code>J63</Code>
+            <Value>J63</Value>
             <Name>Information service activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>K</Code>
+        <Value>K</Value>
         <Name>Financial and insurance activities </Name>
         <Selector>
           <Option>
-            <Code>K64</Code>
+            <Value>K64</Value>
             <Name>Financial service activities, except insurance and pension funding</Name>
           </Option>
           <Option>
-            <Code>K65</Code>
+            <Value>K65</Value>
             <Name>Insurance, reinsurance and pension funding, except compulsory social security</Name>
           </Option>
           <Option>
-            <Code>K66</Code>
+            <Value>K66</Value>
             <Name>Activities auxiliary to financial services and insurance activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>L</Code>
+        <Value>L</Value>
         <Name>Real estate activities </Name>
         <Selector>
           <Option>
-            <Code>L68</Code>
+            <Value>L68</Value>
             <Name>Real estate activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>M</Code>
+        <Value>M</Value>
         <Name>Professional, scientific and technical activities </Name>
         <Selector>
           <Option>
-            <Code>M69</Code>
+            <Value>M69</Value>
             <Name>Legal and accounting activities</Name>
           </Option>
           <Option>
-            <Code>M70</Code>
+            <Value>M70</Value>
             <Name>Activities of head offices; management consultancy activities</Name>
           </Option>
           <Option>
-            <Code>M71</Code>
+            <Value>M71</Value>
             <Name>Architectural and engineering activities; technical testing and analysis</Name>
           </Option>
           <Option>
-            <Code>M72</Code>
+            <Value>M72</Value>
             <Name>Scientific research and development</Name>
           </Option>
           <Option>
-            <Code>M73</Code>
+            <Value>M73</Value>
             <Name>Advertising and market research</Name>
           </Option>
           <Option>
-            <Code>M74</Code>
+            <Value>M74</Value>
             <Name>Other professional, scientific and technical activities</Name>
           </Option>
           <Option>
-            <Code>M75</Code>
+            <Value>M75</Value>
             <Name>Veterinary activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>N</Code>
+        <Value>N</Value>
         <Name>Administrative and support service activities </Name>
         <Selector>
           <Option>
-            <Code>N77</Code>
+            <Value>N77</Value>
             <Name>Rental and leasing activities</Name>
           </Option>
           <Option>
-            <Code>N78</Code>
+            <Value>N78</Value>
             <Name>Employment activities</Name>
           </Option>
           <Option>
-            <Code>N79</Code>
+            <Value>N79</Value>
             <Name>Travel agency, tour operator reservation service and related activities</Name>
           </Option>
           <Option>
-            <Code>N80</Code>
+            <Value>N80</Value>
             <Name>Security and investigation activities</Name>
           </Option>
           <Option>
-            <Code>N81</Code>
+            <Value>N81</Value>
             <Name>Services to buildings and landscape activities</Name>
           </Option>
           <Option>
-            <Code>N82</Code>
+            <Value>N82</Value>
             <Name>Office administrative, office support and other business support activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>O</Code>
+        <Value>O</Value>
         <Name>Public administration and defence; compulsory social security </Name>
         <Selector>
           <Option>
-            <Code>O84</Code>
+            <Value>O84</Value>
             <Name>Public administration and defence; compulsory social security</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>P</Code>
+        <Value>P</Value>
         <Name>Education </Name>
         <Selector>
           <Option>
-            <Code>P85</Code>
+            <Value>P85</Value>
             <Name>Education</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>Q</Code>
+        <Value>Q</Value>
         <Name>Human health and social work activities </Name>
         <Selector>
           <Option>
-            <Code>Q86</Code>
+            <Value>Q86</Value>
             <Name>Human health activities</Name>
           </Option>
           <Option>
-            <Code>Q87</Code>
+            <Value>Q87</Value>
             <Name>Residential care activities</Name>
           </Option>
           <Option>
-            <Code>Q88</Code>
+            <Value>Q88</Value>
             <Name>Social work activities without accommodation</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>R</Code>
+        <Value>R</Value>
         <Name>Arts, entertainment and recreation </Name>
         <Selector>
           <Option>
-            <Code>R90</Code>
+            <Value>R90</Value>
             <Name>Creative, arts and entertainment activities</Name>
           </Option>
           <Option>
-            <Code>R91</Code>
+            <Value>R91</Value>
             <Name>Libraries, archives, museums and other cultural activities</Name>
           </Option>
           <Option>
-            <Code>R92</Code>
+            <Value>R92</Value>
             <Name>Gambling and betting activities</Name>
           </Option>
           <Option>
-            <Code>R93</Code>
+            <Value>R93</Value>
             <Name>Sports activities and amusement and recreation activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>S</Code>
+        <Value>S</Value>
         <Name>Other service activities </Name>
         <Selector>
           <Option>
-            <Code>S94</Code>
+            <Value>S94</Value>
             <Name>Activities of membership organisations</Name>
           </Option>
           <Option>
-            <Code>S95</Code>
+            <Value>S95</Value>
             <Name>Repair of computers and personal and household goods</Name>
           </Option>
           <Option>
-            <Code>S96</Code>
+            <Value>S96</Value>
             <Name>Other personal service activities</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>T</Code>
+        <Value>T</Value>
         <Name>Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use</Name>
         <Selector>
           <Option>
-            <Code>T97</Code>
+            <Value>T97</Value>
             <Name>Activities of households as employers of domestic personnel</Name>
           </Option>
           <Option>
-            <Code>T98</Code>
+            <Value>T98</Value>
             <Name>Undifferentiated goods- and services-producing activities of private households for own use</Name>
           </Option>
         </Selector>
       </Group>
       <Group>
-        <Code>U</Code>
+        <Value>U</Value>
         <Name>Activities of extraterritorial organisations and bodies </Name>
         <Selector>
           <Option>
-            <Code>U99</Code>
+            <Value>U99</Value>
             <Name>Activities of extraterritorial organisations and bodies</Name>
           </Option>
         </Selector>

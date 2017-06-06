@@ -1,171 +1,171 @@
 <?xml version="1.0"?>
 <GlobalInformation>
   <Description Lang="en">
-    <Selector Name="Countries" Value="CountryCode" Label="CountryName">
+    <Selector Name="Countries">
       <Description>European countries</Description>
       <Option>
-        <CountryCode>AL</CountryCode>
-        <CountryName>Albania</CountryName>
+        <Value>AL</Value>
+        <Name>Albania</Name>
       </Option>
       <Option>
-        <CountryCode>AT</CountryCode>
-        <CountryName>Austria</CountryName>
+        <Value>AT</Value>
+        <Name>Austria</Name>
       </Option>
       <Option>
-        <CountryCode>BE</CountryCode>
-        <CountryName>Belgium</CountryName>
+        <Value>BE</Value>
+        <Name>Belgium</Name>
       </Option>
       <Option>
-        <CountryCode>BA</CountryCode>
-        <CountryName>Bosnia and Herzegovina</CountryName>
+        <Value>BA</Value>
+        <Name>Bosnia and Herzegovina</Name>
       </Option>
       <Option>
-        <CountryCode>BG</CountryCode>
-        <CountryName>Bulgaria</CountryName>
+        <Value>BG</Value>
+        <Name>Bulgaria</Name>
       </Option>
       <Option>
-        <CountryCode>HR</CountryCode>
-        <CountryName>Croatia</CountryName>
+        <Value>HR</Value>
+        <Name>Croatia</Name>
       </Option>
       <Option>
-        <CountryCode>CY</CountryCode>
-        <CountryName>Cyprus</CountryName>
+        <Value>CY</Value>
+        <Name>Cyprus</Name>
       </Option>
       <Option>
-        <CountryCode>CZ</CountryCode>
-        <CountryName>Czech Republic</CountryName>
+        <Value>CZ</Value>
+        <Name>Czech Republic</Name>
       </Option>
       <Option>
-        <CountryCode>DK</CountryCode>
-        <CountryName>Denmark</CountryName>
+        <Value>DK</Value>
+        <Name>Denmark</Name>
       </Option>
       <Option>
-        <CountryCode>EE</CountryCode>
-        <CountryName>Estonia</CountryName>
+        <Value>EE</Value>
+        <Name>Estonia</Name>
       </Option>
       <Option>
-        <CountryCode>FI</CountryCode>
-        <CountryName>Finland</CountryName>
+        <Value>FI</Value>
+        <Name>Finland</Name>
       </Option>
       <Option>
-        <CountryCode>FR</CountryCode>
-        <CountryName>France</CountryName>
+        <Value>FR</Value>
+        <Name>France</Name>
       </Option>
       <Option>
-        <CountryCode>DE</CountryCode>
-        <CountryName>Germany</CountryName>
+        <Value>DE</Value>
+        <Name>Germany</Name>
       </Option>
       <Option>
-        <CountryCode>FO</CountryCode>
-        <CountryName>Faroe Islands</CountryName>
+        <Value>FO</Value>
+        <Name>Faroe Islands</Name>
       </Option>
       <Option>
-        <CountryCode>GR</CountryCode>
-        <CountryName>Greece</CountryName>
+        <Value>GR</Value>
+        <Name>Greece</Name>
       </Option>
       <Option>
-        <CountryCode>HU</CountryCode>
-        <CountryName>Hungary</CountryName>
+        <Value>HU</Value>
+        <Name>Hungary</Name>
       </Option>
       <Option>
-        <CountryCode>IS</CountryCode>
-        <CountryName>Iceland</CountryName>
+        <Value>IS</Value>
+        <Name>Iceland</Name>
       </Option>
       <Option>
-        <CountryCode>IE</CountryCode>
-        <CountryName>Ireland</CountryName>
+        <Value>IE</Value>
+        <Name>Ireland</Name>
       </Option>
       <Option>
-        <CountryCode>IL</CountryCode>
-        <CountryName>Israel</CountryName>
+        <Value>IL</Value>
+        <Name>Israel</Name>
       </Option>
       <Option>
-        <CountryCode>IT</CountryCode>
-        <CountryName>Italy</CountryName>
+        <Value>IT</Value>
+        <Name>Italy</Name>
       </Option>
       <Option>
-        <CountryCode>LV</CountryCode>
-        <CountryName>Latvia</CountryName>
+        <Value>LV</Value>
+        <Name>Latvia</Name>
       </Option>
       <Option>
-        <CountryCode>LT</CountryCode>
-        <CountryName>Lithuania</CountryName>
+        <Value>LT</Value>
+        <Name>Lithuania</Name>
       </Option>
       <Option>
-        <CountryCode>LU</CountryCode>
-        <CountryName>Luxembourg</CountryName>
+        <Value>LU</Value>
+        <Name>Luxembourg</Name>
       </Option>
       <Option>
-        <CountryCode>MK</CountryCode>
-        <CountryName>Macedonia</CountryName>
+        <Value>MK</Value>
+        <Name>Macedonia</Name>
       </Option>
       <Option>
-        <CountryCode>MT</CountryCode>
-        <CountryName>Malta</CountryName>
+        <Value>MT</Value>
+        <Name>Malta</Name>
       </Option>
       <Option>
-        <CountryCode>MD</CountryCode>
-        <CountryName>Moldova</CountryName>
+        <Value>MD</Value>
+        <Name>Moldova</Name>
       </Option>
       <Option>
-        <CountryCode>ME</CountryCode>
-        <CountryName>Montenegro</CountryName>
+        <Value>ME</Value>
+        <Name>Montenegro</Name>
       </Option>
       <Option>
-        <CountryCode>NL</CountryCode>
-        <CountryName>Netherlands</CountryName>
+        <Value>NL</Value>
+        <Name>Netherlands</Name>
       </Option>
       <Option>
-        <CountryCode>NO</CountryCode>
-        <CountryName>Norway</CountryName>
+        <Value>NO</Value>
+        <Name>Norway</Name>
       </Option>
       <Option>
-        <CountryCode>PL</CountryCode>
-        <CountryName>Poland</CountryName>
+        <Value>PL</Value>
+        <Name>Poland</Name>
       </Option>
       <Option>
-        <CountryCode>PT</CountryCode>
-        <CountryName>Portugal</CountryName>
+        <Value>PT</Value>
+        <Name>Portugal</Name>
       </Option>
       <Option>
-        <CountryCode>RO</CountryCode>
-        <CountryName>Romania</CountryName>
+        <Value>RO</Value>
+        <Name>Romania</Name>
       </Option>
       <Option>
-        <CountryCode>RS</CountryCode>
-        <CountryName>Serbia</CountryName>
+        <Value>RS</Value>
+        <Name>Serbia</Name>
       </Option>      
       <Option>
-        <CountryCode>SK</CountryCode>
-        <CountryName>Slovakia</CountryName>
+        <Value>SK</Value>
+        <Name>Slovakia</Name>
       </Option>
       <Option>
-        <CountryCode>SI</CountryCode>
-        <CountryName>Slovenia</CountryName>
+        <Value>SI</Value>
+        <Name>Slovenia</Name>
       </Option>
       <Option>
-        <CountryCode>ES</CountryCode>
-        <CountryName>Spain</CountryName>
+        <Value>ES</Value>
+        <Name>Spain</Name>
       </Option>
       <Option>
-        <CountryCode>SE</CountryCode>
-        <CountryName>Sweden</CountryName>
+        <Value>SE</Value>
+        <Name>Sweden</Name>
       </Option>
       <Option>
-        <CountryCode>CH</CountryCode>
-        <CountryName>Switzerland</CountryName>
+        <Value>CH</Value>
+        <Name>Switzerland</Name>
       </Option>
       <Option>
-        <CountryCode>TR</CountryCode>
-        <CountryName>Turkey</CountryName>
+        <Value>TR</Value>
+        <Name>Turkey</Name>
       </Option>
       <Option>
-        <CountryCode>UK</CountryCode>
-        <CountryName>United Kingdom</CountryName>
+        <Value>UK</Value>
+        <Name>United Kingdom</Name>
       </Option>
       <Option>
-        <CountryCode>UA</CountryCode>
-        <CountryName>Ukraine</CountryName>
+        <Value>UA</Value>
+        <Name>Ukraine</Name>
       </Option>
     </Selector>
   </Description>

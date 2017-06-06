@@ -24,7 +24,7 @@ module namespace display = "http://oppidoc.com/ns/xcm/display";
 
 declare namespace site = "http://oppidoc.com/oppidum/site";
 
-import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "lib/globals.xqm";
+import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
 
 (: ======================================================================
    Returns a hard coded string in case of an unkown reference

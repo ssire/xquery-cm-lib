@@ -55,7 +55,7 @@ declare function user:get-user-profile() as element()? {
  :)
 declare function user:get-function-ref-for-role( $roles as xs:string* ) as xs:string*  {
   if (exists($roles)) then
-    globals:collection('global-info-uri')//Description[@Role = 'normative']/Selector[@Name eq 'Functions']/Option[@Role = $roles]/Id/text()
+    globals:collection('global-info-uri')//Description[@Role = 'normative']/Selector[@Name eq 'Functions']/Option[@Role = $roles]/Value/text()
   else
     ()
 };

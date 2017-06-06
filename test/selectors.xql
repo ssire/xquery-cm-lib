@@ -32,12 +32,14 @@ declare function local:gen-cell( $name as xs:string, $input as element() ) {
 declare function local:gen-choices( $name as xs:string, $output as xs:string ) {
   <div class="row-fluid">
     <div class="span12">
-     <div class="a-cell-label a-gap" style="width:200px; margin-left=0">
-       <p class="a-cell-legend">{$name}</p>
-     </div>
-     <div class="a-cell-body" style="margin-left:225px">
-      { $output }
-      </div>
+     <h3>{$name}</h3>
+    </div>
+  </div>,
+  <div class="row-fluid" style="margin-bottom: 1em">
+    <div class="span12">
+      { 
+      $output
+      }
     </div>
   </div>
 };
@@ -48,7 +50,7 @@ return
   <site:view>
     <site:content>
       <div xmlns="http://www.w3.org/1999/xhtml">
-        <div class="row-fluid" style="margin-bottom: 2em">
+        <div class="row-fluid" style="margin-bottom: 1em">
           <h1>Selector elements available in { globals:app-name() } application</h1>
           <p>Use this page to control application selectors generated from Global Information</p>
         </div>
@@ -64,7 +66,7 @@ return
         for $s at $i in $selectors
         order by string($s/@Name)
         return
-          let $txt := display:gen-name-for($s/@Name, $s//*[local-name(.) eq $s/@Value], $lang)
+          let $txt := display:gen-name-for($s/@Name, $s//*[local-name(.) eq 'Value'], $lang)
           return
             local:gen-choices(string($s/@Name), $txt)
         }

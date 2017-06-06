@@ -119,7 +119,7 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
         else
           (: optimized search for search by country :)
           let $region-refs :=
-            globals:collection('global-info-uri')//Description[@Lang eq 'en']/Selector[@Name = 'RegionalEntities']/Option[Country = $country]/Id/text()
+            globals:collection('global-info-uri')//Description[@Lang eq 'en']/Selector[@Name = 'RegionalEntities']/Option[Country = $country]/Value/text()
           let $with-country-refs := globals:doc('persons-uri')//Person[Country = $country]/Id[empty($person) or . = $person]
           (: extends to coaches having coached in one of the target country :)
           let $by-coaching-refs := distinct-values(
@@ -127,25 +127,25 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
             )
           (: extends to KAM and KAMCO from the target country :)
           let $by-region-refs := distinct-values(
-            globals:doc('persons-uri')//Person[.//Role[FunctionRef = ('3', '5')][RegionalEntityRef = $region-refs]]/Id[not(. = $with-country-refs) and not(. = $by-coaching-refs)][empty($person) or Id/text() = $person]
+            globals:doc('persons-uri')//Person[.//Role[FunctionRef = ('3', '5')][RegionalEntityRef = $region-refs]]/Id[not(. = $with-country-refs) and not(. = $by-coaching-refs)][empty($person) or Id = $person]
             )
           return (
             for $p in globals:collection('persons-uri')//Person[Id = $with-country-refs]
             where (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return
-              search:gen-person-sample($p, (), $region-role-ref, 'en', not($omni) and $uid eq $p/Id/text()),
+              search:gen-person-sample($p, (), $region-role-ref, 'en', not($omni) and $uid eq $p/Id),
             for $p in globals:collection('persons-uri')//Person[Id = ($by-coaching-refs)]
             where (empty($person) or $p/Id = $person)
               and (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return
-              search:gen-person-sample($p, 'C', $region-role-ref, 'en', not($omni) and $uid eq $p/Id/text()),
+              search:gen-person-sample($p, 'C', $region-role-ref, 'en', not($omni) and $uid eq $p/Id),
             for $p in globals:collection('persons-uri')//Person[Id = ($by-region-refs)]
             where (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return
-              search:gen-person-sample($p, 'E', $region-role-ref, 'en', not($omni) and $uid eq $p/Id/text())
+              search:gen-person-sample($p, 'E', $region-role-ref, 'en', not($omni) and $uid eq $p/Id)
             )
         )}
       </Persons>

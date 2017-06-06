@@ -36,6 +36,8 @@ declare variable $local:tests :=
       <Name>Display</Name>
       <Test><![CDATA[display:gen-name-for('Countries', <Country>FR</Country>, 'en')]]></Test>
       <Test>display:gen-person-name('10', 'en')</Test>
+      <Test><![CDATA[display:gen-name-for('DomainActivities', <ValueRef>A2</ValueRef>, 'en')]]></Test>
+      <Test>display:gen-name-for-sref('DomainActivities', 'A2', 'en')</Test>
     </Module>
     <Module>
       <Name>Form</Name>

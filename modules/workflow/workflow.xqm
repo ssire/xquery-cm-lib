@@ -40,7 +40,7 @@ declare function workflow:get-persons-for-role ( $role as xs:string, $case as el
     if ($prefix eq 'u') then (: targets specific user :)
       globals:collection('persons-uri')//Person[UserProfile/Username = $suffix]/Id/text()  (: FIXME: which realm has to be used in that case :)
     else if ($prefix eq 'g') then (: targets users belonging to a generic group :)
-      let $group-ref := globals:get-normative-selector-for('Functions')/Option[@Role eq $suffix]/Id/text()
+      let $group-ref := globals:get-normative-selector-for('Functions')/Option[@Role eq $suffix]/Value
                         (: TODO: factorize as form:gen-function-ref( $suffix ) ?  :)
       return
         globals:collection('persons-uri')//Person[UserProfile/Roles/Role/FunctionRef eq $group-ref]/Id/text()
@@ -732,7 +732,7 @@ declare function workflow:gen-workflow-steps( $workflow as xs:string, $item as e
       $workflow-def/@Offset,
       $workflow-def/@Name,
       for $s in $workflow-def/Option[not(@Deprecated)]
-      let $ref := $s/Id/text()
+      let $ref := $s/Value/text()
       return
         if ($s/@Type eq 'final') then
           if ($ref = $current-status) then

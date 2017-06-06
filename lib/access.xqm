@@ -48,7 +48,7 @@ declare function access:check-omnipotent-user() as xs:boolean {
 :)
 declare function access:check-omniscient-user( $profile as element()? ) as xs:boolean {
   some $function-ref in $profile//FunctionRef
-  satisfies $function-ref = globals:get-normative-selector-for('Functions')/Option[@Sight = 'omni']/Id
+  satisfies $function-ref = globals:get-normative-selector-for('Functions')/Option[@Sight = 'omni']/Value
 };
 
 (: ======================================================================
@@ -76,7 +76,7 @@ declare function access:check-rule( $rule as xs:string? ) as xs:boolean {
    ======================================================================
 :)
 declare function access:check-rules( $user as xs:string, $roles as xs:string* ) as xs:boolean {
-  some $ref in globals:collection('global-info-uri')//Description[@Role = 'normative']//Selector[@Name eq 'Functions']/Option[@Role = $roles]/Id
+  some $ref in globals:collection('global-info-uri')//Description[@Role = 'normative']//Selector[@Name eq 'Functions']/Option[@Role = $roles]/Value
   satisfies globals:doc('persons-uri')//Person/UserProfile[Username eq $user]//FunctionRef = $ref
 };
 
@@ -141,7 +141,7 @@ declare function access:assert-sight(
   $suffix as xs:string 
   ) as xs:boolean 
 {
-  let $groups-ref := globals:collection('global-info-uri')//Description[@Role = 'normative']/Selector[@Name eq 'Functions']/Option[@Sight eq $suffix]/Id
+  let $groups-ref := globals:collection('global-info-uri')//Description[@Role = 'normative']/Selector[@Name eq 'Functions']/Option[@Sight eq $suffix]/Value
   let $user-profile := user:get-user-profile()
   return
     $user-profile//FunctionRef = $groups-ref
@@ -287,6 +287,7 @@ declare function access:assert-user-role-for( $action as xs:string, $control as 
    Tests access control model against a given action on a given worklow actually in cur status
    Returns true if workflow status compatible with action, false otherwise
    See also workflow:gen-information in worklow/workflow.xqm
+   TODO: move to workflow.xqm ?
    ======================================================================
 :)
 declare function access:assert-workflow-state( $action as xs:string, $workflow as xs:string, $control as element(), $cur as xs:string ) as xs:boolean {
@@ -308,21 +309,23 @@ declare function access:assert-workflow-state( $action as xs:string, $workflow a
 (: ======================================================================
    Asserts case data is compatible with transition
    This can be used to suggest transition to user or to prevent it
+   TODO: move to workflow.xqm ?
    ======================================================================
 :)
-declare function access:assert-transition( $from as xs:string, $to as xs:string, $subject as element(), $object as element()? ) as xs:boolean {
-  let $workflow := if ($object) then 'Activity' else 'Case'
+declare function access:assert-transition( $from as xs:string, $to as xs:string, $case as element(), $activity as element()? ) as xs:boolean {
+  let $workflow := if ($activity) then 'Activity' else 'Case'
   let $transition := globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From eq $from][@To eq $to]
-  return access:assert-transition($transition, $subject, $object)
+  return access:assert-transition($transition, $case, $activity)
 };
 
 (: ======================================================================
    Implements Assert element on Transition element from application.xml
    First checks current status compatibility with transition
+   TODO: move to workflow.xqm ?
    ====================================================================== 
 :)
-declare function access:assert-transition( $transition as element()?, $subject as element(), $object as element()? ) as xs:boolean {
-  let $item := if ($object) then $object else $subject
+declare function access:assert-transition( $transition as element()?, $case as element(), $activity as element()? ) as xs:boolean {
+  let $item := if ($activity) then $activity else $case
   return
     if ($transition and ($item/StatusHistory/CurrentStatusRef eq string($transition/@From))) then
       every $check in 
@@ -369,6 +372,7 @@ declare function access:assert-transition-partly( $item as element(), $assert as
    YOU MUST obtain the transition by a call to workflow:get-transition-for() to be sure
    the transition is feasible from the current state, otherwise you will not be able
    to interpret the false result
+   TODO: move to workflow.xqm ?
    ======================================================================
 :)
 declare function access:check-status-change( $transition as element(), $subject as element(), $activity as element()? ) as xs:boolean {

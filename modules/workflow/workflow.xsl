@@ -75,7 +75,7 @@
             <xsl:value-of select="concat('c-',@Status)"/>
           </xsl:if>
         </xsl:attribute>
-        <xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Id/text() = $num]/Name"/>
+        <xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $num]/Name"/>
       </span>
       <xsl:apply-templates select="@StartDate"/>
     </li>
@@ -92,7 +92,7 @@
     <li>
       <span>
         <xsl:apply-templates select="." mode="class"/>
-        <xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Id = $num]/Name"/>
+        <xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $num]/Name"/>
       </span>
       <span class="c-timestamp"><xsl:value-of select="string(@StartDate)"/></span>
     </li>
@@ -102,7 +102,7 @@
     <xsl:variable name="num" select="@Num"/>
     <li>
       <span class="c-decision">
-        <xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Id = $num]/Name"/>
+        <xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $num]/Name"/>
       </span>
     </li>
   </xsl:template>
@@ -475,10 +475,10 @@
           <xsl:when test="@Label"><xsl:value-of select="@Label"/>
           </xsl:when>
           <xsl:when test="number(parent::ChangeStatus/@Status) &lt; number($to)">
-            <xsl:apply-templates select="@Intent"/>Advance to “<xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Id = $to]/Name"/>”
+            <xsl:apply-templates select="@Intent"/>Advance to “<xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $to]/Name"/>”
           </xsl:when>
           <xsl:otherwise>
-            <xsl:apply-templates select="@Intent"/>Return to “<xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Id = $to]/Name"/>”
+            <xsl:apply-templates select="@Intent"/>Return to “<xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $to]/Name"/>”
           </xsl:otherwise>
         </xsl:choose>
       </a>
