@@ -34,6 +34,10 @@ declare function crud:get-vanilla( $document as xs:string, $case as element(), $
       oppidum:throw-error('CUSTOM', concat('Missing vanilla template for read mode'))
 };
 
+(: ======================================================================
+   FIXME: adopt generic $subject / $object convention
+   ====================================================================== 
+:)
 declare function crud:save-document(
   $name as xs:string, 
   $case as element(), 
@@ -47,14 +51,20 @@ declare function crud:save-document(
   return
     if ($src) then
       let $delta := misc:prune(util:eval(string-join($src/text(), '')))
-      return (
-        xal:apply-updates(if ($activity) then $activity else $case, $delta),
-        oppidum:throw-message('ACTION-UPDATE-SUCCESS', ())
-        )
+      let $res := xal:apply-updates(if ($activity) then $activity else $case, $delta)
+      return
+        if (local-name($res) ne 'error') then
+          oppidum:throw-message('ACTION-UPDATE-SUCCESS', ())
+        else
+          $res
     else
       oppidum:throw-error('CUSTOM', concat('Missing "', $name, '" template for update mode'))
 };
 
+(: ======================================================================
+   FIXME: adopt generic $subject / $object convention
+   ====================================================================== 
+:)
 declare function crud:save-vanilla(
   $document as xs:string, 
   $case as element(), 
@@ -68,10 +78,12 @@ declare function crud:save-vanilla(
   return
     if ($src) then
       let $delta := misc:prune(util:eval(string-join($src/text(), '')))
-      return (
-        xal:apply-updates(if ($activity) then $activity else $case, $delta),
-        oppidum:throw-message('ACTION-UPDATE-SUCCESS', ())
-        )
+      let $res := xal:apply-updates(if ($activity) then $activity else $case, $delta)
+      return
+        if (local-name($res) ne 'error') then
+          oppidum:throw-message('ACTION-UPDATE-SUCCESS', ())
+        else
+          $res
     else
       oppidum:throw-error('CUSTOM', concat('Missing vanilla template for update mode'))
 };
