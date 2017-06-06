@@ -23,11 +23,12 @@ import module namespace media = "http://oppidoc.com/ns/xcm/media" at "../../lib/
 
 (: ======================================================================
    Returns secret user to call system:as-user
+   TODO: make account:system-as-user to avoid Eception if missing
    ====================================================================== 
 :)
 declare function account:get-secret-user() as xs:string {
-  if (exists(fn:doc($globals:settings-uri)/Settings/Sudoer/User)) then 
-    fn:doc($globals:settings-uri)/Settings/Sudoer/User
+  if (globals:doc('settings-uri')/Settings/Sudoer/User) then 
+    globals:doc('settings-uri')/Settings/Sudoer/User
   else 
     let $err := oppidum:throw-error('INCOMPLETE-APP-CONFIG', ())
     return 'guest'
@@ -38,7 +39,7 @@ declare function account:get-secret-user() as xs:string {
    ====================================================================== 
 :)
 declare function account:get-secret-password() as xs:string? {
-  fn:doc($globals:settings-uri)/Settings/Sudoer/Password
+  globals:doc('settings-uri')/Settings/Sudoer/Password
 };
 
 (: ======================================================================

@@ -31,7 +31,7 @@ declare function local:gen-enterprise-sample ( $e as element(), $lang as xs:stri
     <TargetedMarkets>{ display:gen-name-for('TargetedMarkets', $e/TargetedMarkets/TargetedMarketRef, 'en') }</TargetedMarkets>
     <Persons>
       {
-      string-join(for $p in globals:doc('persons-uri')//Person[EnterpriseRef eq $e/Id/text()]
+      string-join(for $p in globals:collection('persons-uri')//Person[EnterpriseRef eq $e/Id/text()]
                   return concat($p/Name/FirstName/text(), ' ', $p/Name/LastName/text()),
                   ', ')
       }
@@ -92,7 +92,7 @@ declare function local:fetch-some-enterprises ( $filter as element() ) as elemen
       and (empty($size) or $e/SizeRef = $size)
       and (empty($domain) or $e/DomainActivityRef = $domain)
       and (empty($market) or $e/TargetedMarkets/TargetedMarketRef = $market)
-      and (empty($person) or globals:doc('persons-uri')//Person[(Id = $person) and (EnterpriseRef eq $e/Id/text())])
+      and (empty($person) or globals:collection('persons-uri')//Person[(Id = $person) and (EnterpriseRef eq $e/Id/text())])
     order by $e/Name
     return
       local:gen-enterprise-sample($e, 'en')

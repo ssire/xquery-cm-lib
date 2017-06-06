@@ -29,7 +29,7 @@ declare option exist:serialize "method=xml media-type=text/xml";
 :)
 declare function local:validate-enterprise-delete( $id as xs:string ) as element()* {
   let $case := globals:collection('cases-uri')//EnterpriseRef[. = $id][1]/ancestor::Case/Information/Acronym/text()
-  let $person := globals:doc('persons-uri')//Person[EnterpriseRef = $id][1]/Name
+  let $person := globals:collection('persons-uri')//Person[EnterpriseRef = $id][1]/Name
   return
     let $err1 := if (empty($case)) then () else ajax:throw-error('ENTERPRISE-LINKED-TO-CASE', $case)
     let $err2 := if (empty($person)) then () else ajax:throw-error('ENTERPRISE-LINKED-TO-PERSON', concat($person/FirstName, " ", $person/LastName))

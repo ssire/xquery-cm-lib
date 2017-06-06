@@ -101,7 +101,7 @@ declare function local:synch-user-groups( $person as element() ) {
    ======================================================================
 :)
 declare function local:enforce-uniqueness ( $id as xs:string, $func-ref as xs:string , $serv-ref as xs:string?, $ca-ref as xs:string?) {
-  for $p in globals:doc('persons-uri')//Person[UserProfile/Roles/Role/FunctionRef[. = $func-ref]][Id ne $id]
+  for $p in globals:collection('persons-uri')//Person[UserProfile/Roles/Role/FunctionRef[. = $func-ref]][Id ne $id]
   let $role := $p/UserProfile/Roles/Role[FunctionRef = $func-ref]
   where ($serv-ref and ($role/ServiceRef = $serv-ref)) or ($ca-ref and ($role/RegionalEntityRef = $ca-ref) )
   return

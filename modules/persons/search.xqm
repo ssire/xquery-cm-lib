@@ -120,14 +120,14 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
           (: optimized search for search by country :)
           let $region-refs :=
             globals:collection('global-info-uri')//Description[@Lang eq 'en']/Selector[@Name = 'RegionalEntities']/Option[Country = $country]/Value/text()
-          let $with-country-refs := globals:doc('persons-uri')//Person[Country = $country]/Id[empty($person) or . = $person]
+          let $with-country-refs := globals:collection('persons-uri')//Person[Country = $country]/Id[empty($person) or . = $person]
           (: extends to coaches having coached in one of the target country :)
           let $by-coaching-refs := distinct-values(
             globals:collection('cases-uri')//Case[Information/ClientEnterprise/Address/Country = $country]//ResponsibleCoachRef[not(. = $with-country-refs)]
             )
           (: extends to KAM and KAMCO from the target country :)
           let $by-region-refs := distinct-values(
-            globals:doc('persons-uri')//Person[.//Role[FunctionRef = ('3', '5')][RegionalEntityRef = $region-refs]]/Id[not(. = $with-country-refs) and not(. = $by-coaching-refs)][empty($person) or Id = $person]
+            globals:collection('persons-uri')//Person[.//Role[FunctionRef = ('3', '5')][RegionalEntityRef = $region-refs]]/Id[not(. = $with-country-refs) and not(. = $by-coaching-refs)][empty($person) or Id = $person]
             )
           return (
             for $p in globals:collection('persons-uri')//Person[Id = $with-country-refs]

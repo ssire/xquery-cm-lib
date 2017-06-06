@@ -77,7 +77,7 @@ declare function access:check-rule( $rule as xs:string? ) as xs:boolean {
 :)
 declare function access:check-rules( $user as xs:string, $roles as xs:string* ) as xs:boolean {
   some $ref in globals:collection('global-info-uri')//Description[@Role = 'normative']//Selector[@Name eq 'Functions']/Option[@Role = $roles]/Value
-  satisfies globals:doc('persons-uri')//Person/UserProfile[Username eq $user]//FunctionRef = $ref
+  satisfies globals:collection('persons-uri')//Person/UserProfile[Username eq $user]//FunctionRef = $ref
 };
 
 (: ======================================================================
