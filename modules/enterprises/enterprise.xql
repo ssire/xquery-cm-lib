@@ -193,12 +193,13 @@ return
     let $data := oppidum:get-data()
     return
       if ($cmd/@action = 'add') then
-        if (access:check-user-can('create', 'Enterprise')) then
+        if (access:check-entity-permissions('create', 'Enterprise')) then
           local:create-enterprise($cmd, $data, $lang)
         else
           oppidum:throw-error('FORBIDDEN', ())
       else
-        if (access:check-user-can('update', 'Enterprise')) then
+        (: FIXME: pass Enterprise for finner grain access control :)
+        if (access:check-entity-permissions('update', 'Enterprise')) then
           local:update-enterprise($name, $data, $lang)
         else
           oppidum:throw-error('FORBIDDEN', ())

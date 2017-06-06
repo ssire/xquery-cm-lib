@@ -91,7 +91,7 @@ declare function local:gen-search-ui ( $coach as xs:boolean, $create as xs:boole
           <Template>templates/person?goal=read</Template>
           <Commands>
             {
-            if (not($coach) and access:check-user-can('delete', 'Person')) then
+            if (not($coach) and access:check-entity-permissions('delete', 'Person')) then
               <Delete/>
             else
               ()
@@ -146,5 +146,5 @@ return
     return
       <Search>{ search:fetch-persons($request) }</Search>
   else (: shows search page with default results - assumes GET :)
-    local:gen-person-search-ui($cmd, access:check-user-can('create', 'Person'))
+    local:gen-person-search-ui($cmd, access:check-entity-permissions('create', 'Person'))
 

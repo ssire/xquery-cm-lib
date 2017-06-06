@@ -44,7 +44,8 @@ declare function local:gen-enterprise-sample ( $e as element(), $lang as xs:stri
    ======================================================================
 :)
 declare function search:fetch-enterprises ( $request as element() ) as element() {
-  let $omni := access:check-user-can('update', 'Enterprise')
+  (: FIXME: pass Enterprise for finner grain access control :)
+  let $omni := access:check-entity-permissions('update', 'Enterprise')
   return
     <Results>
       <Enterprises>

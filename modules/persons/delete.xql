@@ -91,7 +91,7 @@ let $person := fn:doc($person-uri)/Persons/Person[Id = $id]
 (:let $lang := string($cmd/@lang):)
 return
   if ($person) then (: sanity check :)
-    if (access:check-user-can('delete', 'Person', $person)) then (: 1st check : authorized user ? :)
+    if (access:check-entity-permissions('delete', 'Person', $person)) then (: 1st check : authorized user ? :)
       let $errors := local:validate-person-delete($id, $person)  (: 2nd: compatible database state ? :)
       return
         if (empty($errors)) then

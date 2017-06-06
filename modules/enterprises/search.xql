@@ -35,7 +35,7 @@ return
       </Search>
   else (: shows search page with default results - assumes GET :)
     let $preview := request:get-parameter('preview', ())
-    let $can-create := access:check-user-can('create', 'Enterprise')
+    let $can-create := access:check-entity-permissions('create', 'Enterprise')
     return
       <Search Initial="true">
         <Formular Id="editor" Width="680px">
@@ -84,7 +84,8 @@ return
             <Template>templates/enterprise?goal=read</Template>
             <Commands>
               {
-              if (access:check-user-can('delete', 'Enterprise')) then
+              (: FIXME: pass Enterprise for finner grain access control :)
+              if (access:check-entity-permissions('delete', 'Enterprise')) then
                 <Delete/>
               else
                 ()

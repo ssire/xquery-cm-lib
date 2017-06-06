@@ -246,9 +246,9 @@ return
     if ($m = 'POST') then
       let $allowed := 
         if ($creating) then
-          access:check-user-can('create', 'Person')
+          access:check-entity-permissions('create', 'Person')
         else 
-          access:check-user-can('update', 'Person', $person)
+          access:check-entity-permissions('update', 'Person', $person)
       return
         if ($allowed) then
           let $data := oppidum:get-data()

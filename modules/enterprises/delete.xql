@@ -77,7 +77,7 @@ let $enterprise := fn:doc($enterprise-uri)/Enterprises/Enterprise[Id = $id]
 let $lang := string($cmd/@lang)
 return
   if ($enterprise) then (: sanity check :)
-    if (access:check-user-can('delete', 'Enterprise', $enterprise)) then (: 1st check : authorized user ? :)
+    if (access:check-entity-permissions('delete', 'Enterprise', $enterprise)) then (: 1st check : authorized user ? :)
       let $errors := local:validate-enterprise-delete($id)  (: 2nd: compatible database state ? :)
       return
         if (empty($errors)) then

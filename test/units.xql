@@ -31,6 +31,7 @@ declare variable $local:tests :=
     <Module>
       <Name>Oppidum</Name>
       <Test>string(oppidum:get-command()/@db)</Test>
+      <Test>oppidum:get-current-user-groups()</Test>
     </Module>
     <Module>
       <Name>Display</Name>

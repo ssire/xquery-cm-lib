@@ -81,58 +81,6 @@ declare function access:check-rules( $user as xs:string, $roles as xs:string* ) 
 };
 
 (: ======================================================================
-   Interprets application access control rules (see application.xml)
-   Context independent version: returns true() if current user is allowed
-   to do some action on a given type of resource independently of its content
-   DEPRECATED : use access:check-entity-permissions instead
-   ======================================================================
-:)
-declare function access:check-user-can( $action as xs:string, $type as xs:string ) as xs:boolean {
-  let $security-model := fn:doc(oppidum:path-to-config('application.xml'))//Security/Resources/Resource[@Name = $type]
-  let $rules := $security-model/Action[@Type eq $action]
-  return
-    access:assert-access-rules($rules, ())
-};
-
-(: ======================================================================
-   Interprets application access control rules (see application.xml)
-   Mono-dimensional version with one context resource: returns true() if
-   current user is allowed to do some action on a given resource of a given type
-   DEPRECATED : use access:check-entity-permissions instead
-   ======================================================================
-:)
-declare function access:check-user-can( $action as xs:string, $type as xs:string, $resource as element()? ) as xs:boolean {
-  let $security-model := fn:doc(oppidum:path-to-config('application.xml'))//Security/Resources/Resource[@Name = $type]
-  let $rules := $security-model/Action[@Type eq $action]
-  return
-    if ($rules) then
-      access:assert-access-rules($rules, $resource)
-    else
-      false()
-};
-
-(: ======================================================================
-   Tests if action on the document of given case or activity is allowed.
-   The document is identified by its root element name.
-   Returns true if allowed or false otherwise
-   DEPRECATED: use access:check-document-permissions or access:check-tab-permissions
-   or access:check-workfow-permissions instead
-   ======================================================================
-:)
-declare function access:check-user-can( $action as xs:string, $root as xs:string, $case as element(), $activity as element()? ) as xs:boolean {
-  let $control := globals:doc('application-uri')/Application/Security/Documents/Document[@Root = $root]
-  let $rules := $control/Action[@Type eq $action]
-  return
-    if (access:assert-user-role-for($action, $control, $case, $activity)) then
-      let $item := if ($activity) then $activity else $case
-      let $workflow := if ($activity) then 'Activity' else 'Case'
-      return
-        access:assert-workflow-state($action, $workflow, $control, $item/StatusHistory/CurrentStatusRef)
-    else
-      false()
-};
-
-(: ======================================================================
    Interprets sight role token from role specificiation micro-language
    Sight defines an transversal roles independent of context
    ======================================================================
@@ -171,17 +119,23 @@ declare function access:assert-access-rules(
   $object as element()? 
   ) as xs:boolean 
 {
-  let $user := oppidum:get-current-user()
-  let $groups := oppidum:get-current-user-groups()
-  return
-    if (empty($rules/Meet[@Policy eq 'strict']) and access:check-omnipotent-user()) then
+  if (empty($rules)) then
+    if ($rules/@Type = 'read') then (: enabled by default, mapping level should block non member users :)
       true()
-    else
-      (empty($rules/Meet) or (some $rule in $rules/Meet satisfies access:assert-rule($user, $groups, $rule, $subject, $object)))
-      and
-      (empty($rules/Avoid) or not(some $rule in $rules/Avoid satisfies access:assert-rule($user, $groups, $rule, $subject, $object)))
-      and
-      (exists($rules/Meet) or exists($rules/Avoid))
+    else (: any other action requires an explicit rule :)
+      false()
+  else
+    let $user := oppidum:get-current-user()
+    let $groups := oppidum:get-current-user-groups()
+    return
+      if (empty($rules/Meet[@Policy eq 'strict']) and access:check-omnipotent-user()) then
+        true()
+      else
+        (empty($rules/Meet) or (some $rule in $rules/Meet satisfies access:assert-rule($user, $groups, $rule, $subject, $object)))
+        and
+        (empty($rules/Avoid) or not(some $rule in $rules/Avoid satisfies access:assert-rule($user, $groups, $rule, $subject, $object)))
+        and
+        (exists($rules/Meet) or exists($rules/Avoid))
 };
 
 (: ======================================================================
@@ -252,6 +206,7 @@ declare function access:assert-semantic-role( $suffix as xs:string, $subject as 
 (: ======================================================================
    Tests access control model against a given action
    Context independent version
+   DEPRECATED use check-*-permissions instead
    ======================================================================
 :)
 declare function access:assert-user-role-for( $action as xs:string, $control as element()? ) as xs:boolean {
@@ -269,6 +224,7 @@ declare function access:assert-user-role-for( $action as xs:string, $control as 
 (: ======================================================================
    Tests access control model against a given action on a given case or activity for current user
    Returns a boolean
+   DEPRECATED use check-*-permissions instead
    ======================================================================
 :)
 declare function access:assert-user-role-for( $action as xs:string, $control as element()?, $subject as element(), $object as element()? ) {
@@ -426,7 +382,7 @@ declare function access:check-entity-permissions( $action as xs:string, $type as
    Interprets semantic rules against $subject and $object elements
    ======================================================================
 :)
-declare function access:check-document-permissions( $action as xs:string, $root as xs:string, $subject as element()?, $object as element()? ) as xs:boolean 
+declare function access:check-document-permissions( $action as xs:string, $root as xs:string, $subject as element()?, $object as element()? ) as xs:boolean
 {
   let $security-model := fn:doc(oppidum:path-to-config('application.xml'))//Security/Documents/Document[@Root = $root]
   let $rules := $security-model/Action[@Type eq $action]
@@ -438,7 +394,7 @@ declare function access:check-document-permissions( $action as xs:string, $root 
    Stub function to call access:check-document-permissions w/o object
    ====================================================================== 
 :)
-declare function access:check-document-permissions( $action as xs:string, $root as xs:string, $subject as element()? ) as xs:boolean 
+declare function access:check-document-permissions( $action as xs:string, $root as xs:string, $subject as element()? ) as xs:boolean
 {
   access:check-document-permissions($action, $root, $subject, ())
 };

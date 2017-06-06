@@ -99,7 +99,7 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
   let $function := $request/Functions/FunctionRef/text()
   let $enterprise := $request/Enterprises/EnterpriseRef/text()
   let $region-role-ref := user:get-function-ref-for-role("region-manager")
-  let $omni := access:check-user-can('update', 'Person')
+  let $omni := access:check-entity-permissions('update', 'Person')
   let $uid := if ($omni) then () else user:get-current-person-id()
   return
     <Results>

@@ -302,7 +302,7 @@ declare function local:configure-template( $doc as element(), $case as element()
     for $f in $doc/Host/Flag
     let $root := string($f/parent::Host/@RootRef)
     return
-      if (access:check-user-can(string($f/@Action), $root, $case, $activity)) then
+      if (access:check-document-permissions(string($f/@Action), $root, $case, $activity)) then
         concat(string($f/@Name), '=1')
       else
         ()
@@ -793,7 +793,7 @@ declare function workflow:gen-new-activity-tab ( $case as element(), $activity a
       <Title loc="workflow.title.new.activity">Add</Title>
     </Heading>
     {
-    if (access:check-user-can('create', 'Assignment', $case)) then
+    if (access:check-document-permissions('create', 'Assignment', $case)) then
       let $proxy := globals:doc('application-uri')//Workflow[@Id eq 'Case']/Documents/Document[@Tab eq 'coaching-assignment']
       return
         (
@@ -836,7 +836,7 @@ declare function workflow:gen-activities-tab ( $case as element(), $activity as 
             <Legend class="c-empty">There is currently no on-going coaching activity for this case.</Legend>
         else
           $activities
-        (:if (access:check-user-can('create', 'Assignment', $case)) then
+        (:if (access:check-document-permissions('create', 'Assignment', $case)) then
                           <Add TargetModal="activity">
  <Template>../templates/coaching-assignment?goal=create&amp;n={$case-no}</Template>
                             <Controller>{$case-no}/assignment</Controller>
