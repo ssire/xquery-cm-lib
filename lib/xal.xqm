@@ -18,7 +18,7 @@ import module namespace database = "http://oppidoc.com/ns/xcm/database" at "data
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -130,6 +130,28 @@ declare function local:apply-xal-insert( $subject as element()?, $fragment as el
 };
 
 (: ======================================================================
+   XAL attribute action implementation
+   Create or replaces the value of attribute Name only if the Value 
+   is different
+   Returns the empty sequence
+   ====================================================================== 
+:)
+declare function local:apply-xal-attribute( $subject as element(), $xal-spec as element() ) as element()? {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert $xal-spec into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  let $name := string($xal-spec/@Name)
+  let $value := $xal-spec/Value/text()
+  let $legacy := $subject/@*[local-name() eq $name]
+  return
+    if (exists($legacy) and ($legacy ne $value)) then
+      update value $legacy with $value
+    else
+      update insert attribute { $name } { $value } into $subject
+};
+
+(: ======================================================================
    XAL timestamp action implementation
    Adds or updates a timestamp to the parent using $name attribute
    Returns the empty sequence
@@ -225,6 +247,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
             local:apply-xal-create($pivot, $action)
           else if ($type eq 'timestamp') then
             local:apply-xal-timestamp($pivot, $action)
+          else if ($type eq 'attribute') then
+            local:apply-xal-attribute($pivot, $action)
           else if (($type eq 'invalidate') and (empty($spec/@Mode) or ($spec/@Mode ne 'batch'))) then
             local:apply-xal-invalidate($action)
           else (: iterated actions on 1 or more fragments :)
