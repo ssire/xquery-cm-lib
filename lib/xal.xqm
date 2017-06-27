@@ -18,7 +18,7 @@ import module namespace database = "http://oppidoc.com/ns/xcm/database" at "data
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -205,6 +205,18 @@ declare function local:apply-xal-invalidate( $xal-spec as element() ) {
   return cache:invalidate($entry, $xal-spec/@Lang)
 };
 
+(: ======================================================================
+   XAL delete action to delete the subject
+   ====================================================================== 
+:)
+declare function local:apply-xal-delete( $subject as element()?, $xal-spec as element() ) {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert $xal-spec into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  update delete $subject
+};
+
 (: =======================================================================
    Implements XAL (XML Aggregation Language) update protocol
    Basic version for single container element update
@@ -251,6 +263,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
             local:apply-xal-attribute($pivot, $action)
           else if (($type eq 'invalidate') and (empty($spec/@Mode) or ($spec/@Mode ne 'batch'))) then
             local:apply-xal-invalidate($action)
+          else if ($type eq 'delete') then
+            local:apply-xal-delete($pivot, $action)
           else (: iterated actions on 1 or more fragments :)
             for $fragment in $action/*
             return
