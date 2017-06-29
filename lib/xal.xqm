@@ -13,12 +13,13 @@ xquery version "1.0";
 
 module namespace xal = "http://oppidoc.com/ns/xcm/xal";
 
+declare namespace xdb = "http://exist-db.org/xquery/xmldb";
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
 import module namespace database = "http://oppidoc.com/ns/xcm/database" at "database.xqm";
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -217,6 +218,36 @@ declare function local:apply-xal-delete( $subject as element()?, $xal-spec as el
   update delete $subject
 };
 
+(: ======================================================================
+   XAL remove action to remove a resource from the database
+   Locates resource by @Key / entity name within database.xml
+   e.G. <XALAction Type="remove" Key="3567">persons</XALAction>
+   FIXME: finish, file name should be generated (actually assumes $_.xml)
+   ====================================================================== 
+:)
+declare function local:apply-xal-remove( $subject as element()?, $xal-spec as element() ) {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert $xal-spec into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  let $key := $xal-spec/@Key
+  let $cmd := oppidum:get-command()
+  return
+    if ($key and ($xal-spec ne '')) then
+      let $col-uri := database:gen-collection-for-key (concat($cmd/@db,'/'), $xal-spec, $key)
+      let $filename := concat($key, '.xml') (: FIXME: database:gen-resource-for-key ? :)
+      return 
+        if (local-name($col-uri) eq 'success') then 
+          if (fn:doc-available(concat($col-uri, '/', $filename))) then
+            xdb:remove($col-uri, $filename)
+          else
+            oppidum:throw-error('CUSTOM', concat('Document ', concat($col-uri, '/', $filename), ' not found in XAL remove action'))
+        else
+          $col-uri
+    else
+      oppidum:throw-error('CUSTOM', 'Missing Key or entity name in XAL remove action')
+};
+
 (: =======================================================================
    Implements XAL (XML Aggregation Language) update protocol
    Basic version for single container element update
@@ -265,6 +296,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
             local:apply-xal-invalidate($action)
           else if ($type eq 'delete') then
             local:apply-xal-delete($pivot, $action)
+          else if ($type eq 'remove') then
+            local:apply-xal-remove($pivot, $action)
           else (: iterated actions on 1 or more fragments :)
             for $fragment in $action/*
             return
