@@ -27,7 +27,7 @@ import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "global
 import module namespace user = "http://oppidoc.com/ns/xcm/user" at "user.xqm";
 
 (: ======================================================================
-   Interprets Omnipotent access control rule (see application.xml)
+   Interprets Omnipotent Allow access control rule (see application.xml)
    Returns true if current user is allowed to do anything
    ======================================================================
 :)
@@ -454,4 +454,49 @@ declare function access:check-workflow-permissions( $action as xs:string, $workf
 declare function access:check-workflow-permissions( $action as xs:string, $workflow as xs:string, $root as xs:string, $subject as element()? ) as xs:boolean 
 {
   access:check-workflow-permissions($action, $workflow, $root, $subject, ())
+};
+
+(: ======================================================================
+   Stub function to call access:check-entity-permissions and to raise 
+   appropriate oppidum errors when necessary
+   ====================================================================== 
+:)
+declare function access:get-entity-permissions( $action as xs:string, $type as xs:string, $subject as element()? ) as element()
+{
+  if (empty($subject)) then
+    oppidum:throw-error('URI-NOT-FOUND', ())
+  else if (access:check-entity-permissions($action, $type, $subject, ())) then
+    <allow/>
+  else
+    oppidum:throw-error('FORBIDDEN', ())
+};
+
+(: ======================================================================
+   Stub function to call access:check-entity-permissions and to raise 
+   appropriate oppidum errors when necessary
+   ====================================================================== 
+:)
+declare function access:get-entity-permissions( $action as xs:string, $type as xs:string, $subject as element()?, $object as element()? ) as element()
+{
+  if (empty($subject) or empty($object)) then
+    oppidum:throw-error('URI-NOT-FOUND', ())
+  else if (access:check-entity-permissions($action, $type, $subject, $object)) then
+    <allow/>
+  else
+    oppidum:throw-error('FORBIDDEN', ())
+};
+
+(: ======================================================================
+   Stub function to call access:get-tab-permissions and to raise 
+   appropriate oppidum errors when necessary
+   ======================================================================
+:)
+declare function access:get-tab-permissions( $action as xs:string, $tab as xs:string, $subject as element()? ) as  element()
+{
+  if (empty($subject)) then
+    oppidum:throw-error('URI-NOT-FOUND', ())
+  else if (access:check-tab-permissions($action, $tab, $subject, ())) then
+    <allow/>
+  else
+    oppidum:throw-error('FORBIDDEN', ())
 };
