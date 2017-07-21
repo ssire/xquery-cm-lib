@@ -13,7 +13,7 @@ declare function crud:get-document( $name as xs:string, $case as element(), $lan
 };
 
 declare function crud:get-document( $name as xs:string, $case as element(), $activity as element()?, $lang as xs:string ) as element() {
-  let $src := globals:doc('templates-uri')/Templates/Template[@Mode eq 'read'][@Name eq $name]
+  let $src := globals:collection('templates-uri')//Template[@Mode eq 'read'][@Name eq $name]
   return
     if ($src) then
       misc:unreference(util:eval(string-join($src/text(), ''))) (: FIXME: $lang :)
@@ -26,7 +26,7 @@ declare function crud:save-document( $name as xs:string, $case as element(), $fo
 };
 
 declare function crud:get-vanilla( $document as xs:string, $case as element(), $activity as element()?, $lang as xs:string ) as element() {
-  let $src := globals:doc('templates-uri')/Templates/Template[@Mode eq 'read'][@Name eq 'vanilla']
+  let $src := globals:collection('templates-uri')//Template[@Mode eq 'read'][@Name eq 'vanilla']
   return
     if ($src) then
       misc:unreference(util:eval(string-join($src/text(), ''))) (: FIXME: $lang :)
@@ -47,7 +47,7 @@ declare function crud:save-document(
 {
   let $date := current-dateTime()
   let $uid := user:get-current-person-id() 
-  let $src := globals:doc('templates-uri')/Templates/Template[@Mode eq 'update'][@Name eq $name]
+  let $src := globals:collection('templates-uri')//Template[@Mode eq 'update'][@Name eq $name]
   return
     if ($src) then
       let $delta := misc:prune(util:eval(string-join($src/text(), '')))
@@ -74,7 +74,7 @@ declare function crud:save-vanilla(
 {
   let $date := current-dateTime()
   let $uid := user:get-current-person-id() 
-  let $src := globals:doc('templates-uri')/Templates/Template[@Mode eq 'update'][@Name eq 'vanilla']
+  let $src := globals:collection('templates-uri')//Template[@Mode eq 'update'][@Name eq 'vanilla']
   return
     if ($src) then
       let $delta := misc:prune(util:eval(string-join($src/text(), '')))

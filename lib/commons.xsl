@@ -74,7 +74,8 @@
   <!-- ****************************************** -->
   <!--                 TOP LEVEL                  -->
   <!-- ****************************************** -->
-
+  
+  <!-- FIXME: merge with Display top level widget ? -->
   <xsl:template match="Page">
     <site:view>
       <xsl:copy-of select="@skin"/>
@@ -112,6 +113,13 @@
     <div>
       <xsl:apply-templates select="@* | *"/>
     </div>
+  </xsl:template>
+  
+  <!-- Generic mechanism for intra-page Models inclusion
+       FIXME: hard-coded to work only with Display top level -->
+  <xsl:template match="Insert">
+    <xsl:variable name="target"><xsl:value-of select="@Match"/></xsl:variable>
+    <xsl:apply-templates select="/Display/Models/Instance[@Name = $target]/*"/>
   </xsl:template>
 
 </xsl:stylesheet>

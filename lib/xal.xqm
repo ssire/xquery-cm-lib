@@ -19,7 +19,7 @@ import module namespace database = "http://oppidoc.com/ns/xcm/database" at "data
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -75,7 +75,10 @@ declare function xal:auto-increment( $subject as element()?, $name as xs:string 
 
 (: ======================================================================
    XAL update action implementation
-   Pre-condition: @Source available
+   Two behaviors: with a @Source attribute replaces the dereferenced source 
+   with the provided fragment, with an @Update="value" attribute replaces 
+   text content of the same name $subject element with the fragment text content
+   if they are different does nothing otherwise
    Returns the empty sequence
    ====================================================================== 
 :)
@@ -88,8 +91,20 @@ declare function local:apply-xal-update( $subject as element(), $fragment as ele
     let $legacy := util:eval($xal-spec/@Source)
     return
       update replace $legacy with $fragment
-  else (: should we report an error :)
-    ()
+  else 
+    let $legacy := $subject/*[local-name() eq local-name($fragment)]
+    let $what := $xal-spec/@Update
+    return
+      if (exists($legacy)) then
+        if (exists($what) and ($what eq 'value')) then
+          if ($legacy/text() ne $fragment/text()) then
+            update value $legacy with $fragment/text()
+          else
+            ()
+        else (: full update :)
+          update replace $legacy with $fragment
+      else
+        ()
 };
 
 (: ======================================================================
@@ -248,6 +263,26 @@ declare function local:apply-xal-remove( $subject as element()?, $xal-spec as el
       oppidum:throw-error('CUSTOM', 'Missing Key or entity name in XAL remove action')
 };
 
+(: ======================================================================
+   XAL value action implementation
+   Creates or replaces the value of subject with the text content of the XAL
+   action if it is different
+   Returns the empty sequence
+   ====================================================================== 
+:)
+declare function local:apply-xal-value( $subject as element(), $xal-spec as element() ) as element()? {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert $xal-spec into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  let $value := string($xal-spec)
+  return
+    if ($subject ne $value) then
+      update value $subject with $value
+    else
+      ()
+};
+
 (: =======================================================================
    Implements XAL (XML Aggregation Language) update protocol
    Basic version for single container element update
@@ -298,6 +333,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
             local:apply-xal-delete($pivot, $action)
           else if ($type eq 'remove') then
             local:apply-xal-remove($pivot, $action)
+          else if ($type eq 'value') then
+            local:apply-xal-value($pivot, $action)
           else (: iterated actions on 1 or more fragments :)
             for $fragment in $action/*
             return

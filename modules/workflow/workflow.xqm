@@ -404,10 +404,11 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
       {
       let $documents := globals:doc('application-uri')//Workflow[@Id eq $workflow]/Documents
       for $doc in $documents/Document[not(@Accordion) or (@Accordion eq 'no')][not(@Deprecated)]
+      (: FIXME: we have to find a trick to allow some role to update at any status :)
       let $actions := 
         for $a in $doc/Action[tokenize(string(@AtStatus), " ") = $cur-status]
         where (string($a/@Type) ne 'status')
-              or (: filters 'update' actions to keep only the last one :)
+              or (: keeps only latest 'status' action :)
               not(
                  some $x in $doc/following-sibling::Document[tokenize(string(@AtStatus), " ") = $cur]/Action[@Type eq 'status'] 
                  satisfies tokenize(string($x/@AtStatus), " ") = $cur-status
@@ -424,12 +425,13 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
           <Name loc="workflow.title.{$doc/@Tab}">{string($doc/@Tab)}</Name>,
           <Resource>{$doc/Controller/text()}.{$suffix}?goal=read{local:configure-resource($doc)}</Resource>,
           <Template>{string($doc/parent::Documents/@TemplateBaseURL)}{$doc/Template/text()}?goal=read{local:configure-template($doc, $case, $activity)}</Template>,
+          $doc/Content,
           if ($actions) then
             <Actions>
               {
               for $a in $actions
               return
-                if ($a/@Type = ('update', 'delete')) then
+                if ($a/@Type = ('update', 'delete', 'drawer')) then
                   let $verb := string($a/@Type)
                   let $control := globals:doc('application-uri')/Application/Security/Documents/Document[@TabRef = string($doc/@Tab)]
                   let $rules := $control/Action[@Type eq $verb]
@@ -441,6 +443,12 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
                           <Resource>{$doc/Controller/text()}.xml?goal=update</Resource>
                           <Template>{string($doc/parent::Documents/@TemplateBaseURL)}{$doc/Template/text()}?goal=update{local:configure-template($doc, $case, $activity)}</Template>
                         </Edit>
+                      else if ($verb eq 'drawer') then
+                          <Drawer>
+                            { $a/@Forward }
+                            <Controller>{$doc/Controller/text()}</Controller>
+<Template>{string($doc/parent::Documents/@TemplateBaseURL)}{$doc/Template/text()}?goal=create{local:configure-template($doc, $case, $activity)}</Template>
+                          </Drawer>
                       else (: assumes delete :)
                         <Delete/>
                     else if (request:get-parameter('roles', ())) then  (: FIXME: temporary :)

@@ -442,7 +442,7 @@ declare function access:check-workflow-permissions( $action as xs:string, $workf
       else if (exists($subject/StatusHistory/CurrentStatusRef)) then 
         access:assert-workflow-state($action, $workflow, $security-model, $subject/StatusHistory/CurrentStatusRef)
       else (: FIXME: throw exception :)
-        false
+        false()
     else
       false()
 };

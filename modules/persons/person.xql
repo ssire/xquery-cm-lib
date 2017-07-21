@@ -160,12 +160,23 @@ declare function local:create-person( $cmd as element(), $data as element(), $la
 
 (: ======================================================================
    Updates a Person model into database
-   Returns Person model including the update flag (since the user must be allowed)
+   TODO: test if updating from search (XSLT pipeline) 
+   or from augment command (Name / Value protocol)
    ======================================================================
 :)
 declare function local:update-person( $current as element(), $data as element(), $lang as xs:string ) as element() {
   let $person := local:gen-person-for-writing($current, $data,())
-  let $result := search:gen-person-sample($person, (), 'en', true())
+  let $result := 
+    (: FIXME: improve protocol :)
+    if (request:get-parameter('next', ()) eq 'autofill') then
+      <Response Status="success">
+        <Payload Table="Person">
+          <Name>{concat($person/Name/FirstName, ' ', $person/Name/LastName)}</Name>
+          <Value>{$person/Id/text()}</Value>
+        </Payload>
+      </Response>
+    else
+      search:gen-person-sample($person, (), 'en', true())
   return (
     update replace $current with $person,
     ajax:report-success('ACTION-UPDATE-SUCCESS', (), $result)

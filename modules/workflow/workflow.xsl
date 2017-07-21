@@ -787,61 +787,6 @@
     </tr>
   </xsl:template>
 
-  <!--**********************************-->
-  <!--*****  LogBook pane content  *****-->
-  <!--**********************************-->
-
-  <!-- DEPRECATED -->
-  <xsl:template match="Logbook">
-    <table id="{@Id}" class="table table-bordered">
-      <xsl:if test="(count(LogbookItem) = 0) or (count(LogbookItem/@Delete[ . = 'yes']) > 0)">
-        <xsl:attribute name="data-confirm-loc">confirm.logbookItem.delete</xsl:attribute>
-        <xsl:attribute name="data-command">c-dellogbook</xsl:attribute>
-        <xsl:attribute name="data-controller"><xsl:value-of select="concat(/Display/Activity/No/text(), '/logbook')"/></xsl:attribute>
-      </xsl:if>
-      <thead>
-        <tr>
-          <xsl:if test="(count(LogbookItem) = 0) or (count(LogbookItem/@Delete[ . = 'yes']) > 0)"><th/></xsl:if>
-          <th loc="term.date">Date</th>
-          <th loc="term.coach">Coach</th>
-          <th loc="term.nbOfHours">Nb d'heures</th>
-          <th loc="term.expenses">Défraiements</th>
-          <th loc="term.comment">Commentaire</th>
-        </tr>
-      </thead>
-      <tbody>
-        <xsl:apply-templates select="LogbookItem"/>
-      </tbody>
-    </table>
-  </xsl:template>
-
-  <!-- DEPRECATED -->
-  <xsl:template match="LogbookItem">
-    <tr>
-      <xsl:copy-of select="@data-id"/>
-      <xsl:if test="@Delete[ . = 'yes']">
-        <th>
-          <i class="icon-trash" tooltip="Supprimer"></i>
-        </th>
-      </xsl:if>
-      <td>
-        <xsl:value-of select="Date"/>
-      </td>
-      <td>
-        <xsl:value-of select="CoachRef"/>
-      </td>
-      <td>
-        <xsl:value-of select="NbOfHours"/>
-      </td>
-      <td>
-        <xsl:value-of select="ExpenseAmount"/>
-      </td>
-      <td>
-        <xsl:value-of select="Comment"/>
-      </td>
-    </tr>
-  </xsl:template>
-
   <!--*************************************-->
   <!--*****  Activities pane content  *****-->
   <!--*************************************-->

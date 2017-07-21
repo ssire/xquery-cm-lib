@@ -65,12 +65,13 @@ declare function local:gen_display_attribute( $refs as element()* ) as attribute
 (: ======================================================================
    Generates _Display attributes to unreference encoded values
 
-   FIXME: the pluralization rule is border-line since we have not yet clear
-   conventions to detect this kind of field, maybe we could explicitly
-   test plural fields (actually CallTopics, TargetedMarkets ?)
-
    TODO:
    - add $lang parameter
+   - find a trick to detect person type independent of data model (actually
+     any tag ending with ByRef is supposed to be a Person, use @_Unref to 
+     force other fields)
+   - maybe we should support nested calls by testing _Display to not unreference
+     multiple times
    ======================================================================
 :)
 declare function misc:unreference( $nodes as item()* ) as item()* {
@@ -85,11 +86,11 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
         return
           let $tag := local-name($node)
           return
-            if ($node/@_Unref) then
+            if (exists($node/@_Unref)) then
               element { $tag }
-                { 
+                {
                 local:unref_display_attribute($node, 'en'),
-                $node/*
+                $node/(*|text())
                 }
             else if (ends-with($tag, 's') and (count($node/*) > 0) and
                 (every $c in $node/* satisfies (ends-with(local-name($c), 'Ref') and not(ends-with(local-name($c), 'ScaleRef'))))) then
@@ -98,18 +99,18 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
                 local:gen_display_attribute($node/*),
                 $node/*
                 )}
-            else if (ends-with($tag, 'ByRef') or $tag = ('ResponsibleCoachRef')) then
+            else if (ends-with($tag, 'ByRef')) then
               element { $tag }
                 {(
                   attribute { '_Display' } { display:gen-person-name($node/text(), 'en') },
                   $node/text()
-                )}(:)
+                )}
             else if (ends-with($tag, 'Ref') or ($tag eq 'Country')) then
               element { $tag }
                 {(
                 local:gen_display_attribute($node),
                 $node/text()
-                )}:)
+                )}
             else if ($tag eq 'Date') then
               misc:unreference-date($node)
             else
