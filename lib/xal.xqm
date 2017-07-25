@@ -19,7 +19,7 @@ import module namespace database = "http://oppidoc.com/ns/xcm/database" at "data
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -110,6 +110,7 @@ declare function local:apply-xal-update( $subject as element(), $fragment as ele
 (: ======================================================================
    XAL replace action implementation
    Returns the empty sequence
+   LIMITATION: $fragment must match with a unique child of $subject
    ====================================================================== 
 :)
 declare function local:apply-xal-replace( $subject as element(), $fragment as element(), $xal-spec as element() ) as element()? {
@@ -129,6 +130,7 @@ declare function local:apply-xal-replace( $subject as element(), $fragment as el
    XAL insert action implementation
    Returns the empty sequence
    TODO: version with parent hierarchy lazy creation ?
+   LIMITATION: $fragment must match with a unique child of $subject
    ====================================================================== 
 :)
 declare function local:apply-xal-insert( $subject as element()?, $fragment as element(), $xal-spec as element() ) as element()? {
@@ -141,6 +143,41 @@ declare function local:apply-xal-insert( $subject as element()?, $fragment as el
       update insert local:auto-eval($subject, $fragment) into $subject
     else
       update insert $fragment into $subject
+  else
+    ()
+};
+
+(: ======================================================================
+   XAL align action implementation
+   Does a 'delete' on the child of the $subject with same name as fragment
+   in case the fragment is empty
+   Otherwise does a 'replace' on the $subject with the $fragment if it differs 
+   or its children differ (when Check="children") from the $fragment 
+   Does nothing otherwise
+   Returns the empty sequence
+   LIMITATION: $fragment must match with a unique child of $subject
+   ====================================================================== 
+:)
+declare function local:apply-xal-align( $subject as element()?, $fragment as element(), $xal-spec as element() ) as element()? {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert <XALInsert>{ $xal-spec/@*, $fragment }</XALInsert> into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  if (exists($subject)) then
+    let $legacy := $subject/*[local-name() eq local-name($fragment)]
+    return
+      if (empty($fragment) or $fragment eq '') then
+        if (exists($legacy)) then 
+          update delete $legacy
+        else
+          ()
+      else if (empty($legacy)) then
+        update insert $fragment into $subject
+      else if ( (($xal-spec/@Check eq 'children') and fn:deep-equal($legacy/*, $fragment/*))
+                or fn:deep-equal($legacy, $fragment) ) then
+        ()
+      else
+        update replace $legacy with $fragment
   else
     ()
 };
@@ -344,6 +381,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
                 local:apply-xal-update($pivot, $fragment, $action)
               else if ($type eq 'insert') then
                 local:apply-xal-insert($pivot, $fragment, $action)
+              else if ($type eq 'align') then
+                local:apply-xal-align($pivot, $fragment, $action)
               else
                 ()
     return
