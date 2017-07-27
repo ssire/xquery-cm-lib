@@ -382,7 +382,6 @@
         var target = this.getParam('autofill_target'),
             value = this.dump(), // FIXME: use getData ?
             url = this.getParam('autofill_url');
-        alert('calling autofill ' + target + ' with value ' + value);
         if (target) { // sanity check
           if (value && url) { // sanity check
             if (!(event) || (event.target !== $(this.getHandle()).closest(target).get(0))) {
@@ -393,7 +392,6 @@
               $axel($(this.getHandle()).closest(target)).load(url);
               // $axel($(target, this.getDocument())).load(url);
               this._autofill_running = false;
-              alert('after calling autofill ' + target + ' with value ' + this.dump());
             }
           } if (!value) {
             this._autofill_running = true;

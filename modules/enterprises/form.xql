@@ -99,6 +99,9 @@ return
         <site:field Key="country">
           { form:gen-selector-for('Countries', $lang, " optional;multiple=no;typeahead=yes") }
         </site:field>
+        <site:field Key="region">
+          { form:gen-selector-for('Regions', $lang, " optional;multiple=no;typeahead=yes") }
+        </site:field>
         <site:field Key="size">
           { form:gen-selector-for('Sizes', $lang, " optional;multiple=no;typeahead=yes;select2_minimumResultsForSearch=1") }
         </site:field>

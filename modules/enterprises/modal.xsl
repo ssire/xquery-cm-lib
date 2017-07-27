@@ -25,11 +25,11 @@
 
   <xsl:template match="Address">
     <address>
-      <xsl:apply-templates select="StreetNameAndNo[.!=''] | Town[.!=''] | PostalCode[.!=''] | State[.!=''] | Country[.!='']"/>
+      <xsl:apply-templates select="StreetNameAndNo[.!=''] | Town[.!=''] | PostalCode[.!=''] | RegionRef[.!=''] | Country[.!='']"/>
     </address>
   </xsl:template>
 
-  <xsl:template match="StreetNameAndNo | Town | PostalCode | State"><xsl:value-of select="."/><br/></xsl:template>
+  <xsl:template match="StreetNameAndNo | Town | PostalCode | RegionRef"><xsl:value-of select="."/><br/></xsl:template>
 
   <xsl:template match="Country"><xsl:value-of select="@_Display"/></xsl:template>
 

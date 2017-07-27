@@ -157,7 +157,7 @@ declare function display:gen-roles-for ( $roles as element()?, $lang as xs:strin
     string-join(
       for $fref in $roles/Role/FunctionRef
       return
-        globals:collection('global-info-uri')//Description[@Lang = $lang]/Selector[@Name eq 'Functions']/Option[Id eq $fref]/Brief,
+        globals:collection('global-info-uri')//Description[@Lang = $lang]/Selector[@Name eq 'Functions']/Option[Value eq $fref]/Brief,
       ', '
       )
   else

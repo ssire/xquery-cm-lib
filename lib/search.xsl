@@ -20,11 +20,11 @@
   <!-- Called from /stage -->
   <xsl:template name="formular">
     <form class="form-horizontal c-search" action="" onsubmit="return false;">
-      <div id="editor" data-template="templates/search/{/Search/@Controller}" data-src="{/Search/@Controller}/submission">
+      <div id="editor" data-template="templates/search/{/Search/@Controller}?goal=update" data-src="{/Search/@Controller}/submission">
         <noscript loc="app.message.js">Activez Javascript</noscript>
         <p loc="app.message.loading">Chargement du formulaire en cours</p>
       </div>
-      <div class="row">
+      <div class="row c-search-menu">
         <button onclick="javascript:$('#c-busy').show()" style="float:right;margin-right:5px; margin-bottom:5px;min-width: 150px" data-command="save" data-replace-target="results" data-target="editor" data-src="{/Search/@Controller}" data-save-flags="disableOnSave silentErrors" class="btn btn-primary" loc="action.search">Rechercher</button>
         <div class="span6" style="margin: 2px 0 5px 25px">
           <button class="btn btn-small" onclick="$.ajax({{type:'post',url:'{/Search/@Controller}/submission',data:$axel('#editor').xml(),dataType:'xml',contentType:'application/xml; charset=UTF-8'}});return false;" loc="action.save.submission">Sauver</button>

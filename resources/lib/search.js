@@ -159,7 +159,7 @@
       $('Value', response).text(),
       $('Name', response).text(),
       $('Town', response).text(),
-      $('State', response).text(),
+      $('RegionRef', response).text(),
       $('Size', response).text(),
       $('DomainActivity', response).text(),
       $('TargetedMarkets', response).text()
@@ -167,11 +167,11 @@
   }
 
   // Updates the single result table row corresponding to an enterprise with data-id equal to id
-  function updateEnterprise(id, name, town, state, size, domain, markets) {
+  function updateEnterprise(id, name, town, region, size, domain, markets) {
     var row = $('tr[data-id="' + id + '"] > td');
     row.eq(0).children('a').children('span').text(name);
     row.eq(1).text(town);
-    row.eq(2).text(state);
+    row.eq(2).text(region);
     row.eq(3).text(size);
     row.eq(4).text(domain);
     row.eq(5).text(markets);

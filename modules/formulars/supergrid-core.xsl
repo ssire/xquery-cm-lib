@@ -217,7 +217,7 @@
   </xsl:template>
 
   <!-- Generates template w/o form element wrapper -->
-  <xsl:template match="Form[@Wrapper='none'][$xslt.goal != 'test']" mode="main">
+  <xsl:template match="Form[@Wrapper='none'][$xslt.goal != 'test']" priority="1" mode="main">
     <xsl:apply-templates select="@Orientation | @Width | @Style"/>
     <xsl:apply-templates select="Title[@Render] | Title[@Level]"/>
     <xsl:apply-templates select="site:conditional|Row|Separator|Include"/>

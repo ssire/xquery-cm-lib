@@ -73,7 +73,7 @@ declare function local:update-enterprise( $ref as xs:string, $data as element(),
           <Payload Table="Enterprise">
             <Name>{$data/Name/text()}</Name>
             <Value>{$ref}</Value>
-            { $data/Address/(Town | State) }
+            { $data/Address/(Town | RegionRef) }
             <Size>{ display:gen-name-for('Sizes', $data/SizeRef, $lang) }</Size>
             <DomainActivity>{ display:gen-name-for('DomainActivities', $data/DomainActivityRef, $lang) }</DomainActivity>
             <TargetedMarkets>{ display:gen-name-for('TargetedMarkets', $data/TargetedMarkets/TargetedMarketRef, $lang) }</TargetedMarkets>
@@ -103,7 +103,7 @@ declare function local:gen-enterprise( $ref as xs:string, $lang as xs:string, $g
               if ($context = 'Partner') then 
                 (
                 local:gen-enterprise-reference($e),
-                <Address>{ $e/Address/(PostalCode | Town | State | Country) }</Address>
+                <Address>{ $e/Address/(PostalCode | Town | RegionRef | Country) }</Address>
                 )
               else
                 (

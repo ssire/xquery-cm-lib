@@ -19,7 +19,7 @@ import module namespace database = "http://oppidoc.com/ns/xcm/database" at "data
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align', 'assert');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -180,6 +180,39 @@ declare function local:apply-xal-align( $subject as element()?, $fragment as ele
         update replace $legacy with $fragment
   else
     ()
+};
+
+(: ======================================================================
+   XAL assert action implementation
+   Evaluates $fragment as an assertion and throws an oppidom error in case
+   of wrong assertion of the empty sequence otherwise
+   ====================================================================== 
+:)
+declare function local:apply-xal-assert( $subject as element()?, $fragment as element(), $xal-spec as element() ) as element()? {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert <XALAssert>{ $xal-spec/@*, $fragment }</XALAssert> into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  if (local-name($fragment) eq 'MaxLength') then
+    let $limit := number($fragment/@Limit)
+    let $length := string-length($fragment)
+    return
+      if ($length > $limit) then
+        oppidum:throw-error($fragment/@Error, ($length, $length - $limit, $limit))
+      else
+        ()
+  else if (local-name($fragment) eq 'True') then
+    if ($fragment/text() eq 'true') then
+      ()
+    else
+      oppidum:throw-error($fragment/@Error, ())
+  else if (local-name($fragment) eq 'False') then
+    if ($fragment/text() eq 'false') then
+      ()
+    else
+      oppidum:throw-error($fragment/@Error, ())
+  else
+    oppidum:throw-error('XAL-UNKNOWN-ASSERTION', local-name($fragment))
 };
 
 (: ======================================================================
@@ -383,6 +416,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
                 local:apply-xal-insert($pivot, $fragment, $action)
               else if ($type eq 'align') then
                 local:apply-xal-align($pivot, $fragment, $action)
+              else if ($type eq 'assert') then
+                local:apply-xal-assert($pivot, $fragment, $action)
               else
                 ()
     return
@@ -392,6 +427,7 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
         $res[last()]
     )
   else
-    oppidum:throw-error('XAL-UNKOWN-ACTION', $spec/XALAction/@Type[not(. = $xal:xal-actions)])
+    let $mismatch := distinct-values($spec/XALAction/@Type[not(. = $xal:xal-actions)])
+    return oppidum:throw-error('XAL-UNKNOWN-ACTION', string-join($mismatch, ', '))
 };
 
