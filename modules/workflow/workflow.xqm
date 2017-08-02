@@ -248,25 +248,51 @@ declare function workflow:gen-annexe-for-viewing (
     </Annex>
 };
 
-(: TODO: ajouter AutoExec="name" :)
+(: ======================================================================
+   Facade to call complete function with implicit target modal identifier
+   ====================================================================== 
+:)
 declare function workflow:gen-status-change(
   $current-status as xs:double,
   $workflow as xs:string,
-  $case as element(),
-  $activity as element()?,
+  $subject as element(),
+  $object as element()?,
   $id as xs:string?
   ) as element()*
 {
-  if (($workflow eq 'Case') and (count($case//Activity) > 0)) then
+  workflow:gen-status-change($current-status, $workflow, $subject, $object, $id, 'c-alert')
+};
+
+(: ======================================================================
+   Generates ChangeStatus model with Status commands to render a menu 
+   with commands to change workflow status. Each Status commands can open
+   the optional modal window configured by @TargetEditor 
+   (usually to edit/send an e-mail) upon success unless Ajax response 
+   contains <done/>. In the later case directly redirects to the Location
+   header from the Ajax response. Note the $target-modal target editor 
+   is mandatory even if you don't send an e-mail (AXEL command API limitation)
+   TODO: ajouter AutoExec="name"
+   ====================================================================== 
+:)
+declare function workflow:gen-status-change(
+  $current-status as xs:double,
+  $workflow as xs:string,
+  $subject as element(),
+  $object as element()?,
+  $id as xs:string?,
+  $target-modal as xs:string
+  ) as element()*
+{
+  if (($workflow eq 'Case') and (count($subject//Activity) > 0)) then (: specific to genuine case tracker :)
     ()
   else
     let $moves :=
       for $transition in globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From eq string($current-status)][@To ne '-1']
-      where access:check-status-change($transition, $case, $activity)
+      where access:check-status-change($transition, $subject, $object)
       return $transition
     return
       if ($moves) then
-        <ChangeStatus Status="{$current-status}" TargetEditor="c-alert">
+        <ChangeStatus Status="{$current-status}" TargetEditor="{ $target-modal }">
           {(
           if ($id) then attribute Id { $id } else (),
           for $transition in $moves
@@ -277,7 +303,7 @@ declare function workflow:gen-status-change(
           return
             if ($action) then
               <Status Action="{$action}">
-                { 
+                {
                 if ($to) then attribute { 'Argument' } { $arg } else (),
                 if ($to) then attribute { 'To' } { $to } else (),
                 $transition/(@Intent | @Label | @Id) 
@@ -501,16 +527,19 @@ declare function workflow:get-transition-for( $workflow as xs:string, $from as x
    Checks if there are some assertions that prevent transition 
    Returns the empty sequence in case there are no assertions to check 
    or they are all successful, returns an error message type string otherwise
+   Uses an overwritable subject because the assertion mechanism is always 
+   run against a unique subject variable which is substituted by the object 
+   when this later is available
+   FIXME: maybe we should consider asserting against a subject AND an object ?
    ======================================================================
 :)
-declare function workflow:validate-transition( $transition as element(), $case as element(), $activity as element()? ) as xs:string* {
+declare function workflow:validate-transition( $transition as element(), $overwritable-subject as element(), $object as element()? ) as xs:string* {
   for $assert in $transition/Assert
   return
     if ($assert/@Error) then
-      let $base := util:eval($assert/@Base)
-      let $host := if ($activity) then $activity else $case
+      let $subject := if (exists($object)) then $object else $overwritable-subject
       return
-        if (access:assert-transition-partly($host, $assert, $base)) then
+        if (access:assert-transition-partly($subject, $assert, util:eval($assert/@Base))) then
           ()
         else
           string($assert/@Error)
@@ -594,50 +623,53 @@ declare function local:decode-status-to( $action as xs:string, $from as xs:strin
    or throws and returns an error element
    ======================================================================
 :)
-declare function workflow:pre-check-transition( $m as xs:string, $type as xs:string, $case as element()?, $activity as element()? ) as element() {
-  let $item := if ($type eq 'Case') then $case else $activity
+declare function workflow:pre-check-transition( $m as xs:string, $type as xs:string, $subject as element()?, $object as element()? ) as element() {
+  let $item := if ($type eq 'Case') then $subject else $object
   let $action := request:get-parameter('action', ())
   let $argument := request:get-parameter('argument', 'nil')
   let $from := request:get-parameter('from', "-1")
   return
-    if (($m = 'POST') and $item) then
-      let $cur-status := $item/StatusHistory/CurrentStatusRef/text()
-      return
-        if ($from ne $cur-status) then
-          ajax:throw-error('WFSTATUS-ORIGIN-ERROR', ())
-        else if (not($cur-status castable as xs:decimal)) then
-          ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
-        else if (not($action = ('revert', 'increment', 'decrement'))) then
-          ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
-        else if (($action = ()) and not($argument castable as xs:decimal)) then
-          ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
-        else
-          let $to := local:decode-status-to($action, $cur-status, $argument)
-          let $transition := workflow:get-transition-for($type, $from, $to)
-          return
-            if (not($transition)) then
-              ajax:throw-error('WFSTATUS-NO-TRANSITION', ())
-            else if (not(access:check-status-change($transition, $case, $activity))) then
-              ajax:throw-error('WFSTATUS-NOT-ALLOWED', ())
-            else
-              (: checks if some document is missing data :)
-              let $omissions := workflow:validate-transition($transition, $case, $activity)
-              return
-                if (count($omissions) gt 1) then
-                  let $explain :=
-                    string-join(
-                      for $o in $omissions
-                      let $e := ajax:throw-error($o, ())
-                      return $e/message/text(), '&#xa;&#xa;')
-                  return
-                    ajax:throw-error(string($transition/@GenericError), concat('&#xa;&#xa;',$explain))
-                else if ($omissions) then
-                  ajax:throw-error($omissions, ())
-                else
-                  (: everything okay, returns Transition element :)
-                  $transition
+    if (exists($subject)) then
+      if (($m = 'POST') and $item) then
+        let $cur-status := $item/StatusHistory/CurrentStatusRef/text()
+        return
+          if ($from ne $cur-status) then
+            ajax:throw-error('WFSTATUS-ORIGIN-ERROR', ())
+          else if (not($cur-status castable as xs:decimal)) then
+            ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
+          else if (not($action = ('revert', 'increment', 'decrement'))) then
+            ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
+          else if (($action = ()) and not($argument castable as xs:decimal)) then
+            ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
+          else
+            let $to := local:decode-status-to($action, $cur-status, $argument)
+            let $transition := workflow:get-transition-for($type, $from, $to)
+            return
+              if (not($transition)) then
+                ajax:throw-error('WFSTATUS-NO-TRANSITION', ())
+              else if (not(access:check-status-change($transition, $subject, $object))) then
+                ajax:throw-error('WFSTATUS-NOT-ALLOWED', ())
+              else
+                (: checks if some document is missing data :)
+                let $omissions := workflow:validate-transition($transition, $subject, $object)
+                return
+                  if (count($omissions) gt 1) then
+                    let $explain :=
+                      string-join(
+                        for $o in $omissions
+                        let $e := ajax:throw-error($o, ())
+                        return $e/message/text(), '&#xa;&#xa;')
+                    return
+                      ajax:throw-error(string($transition/@GenericError), concat('&#xa;&#xa;',$explain))
+                  else if ($omissions) then
+                    ajax:throw-error($omissions, ())
+                  else
+                    (: everything okay, returns Transition element :)
+                    $transition
+      else
+        ajax:throw-error('URI-NOT-SUPPORTED', ())
     else
-      ajax:throw-error('URI-NOT-SUPPORTED', ())
+      ajax:throw-error('WFSTATUS-MISSING-SUBJECT', ())
 };
 
 (: ======================================================================

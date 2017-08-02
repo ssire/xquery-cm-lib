@@ -331,15 +331,15 @@ declare function access:assert-transition-partly( $item as element(), $assert as
    TODO: move to workflow.xqm ?
    ======================================================================
 :)
-declare function access:check-status-change( $transition as element(), $subject as element(), $activity as element()? ) as xs:boolean {
+declare function access:check-status-change( $transition as element(), $subject as element(), $object as element()? ) as xs:boolean {
   let $status :=
-    if ($activity) then
-      $activity/StatusHistory/CurrentStatusRef/text()
+    if ($object) then
+      $object/StatusHistory/CurrentStatusRef/text()
     else
       $subject/StatusHistory/CurrentStatusRef/text()
   return
     if ($transition/@From = $status) then (: see pre-condition :)
-      access:assert-access-rules($transition, $subject, $activity)
+      access:assert-access-rules($transition, $subject, $object)
     else
       false()
 };
