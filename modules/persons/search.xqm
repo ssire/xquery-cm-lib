@@ -1,10 +1,14 @@
 xquery version "1.0";
 (: --------------------------------------
-   Case tracker pilote
+   XQuery Content Management Library
+
+   This is a sample Case Tracker Pilote file to build a person search
+   functionality. You MOST probably will need to copy this file to your 
+   project to customize it to fit your application data model.
 
    Creator: Stéphane Sire <s.sire@oppidoc.fr>
 
-   Shared database requests for members search
+   Shared database requests for persons search
 
    January 2015 - (c) Copyright 2015 Oppidoc SARL. All Rights Reserved.
    ------------------------------------------------------------------ :)
@@ -117,17 +121,16 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
             search:gen-person-sample($p, $region-role-ref, 'en', not($omni) and $uid eq $p/Id/text())
             (: optimization for : not($omni) and access:check-person-update-at-least($uid, $person) :)
         else
-          (: optimized search for search by country :)
-          let $region-refs :=
-            globals:collection('global-info-uri')//Description[@Lang eq 'en']/Selector[@Name = 'RegionalEntities']/Option[Country = $country]/Value/text()
+        (: search by country direct mention :)
           let $with-country-refs := globals:collection('persons-uri')//Person[Country = $country]/Id[empty($person) or . = $person]
           (: extends to coaches having coached in one of the target country :)
+          let $by-enterprise-refs := globals:doc('enterprises-uri')//Enterprise[Address/Country = $country]/Id
           let $by-coaching-refs := distinct-values(
-            globals:collection('cases-uri')//Case[Information/ClientEnterprise/Address/Country = $country]//ResponsibleCoachRef[not(. = $with-country-refs)]
+            globals:collection('cases-uri')//Case[Information/ClientEnterprise/EnterpriseRef = $by-enterprise-refs]//ResponsibleCoachRef[not(. = $with-country-refs)]
             )
-          (: extends to KAM and KAMCO from the target country :)
-          let $by-region-refs := distinct-values(
-            globals:collection('persons-uri')//Person[.//Role[FunctionRef = ('3', '5')][RegionalEntityRef = $region-refs]]/Id[not(. = $with-country-refs) and not(. = $by-coaching-refs)][empty($person) or Id = $person]
+          (: extends to KAM having manage a case from the target country :)
+          let $by-managing-refs := distinct-values(
+            globals:collection('cases-uri')//Case/Management/AccountManagerRef[. = $by-enterprise-refs][not(. = $with-country-refs) and not(. = $by-coaching-refs)]
             )
           return (
             for $p in globals:collection('persons-uri')//Person[Id = $with-country-refs]
@@ -135,14 +138,15 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return
               search:gen-person-sample($p, (), $region-role-ref, 'en', not($omni) and $uid eq $p/Id),
-            for $p in globals:collection('persons-uri')//Person[Id = ($by-coaching-refs)]
+            for $p in globals:collection('persons-uri')//Person[Id = $by-coaching-refs]
             where (empty($person) or $p/Id = $person)
               and (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return
               search:gen-person-sample($p, 'C', $region-role-ref, 'en', not($omni) and $uid eq $p/Id),
-            for $p in globals:collection('persons-uri')//Person[Id = ($by-region-refs)]
-            where (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
+            for $p in globals:collection('persons-uri')//Person[Id = $by-managing-refs]
+            where (empty($person) or $p/Id = $person)
+              and (empty($function) or $p/UserProfile/Roles/Role/FunctionRef = $function)
               and (empty($enterprise) or $p/EnterpriseRef = $enterprise)
             return
               search:gen-person-sample($p, 'E', $region-role-ref, 'en', not($omni) and $uid eq $p/Id)

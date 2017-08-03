@@ -85,7 +85,7 @@ declare function account:gen-groups-for-user( $person as element() ) as xs:strin
   (
   "users",
   for $ref in $person/UserProfile/Roles/Role/FunctionRef/text()
-  let $f := form:get-normative-selector-for('Functions')/Option[Id = $ref]
+  let $f := form:get-normative-selector-for('Functions')/Option[Value = $ref]
   return $f/@Group
   )
 };

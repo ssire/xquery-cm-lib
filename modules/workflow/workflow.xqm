@@ -423,7 +423,7 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
   let $target := if ($workflow eq 'Case') then $case else $activity
   let $prev-status := $target/StatusHistory/PreviousStatusRef/text()
   let $cur-status := $target/StatusHistory/CurrentStatusRef/text()
-  let $status-def := globals:get-normative-selector-for(concat($workflow, 'WorkflowStatus'))/Option[Id eq $cur-status]
+  let $status-def := globals:get-normative-selector-for(concat($workflow, 'WorkflowStatus'))/Option[Value eq $cur-status]
   let $cur := if ($status-def/@Type eq 'final') then $prev-status else $cur-status
   return
     <Accordion CurrentStatus="{$cur-status}">
