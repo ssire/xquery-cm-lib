@@ -1,13 +1,18 @@
 xquery version "1.0";
 (: --------------------------------------
-   Case tracker pilote
-
-   Creator: Stéphane Sire <s.sire@oppidoc.fr>
+   XQuery Content Management Library
 
    Brings up members search page with default search submission results
    or execute a search submission (POST) to return an HTML fragment.
    
    Mixed search controller that manages both persons and coaches search requests
+
+   This is a sample file for Case Tracker Pilote
+
+   You MOST probably will need to copy this file to your 
+   project to customize it to fit your application data model
+
+   Creator: Stéphane Sire <s.sire@oppidoc.fr>
 
    FIXME:
    - return 200 instead of 201 when AXEL-FORM will have been changed
@@ -63,7 +68,7 @@ declare function local:gen-search-ui ( $coach as xs:boolean, $create as xs:boole
         element { $tag }
           {
           <Persons>
-            <PersonRef>{$preview}</PersonRef>
+            <PersonKey>{$preview}</PersonKey>
           </Persons>
           }
       )

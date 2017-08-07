@@ -275,7 +275,19 @@ declare function local:apply-xal-create( $subject as element()?, $xal-spec as el
     update insert $xal-spec into fn:doc($xal:debug-uri)/*[1]
   else
     (),
-  database:create-entity-for-key(oppidum:get-command()/@db, $xal-spec/@Entity, $xal-spec/*, $xal-spec/@Key)
+  let $db := oppidum:get-command()/@db
+  let $entity := database:get-entity-for($xal-spec/@Entity)
+  return
+    if (exists($entity/Collection/@Sharding) or contains($entity/Resource, '$_')) then
+      database:create-entity-for-key($db, $xal-spec/@Entity, $xal-spec/*, $xal-spec/@Key)
+    else
+      let $created := database:create-entity($db, $xal-spec/@Entity, $xal-spec/*)
+      return
+        if (empty($created)) then
+          (: TODO: also return resource path :)
+          <success type="create" key="{ $xal-spec/@Key }"/>
+        else
+          $created
 };
 
 (: ======================================================================

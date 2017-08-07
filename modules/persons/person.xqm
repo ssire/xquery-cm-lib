@@ -26,9 +26,10 @@ declare namespace xt = "http://ns.inria.org/xtiger";
 declare function person:gen-person-selector ( $lang as xs:string, $params as xs:string ) as element() {
   let $pairs :=
       for $p in globals:collection('persons-uri')//Person
-      let $fn := $p/Name/FirstName
-      let $ln := $p/Name/LastName
-      where ($p/Name/LastName/text() ne '')
+      let $info := $p/Information
+      let $fn := $info/Name/FirstName
+      let $ln := $info/Name/LastName
+      where ($info/Name/LastName ne '')
       order by $ln ascending
       return
          <Name id="{$p/Id/text()}">{concat(replace($ln,' ','\\ '), '\ ', replace($fn,' ','\\ '))}</Name>
@@ -73,7 +74,7 @@ declare function person:gen-person-enterprise-selector ( $lang as xs:string, $pa
       for $p in globals:collection('persons-uri')//Person
       let $fn := $p/Name/FirstName
       let $ln := $p/Name/LastName
-      let $pe := $p/EnterpriseRef/text()
+      let $pe := $p/EnterpriseKey/text()
       order by $ln ascending
       return
         let $en := if ($pe) then globals:doc('enterprises-uri')//Enterprise[Id = $pe]/Name/text() else ()

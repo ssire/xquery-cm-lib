@@ -42,7 +42,7 @@ declare function misc:gen_display_name( $refs as element()*, $tag as xs:string )
     ()
 };
 
-declare function local:gen_display_attribute( $refs as element()* ) as attribute()? {
+declare function misc:gen_display_attribute( $refs as element()* ) as attribute()? {
   if ($refs) then
     let $driver := local-name($refs[1])
     let $root := if (ends-with($driver, 'Ref')) then substring-before($driver, 'Ref') else $driver
@@ -89,16 +89,19 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
             if (exists($node/@_Unref)) then
               element { $tag }
                 {
-                local:unref_display_attribute($node, 'en'),
+                misc:unref_display_attribute($node, 'en'),
                 $node/(*|text())
                 }
             else if (ends-with($tag, 's') and (count($node/*) > 0) and
                 (every $c in $node/* satisfies (ends-with(local-name($c), 'Ref') and not(ends-with(local-name($c), 'ScaleRef'))))) then
               element { $tag }
-                {(
-                local:gen_display_attribute($node/*),
+                {
+                if (exists($node/@_Display)) then
+                  $node/@_Display
+                else
+                  misc:gen_display_attribute($node/*),
                 $node/*
-                )}
+                }
             else if (ends-with($tag, 'ByRef')) then
               element { $tag }
                 {(
@@ -107,10 +110,13 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
                 )}
             else if (ends-with($tag, 'Ref') or ($tag eq 'Country')) then
               element { $tag }
-                {(
-                local:gen_display_attribute($node),
+                {
+                if (exists($node/@_Display)) then
+                  $node/@_Display
+                else
+                  misc:gen_display_attribute($node),
                 $node/text()
-                )}
+                }
             else if ($tag eq 'Date') then
               misc:unreference-date($node)
             else
@@ -120,7 +126,7 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
         return $node
 };
 
-declare function local:unref_display_attribute( $ref as element(), $lang as xs:string ) as attribute()? {
+declare function misc:unref_display_attribute( $ref as element(), $lang as xs:string ) as attribute()? {
   let $label := util:eval(concat($ref/@_Unref, '($ref, $lang)'))
   return
     if ($label) then
@@ -132,7 +138,7 @@ declare function local:unref_display_attribute( $ref as element(), $lang as xs:s
 declare function misc:unreference( $ref as element()?, $tag as xs:string, $lang as xs:string ) as element() {
   element { $tag }
     {(
-    local:gen_display_attribute($ref),
+    misc:gen_display_attribute($ref),
     $ref/text()
     )}
 };

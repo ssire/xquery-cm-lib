@@ -67,7 +67,7 @@ return
           search:fetch-enterprises(
             <SearchEnterprisesRequest>
               <Enterprises>
-                <EnterpriseRef>{$preview}</EnterpriseRef>
+                <EnterpriseKey>{$preview}</EnterpriseKey>
               </Enterprises>
             </SearchEnterprisesRequest>
           )

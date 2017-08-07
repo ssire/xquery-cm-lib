@@ -6,6 +6,8 @@ xquery version "1.0";
 
    CRUD controller to manage Enterprise entries inside the database.
 
+   DEPRECATED : WILL BE DELETED 
+
    November 2016 - (c) Copyright 2016 Oppidoc SARL. All Rights Reserved.
    ----------------------------------------------- :)
 

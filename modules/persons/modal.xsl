@@ -20,7 +20,7 @@
       <p>
         <span loc="term.enterprise">Enterprise</span>: 
         <xsl:call-template name="pretty-print">
-          <xsl:with-param name="var"><xsl:value-of select="EnterpriseName"/></xsl:with-param>
+          <xsl:with-param name="var"><xsl:value-of select="EnterpriseKey/@_Display"/></xsl:with-param>
         </xsl:call-template>
       </p>
       <xsl:apply-templates select="Contacts/Email"/>

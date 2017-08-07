@@ -311,7 +311,7 @@ declare function alert:notify-transition(
       let $template :=  (: name of e-mail template to used :)
         if ($name) then
           if ($name eq 'kam-notification') then (: DEPRECATED (UNUSED): conditional "-nologin" suffix trick :)
-            concat($name, alert:check-user-has-login($case/Management/AccountManagerRef))
+            concat($name, alert:check-user-has-login($case/Management/AccountManagerKey))
           else
             $name
         else (: default one :)

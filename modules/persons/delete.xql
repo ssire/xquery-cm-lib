@@ -6,6 +6,8 @@ xquery version "1.0";
 
    Controller to delete a Person.
 
+   TODO: use date templates
+
    March 2014 - (c) Copyright 2014 Oppidoc SARL. All Rights Reserved.
    ----------------------------------------------- :)
 import module namespace xdb = "http://exist-db.org/xquery/xmldb";
@@ -27,27 +29,27 @@ declare option exist:serialize "method=xml media-type=text/xml";
    since usually persons will be added to the database just before beeing referenced inside a case or an activity
    FIXME:
    - check user has no role at all in UserProfile (?)
+   TODO:
+   - use data template
    ======================================================================
 :)
 declare function local:validate-person-delete( $id as xs:string, $person as element() ) as element()* {
-  let $po := globals:collection('cases-uri')//ProjectOfficerRef[. = $id][1]/ancestor::Case/Information/Acronym/text()
-  let $kam := globals:collection('cases-uri')//AccountManagerRef[. = $id][1]/ancestor::Case/Information/Acronym/text()
-  let $coach := globals:collection('cases-uri')//ResponsibleCoachRef[. = $id][1]/ancestor::Case/Information/Acronym/text()
+  let $kam := globals:collection('cases-uri')//AccountManagerKey[. = $id][1]/ancestor::Case/Information/Acronym/text()
+  let $coach := globals:collection('cases-uri')//ResponsibleCoachKey[. = $id][1]/ancestor::Case/Information/Acronym/text()
   let $ref := for $c in globals:collection('cases-uri')//
                 (
                 AddresseeRef[. = $id][1] |
                 SenderRef[. = $id][1] |
-                AssignedByRef[. = $id][1] |
+                AssignedByKey[. = $id][1] |
                 SentByRef[. = $id][1]
                 )
               return $c/ancestor::Case/Information/Acronym/text()
   let $login := if (empty($person/UserProfile/Username)) then () else ajax:throw-error('PERSON-WITH-LOGIN', ())
   return
-    let $err0 := if (count($po) > 0) then ajax:throw-error('PERSON-ISA-PO', $po) else ()
     let $err1 := if (count($kam) > 0) then ajax:throw-error('PERSON-ISA-KAM', $kam) else ()
     let $err2 := if (count($coach) > 0) then ajax:throw-error('PERSON-ISA-COACH', $coach) else ()
     let $err3 := if (count($ref) > 0) then ajax:throw-error('PERSON-ISA-REFEREE', $ref[1]) else ()
-    let $errors := ($err0, $err1, $err2, $err3, $login)
+    let $errors := ($err1, $err2, $err3, $login)
     return
       if (count($errors) > 0) then
         let $explain :=

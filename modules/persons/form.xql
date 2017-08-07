@@ -33,13 +33,13 @@ return
   if ($target = 'persons') then (: Person search form :)
       <site:view>
         <site:field Key="persons">
-        { person:gen-person-selector($lang, ";multiple=yes;typeahead=yes;xvalue=PersonRef") }
+        { person:gen-person-selector($lang, ";multiple=yes;typeahead=yes;xvalue=PersonKey") }
       </site:field>
       <site:field Key="countries">
         { form:gen-selector-for('Countries', $lang, ";multiple=yes;xvalue=Country;typeahead=yes") }
       </site:field>
       <site:field Key="enterprises">
-        { enterprise:gen-enterprise-selector($lang, ";multiple=yes;xvalue=EnterpriseRef;typeahead=yes") }
+        { enterprise:gen-enterprise-selector($lang, ";multiple=yes;xvalue=EnterpriseKey;typeahead=yes") }
       </site:field>
       <site:field Key="functions">
         { form:gen-selector-for('Functions', $lang, ";multiple=yes;typeahead=no;xvalue=FunctionRef") }

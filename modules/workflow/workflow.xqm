@@ -53,15 +53,13 @@ declare function workflow:get-persons-for-role ( $role as xs:string, $case as el
             for $role in globals:collection('persons-uri')//Role[(FunctionRef eq $func-ref) and (RegionalEntityRef eq $region-entity)]
             return $role/ancestor::Person/Id/text()
         else if ($suffix eq 'kam') then
-          $case/Management/AccountManagerRef/text()
+          $case/Management/AccountManagerKey/text()
         else if ($suffix eq 'coach') then
-          $activity/Assignment/ResponsibleCoachRef/text()
+          $activity/Assignment/ResponsibleCoachKey/text()
         else if ($suffix eq 'service-head') then
           let $service := $activity/Assignment/ServiceRef/text()
           return
             globals:collection('persons-uri')//Person[UserProfile/Roles/Role[(FunctionRef eq $func-ref) and (ServiceRef eq $service)]]/Id/text()
-        else if ($suffix eq 'project-officer') then
-          $case/Information/ProjectOfficerRef/text()
         else
           ()
     else

@@ -1,12 +1,17 @@
 xquery version "1.0";
 (: --------------------------------------
-   Case tracker pilote
+   XQuery Content Management Library
+
+   CRUD controller to manage Person entities inside the database
+
+   This is a sample file for Case Tracker Pilote
+
+   You MOST probably will need to copy this file to your 
+   project to customize it to fit your application data model
 
    Creation: Stéphane Sire <s.sire@oppidoc.fr>
 
-   CRUD controller to manage Person entries inside the database.
-
-   December 2014 - (c) Copyright 2014 Oppidoc SARL. All Rights Reserved.
+   August 2017 - (c) Copyright 2017 Oppidoc SARL. All Rights Reserved.
    ----------------------------------------------- :)
 
 import module namespace request="http://exist-db.org/xquery/request";
@@ -25,42 +30,32 @@ import module namespace search = "http://oppidoc.com/ns/xcm/search" at "search.x
 declare option exist:serialize "method=xml media-type=text/xml";
 
 (: ======================================================================
-   Normalizes a string to compare it with another one
-   TODO: handle accentuated characters (canonical form ?)
-   ======================================================================
-:)
-declare function local:normalize( $str as xs:string? ) as xs:string {
-  upper-case(normalize-space($str))
-};
-
-(: ======================================================================
    Checks submitted person data is valid and check the submitted pair.
    Actually does nothing since it seems possible to have homonyms...
-   FIXME: check data has a Person root element
-   FIXME: maybe we should develop a more advanced protocol with a warning 
-   in case FirstName, LastName and Email are identical ?
    Returns a list of error messages or the emtpy sequence if no errors.
+
+   TODO: implement with validate data template
    ======================================================================
 :)
-declare function local:validate-person-submission( $data as element(), $curNo as xs:string? ) as element()* {
-  ()
+declare function local:validate-person-submission( $submitted as element(), $curNo as xs:string? ) as element() {
+  <success/>
   (:  
-  let $key1 := local:normalize($data/Name/LastName/text())
-  let $key2 := local:normalize($data/Name/SortString/text())
-  let $ckey1 := globals:collection('persons-uri')//Person[local:normalize(Name/LastName) = $key1]
-  let $ckey2 := globals:collection('persons-uri')//Person[local:normalize(Name/SortString) = $key2]
+  let $key1 := local:normalize($submitted/Name/LastName/text())
+  let $key2 := local:normalize($submitted/Name/SortString/text())
+  let $ckey1 := globals:collection('persons-uri')//Person[local:normalize(Information/Name/LastName) = $key1]
+  let $ckey2 := globals:collection('persons-uri')//Person[local:normalize(Information/Name/SortString) = $key2]
   return (
       if ($curNo and empty(globals:collection('persons-uri')//Person[Id = $curNo])) then
         ajax:throw-error('UNKNOWN-PERSON', $curNo)
       else (),
       if ($ckey1) then 
         if (not($curNo) or not($curNo = $ckey1/Id)) then
-          ajax:throw-error('PERSON-NAME-CONFLICT', $data/Name/SortString/text())
+          ajax:throw-error('PERSON-NAME-CONFLICT', $submitted/Name/SortString/text())
         else ()
       else (),
       if ($ckey2) then
         if (not($curNo) or ($ckey2/Id != $curNo)) then
-          ajax:throw-error('SORTSTRING-CONFLICT', $data/Name/SortString/text())
+          ajax:throw-error('SORTSTRING-CONFLICT', $submitted/Name/SortString/text())
         else ()
       else ()
       )
@@ -68,6 +63,35 @@ declare function local:validate-person-submission( $data as element(), $curNo as
 };
 
 (: ======================================================================
+   Inserts a new Person inside the database using person's create data template
+   and data mapping configuration in database.xml
+   ======================================================================
+:)
+declare function local:create-person( $cmd as element(), $submitted as element(), $lang as xs:string ) as element() {
+  let $next := request:get-parameter('next', ())
+  let $created := template:do-create-resource('person', (), (), $submitted, ())
+  return
+    if ($created eq 'success') then
+      if ($next eq 'redirect') then
+        ajax:report-success-redirect('ACTION-CREATE-SUCCESS', (), concat($cmd/@base-url, $cmd/@trail, '?preview=', $created))
+      else (: short ajax protocol with 'augment' or 'autofill' plugin (no table row update) :)
+        let $result := 
+          <Response Status="success">
+            <Payload>
+              <Name>{ concat($submitted/Name/FirstName, ' ', $submitted/Name/LastName) }</Name>
+              <Value>{ $created/text() }</Value>
+            </Payload>
+          </Response>
+        return
+          ajax:report-success('ACTION-CREATE-SUCCESS', (), $result)
+      )
+    else
+      $created
+};
+
+(: ======================================================================
+   DEPRECATED
+
    Regenerates the UserProfile for the current submitted person wether s/he exists or not
    Interprets current request "f" parameter to assign "kam" or "coach" function on the fly
    FIXME: 
@@ -100,138 +124,48 @@ declare function local:gen-user-profile-for-writing( $profile as element()? ) {
 };
 
 
-(: ======================================================================
-   Reconstructs a Person record from current Person data and from new submitted
-   Person data. Note that current Person may be the empty sequence in case of creation.
-   Persists UserProfile element if present.
-   ======================================================================
-:)
-declare function local:gen-person-for-writing( $current as element()?, $new as element(), $index as xs:integer? ) {
-  <Person>
-    {(
-    if ($current) then (
-      $current/@PersonId,
-      $current/Id 
-      )
-    else 
-      <Id>{$index}</Id>,
-    $new/Sex,
-    $new/Civility,
-    <Name>
-      {$new/Name/*}
-      {if ($current) then $current/Name/SortString else (<SortString>{$current/Name/LastName}</SortString>)}
-    </Name>,
-    $new/Country,
-    $new/EnterpriseRef,
-    $new/Function,
-    $new/Contacts,
-    $new/Photo,
-    local:gen-user-profile-for-writing($current/UserProfile)
-    )}
-  </Person>
-};
-
-(: ======================================================================
-   Inserts a new Person inside the database
-   TODO: use a Variable to compute Id
-   ======================================================================
-:)
-declare function local:create-person( $cmd as element(), $data as element(), $lang as xs:string ) as element() {
-  let $next := request:get-parameter('next', ())
-  let $newkey := database:make-new-key-for($cmd/@db, 'person')
-  let $person := local:gen-person-for-writing((), $data, $newkey)
-  return
-    (
-    database:create-entity($cmd/@db, 'person', $person),
-    if ($next eq 'redirect') then
-      ajax:report-success-redirect('ACTION-CREATE-SUCCESS', (), concat($cmd/@base-url, $cmd/@trail, '?preview=', $newkey))
-    else (: short ajax protocol with 'augment' or 'autofill' plugin (no table row update) :)
-      let $result := 
-        <Response Status="success">
-          <Payload>
-            <Name>{concat($data/Name/FirstName, ' ', $data/Name/LastName)}</Name>
-            <Value>{$newkey}</Value>
-          </Payload>
-        </Response>
-      return
-        ajax:report-success('ACTION-CREATE-SUCCESS', (), $result)
-    )
-};
 
 (: ======================================================================
    Updates a Person model into database
-   TODO: test if updating from search (XSLT pipeline) 
-   or from augment command (Name / Value protocol)
+
+   TODO:
+   - reintegrate local:gen-user-profile-for-writing($current/UserProfile)
+   - test if updating from search (XSLT pipeline) or from augment command (Name / Value protocol)
    ======================================================================
 :)
-declare function local:update-person( $current as element(), $data as element(), $lang as xs:string ) as element() {
-  let $person := local:gen-person-for-writing($current, $data,())
-  let $result := 
-    (: FIXME: improve protocol :)
-    if (request:get-parameter('next', ()) eq 'autofill') then
-      <Response Status="success">
-        <Payload Table="Person">
-          <Name>{concat($person/Name/FirstName, ' ', $person/Name/LastName)}</Name>
-          <Value>{$person/Id/text()}</Value>
-        </Payload>
-      </Response>
+declare function local:update-person( $person as element(), $submitted as element(), $lang as xs:string ) as element() {
+  let $id := string($person/Id)
+  let $updated := template:do-update-resource('person', $id, $person, (), $submitted)
+  return
+    if ($updated eq 'success') then
+      ajax:report-success('ACTION-UPDATE-SUCCESS', (), 
+        if (request:get-parameter('next', ()) eq 'autofill') then
+          <Response Status="success">
+            <Payload Table="Person">
+              <Name>{ concat($submitted/Name/FirstName, ' ', $submitted/Name/LastName) }</Name>
+              <Value>{ $id) }</Value>
+            </Payload>
+          </Response>
+        else (: maybe we could use $person this is to be sure to get updated data :)
+          let $fresh-person := globals:collection('persons-uri')//Person[Id eq $id]
+          return search:gen-person-sample($fresh-person, (), true(), 'en')
+      )
     else
-      search:gen-person-sample($person, (), 'en', true())
-  return (
-    update replace $current with $person,
-    ajax:report-success('ACTION-UPDATE-SUCCESS', (), $result)
-    )
+      $updated
 };
 
 (: ======================================================================
    Returns a Person model for a given goal
-   Note EnterpriseRef -> EnterpriseName for modal window
+   Note EnterpriseKey -> EnterpriseName for modal window
    ======================================================================
 :)
-declare function local:gen-person( $person as element(), $lang as xs:string, $goal as xs:string ) as element()* {
+declare function local:gen-person( $person as element(), $goal as xs:string, $lang as xs:string ) as element()* {
   if ($goal = 'read') then
-    (: serves both EnterpriseName for the persons/xxx.modal in /stage
-       and EnterpriseRef for persons/xxx.blend view in /persons   :)
-    let $entname := enterprise:gen-enterprise-name($person/EnterpriseRef, $lang)
-    let $roles := 
-      <Roles>
-      {
-      for $r in $person/UserProfile/Roles/Role
-      let $services := display:gen-name-for('Services', $r/ServiceRef, $lang)
-      return 
-        (
-        <Function>{ display:gen-name-for('Functions', $r/FunctionRef, $lang) }</Function>,
-        if ($services) then 
-          <Name>
-            { string-join(($services)[. ne ''], ", ") }
-          </Name>
-        else
-          <Name/>
-        )
-      }
-      </Roles>
-    return
-      <Person>
-        { $person/(Id | Sex | Civility | Name | Photo | Contacts) }
-        { misc:unreference($person/Country) }
-        <EnterpriseRef>{$entname}</EnterpriseRef>
-        <EnterpriseName>{$entname}</EnterpriseName>
-        {$person/Function}
-        { if (count($roles/Function) > 0) then $roles else () }
-      </Person>
+    template:gen-read-model('person-with-roles', $person, $lang)
   else if ($goal = 'update') then
-    <Person>
-      { $person/(Sex | Civility | Name | Country | EnterpriseRef | Function | Contacts | Photo) }
-    </Person>
-  else if ($goal = 'autofill') then (: DEPRECATED : Transclusion of ContactPerson :)
-    let $payload := 
-            (
-            <PersonRef>{ $person/Id/text() }</PersonRef>,
-            $person/Name,
-            $person/(Sex | Civility | Country),
-            enterprise:unreference-enterprise($person/EnterpriseRef, 'EnterpriseRef', $lang),
-            $person/( Function | Photo | Contacts)
-            )
+    template:gen-read-model('person', $person, $lang)
+  else if ($goal = 'autofill') then (: refresh a Person transclusion inside a formular  :)
+    let $payload := template:gen-transclusion('person', $person/Id, $person)
     let $envelope := request:get-parameter('envelope', '')
     return
       <data>
@@ -246,6 +180,7 @@ declare function local:gen-person( $person as element(), $lang as xs:string, $go
     ()
 };
 
+(: *** MAIN ENTRY POINT *** :)
 let $m := request:get-method()
 let $cmd := oppidum:get-command()
 let $lang := string($cmd/@lang)
@@ -262,20 +197,20 @@ return
           access:check-entity-permissions('update', 'Person', $person)
       return
         if ($allowed) then
-          let $data := oppidum:get-data()
-          let $errors := local:validate-person-submission($data, $ref)
+          let $submitted := oppidum:get-data()
+          let $validated := <success/> (: local:validate-person-submission($submitted, $ref) :)
           return
-            if (empty($errors)) then
+            if (local-name($validated) eq 'success') then
               if ($creating) then
-                util:exclusive-lock(fn:doc(oppidum:path-to-ref())/Persons, local:create-person($cmd, $data, $lang))
+                util:exclusive-lock(fn:doc(oppidum:path-to-ref())/Persons, local:create-person($cmd, $submitted, $lang))
               else
-                local:update-person($person, $data, $lang)
+                local:update-person($person, $submitted, $lang)
             else
-              ajax:report-validation-errors($errors)
+              ajax:report-validation-errors($validated)
         else
           oppidum:throw-error('FORBIDDEN', ())
     else 
       (: assumes GET, access control done at mapping level :)
-      local:gen-person($person, $lang, request:get-parameter('goal', 'read'))
+      local:gen-person($person, request:get-parameter('goal', 'read'), $lang)
   else 
     oppidum:throw-error("PERSON-NOT-FOUND", ())

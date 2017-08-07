@@ -31,8 +31,7 @@
         <xsl:apply-templates select="Contacts/Phone"/>
       </td>
       <td>
-        <xsl:apply-templates select="EnterpriseName"/>
-        <xsl:apply-templates select="RegionalEntityName"/>
+        <xsl:apply-templates select="EnterpriseKey"/>
       </td>
     </tr>
   </xsl:template>
@@ -58,15 +57,8 @@
   <xsl:template match="Country[. = 'E']"><i>EEN</i>
   </xsl:template>
 
-  <xsl:template match="EnterpriseName">
-    <xsl:value-of select="."/>
-  </xsl:template>
-
-  <xsl:template match="RegionalEntityName">
-    <i><xsl:value-of select="."/></i>
-  </xsl:template>
-
-  <xsl:template match="RegionalEntityName[../EnterpriseName]">, <i><xsl:value-of select="."/></i>
+  <xsl:template match="EnterpriseKey">
+    <xsl:value-of select="@_Display"/>
   </xsl:template>
 
   <xsl:template match="Email">

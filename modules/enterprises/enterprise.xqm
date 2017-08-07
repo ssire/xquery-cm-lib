@@ -35,10 +35,10 @@ declare function local:normalize( $str as xs:string? ) as xs:string {
 :)
 declare function enterprise:gen-enterprise-name( $ref as xs:string?, $lang as xs:string ) {
   if ($ref) then
-    let $p := globals:doc('enterprises-uri')/Enterprises/Enterprise[Id = $ref]
+    let $p := globals:doc('enterprises-uri')//Enterprise[Id = $ref]
     return
       if ($p) then
-        $p/Name/text()
+        $p/Information/Name/text()
       else
         display:noref($ref, $lang)
   else
@@ -71,11 +71,12 @@ declare function enterprise:gen-enterprise-selector ( $lang as xs:string, $param
       <xt:use hit="1" types="choice" values="{$inCache/Values}" i18n="{$inCache/I18n}" param="select2_complement=town;select2_minimumInputLength=2;{form:setup-select2($params)}"/>
     else
       let $pairs :=
-          for $p in globals:doc('enterprises-uri')/Enterprises/Enterprise[not(@EnterpriseId)]
-          let $n := $p/Name
+          for $p in globals:doc('enterprises-uri')//Enterprise
+          let $n := $p/Information/Name
+          let $town := $p//Town
           order by $n ascending
           return
-             <Name id="{$p/Id/text()}">{replace($n,' ','\\ ')}{if ($p/Address/Town/text()) then concat('::', replace($p/Address/Town,' ','\\ ')) else ()}</Name>
+             <Name id="{ $p/Id }">{replace($n,' ','\\ ')}{if ($town) then concat('::', replace($town,' ','\\ ')) else ()}</Name>
       return
         let $ids := string-join(for $n in $pairs return string($n/@id), ' ') (: FLWOR to defeat document ordering :)
         let $names := string-join(for $n in $pairs return $n/text(), ' ') (: idem :)
@@ -97,7 +98,7 @@ declare function enterprise:gen-town-selector ( $lang as xs:string, $params as x
       <xt:use hit="1" types="choice" values="{$inCache/Values}" param="{form:setup-select2($params)}"/>
     else
       let $towns :=
-        for $t in distinct-values ((globals:doc('enterprises-uri')//Enterprise[not(@EnterpriseId)]/Address/Town/text()))
+        for $t in distinct-values(globals:doc('enterprises-uri')//Enterprise//Town)
         order by $t ascending
         return
           replace($t,' ','\\ ')
@@ -113,14 +114,14 @@ declare function enterprise:gen-town-selector ( $lang as xs:string, $params as x
    Checks submitted enterprise data is valid and check Name fields 
    are unique or correspond to the submitted enterprise in case of update ($curNo defined).
    Returns a list of error messages or the emtpy sequence if no errors.
-   TODO: improve error generation for internationalization
+   TODO: move to a data template
    ======================================================================
 :)
 declare function enterprise:validate-enterprise-submission( $data as element(), $curNo as xs:string? ) as element()* {
   let $key1 := local:normalize($data/Name/text())
-  let $cname := globals:doc('enterprises-uri')/Enterprises/Enterprise[local:normalize(Name) = $key1]
+  let $cname := globals:doc('enterprises-uri')//Enterprise[local:normalize(Information/Name) = $key1]
   return (
-      if ($curNo and empty(globals:doc('enterprises-uri')/Enterprises/Enterprise[Id = $curNo])) then
+      if ($curNo and empty(globals:doc('enterprises-uri')//Enterprise[Id = $curNo])) then
         ajax:throw-error('UNKNOWN-ENTERPRISE', $curNo)
       else (),
       if ($cname) then 
@@ -129,72 +130,4 @@ declare function enterprise:validate-enterprise-submission( $data as element(), 
         else ()
       else ()
       )
-};
-
-(: ======================================================================
-   Serializes new element if it exists 
-   ======================================================================
-:)
-declare function local:persists_annotation( $current as element()?, $new as element()? ) as element()? {
-  if ($new) then
-    if ($current/@_Source) then (: persists importer _Source annotation :)
-      element { local-name($new) } {(
-        $current/@_Source,
-        $new/text()
-      )}
-    else
-      $new
-  else
-    ()
-};
-
-(: ======================================================================
-   Reconstructs an Enterprise record from current Enterprise data and from new submitted
-   Enterprise data. Current Enterprise may be the empty sequence in case of creation.
-   ======================================================================
-:)
-declare function enterprise:gen-enterprise-for-writing( $current as element()?, $new as element(), $index as xs:integer? ) {
-  <Enterprise>
-    {(
-    if ($current) then 
-      (
-      $current/@EnterpriseId,
-      $current/Id
-      )
-    else 
-      <Id>{$index}</Id>,
-    $new/Name,
-    $new/ShortName,
-    local:persists_annotation($current/CreationYear, $new/CreationYear),
-    local:persists_annotation($current/SizeRef, $new/SizeRef),
-    $new/DomainActivityRef,
-    $new/WebSite,
-    $new/MainActivities,
-    $new/TargetedMarkets,
-    $new/Address
-    )}
-  </Enterprise>
-};
-
-(: ======================================================================
-   Updates an enterprise record into database if the submitted data is different
-   Invalidates cache in case enterprise name 
-   Returns true() if data was updated, false() otherwise (no need to update)
-   ======================================================================
-:)
-declare function enterprise:update-enterprise( $ref as xs:string, $data as element(), $lang as xs:string ) as xs:boolean {
-  let $current := globals:doc('enterprises-uri')/Enterprises/Enterprise[Id = $ref]
-  let $new := enterprise:gen-enterprise-for-writing($current, $data, ())
-  let $dirty-name := $current/Name/text() ne $new/Name/text()
-  let $dirty-town := $current/Address/Town/text() ne $new/Address/Town/text()
-  return
-    if (deep-equal($current, $new)) then
-      false()
-    else
-      (
-      update replace $current with $new,
-      if ($dirty-name) then cache:invalidate('enterprise', $lang) else (),
-      if ($dirty-town) then cache:invalidate('town', $lang) else (),
-      true()
-      )[last()]
 };

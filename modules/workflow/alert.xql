@@ -75,7 +75,7 @@ declare function local:prefill-notification( $workflow as xs:string, $case as el
   let $template :=
     if ($transition/@Template) then
       if ($check-login) then
-        concat(string($transition/@Template), alert:check-user-has-login($case/Management/AccountManagerRef))
+        concat(string($transition/@Template), alert:check-user-has-login($case/Management/AccountManagerKey))
       else
         string($transition/@Template)
     else
