@@ -20,6 +20,7 @@ import module namespace xdb = "http://exist-db.org/xquery/xmldb";
 import module namespace system = "http://exist-db.org/xquery/system";
 
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../../oppidum/lib/util.xqm";
+import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../../lib/globals.xqm";
 import module namespace ajax = "http://oppidoc.com/ns/xcm/ajax" at "../../lib/ajax.xqm";
 import module namespace account = "http://oppidoc.com/ns/xcm/account" at "account.xqm";
 
@@ -63,12 +64,12 @@ declare function local:make-ajax-response( $key as xs:string, $login as xs:strin
 declare function local:update-user-account( $person as element(), $data as element(), $lang as xs:string ) as element() {
   let $old-login := normalize-space(string($person/UserProfile/Username))
   let $new-login := normalize-space($data/Login)
-  let $new-pwd := account:gen-password($old-login, $person/Contacts/Email)
+  let $new-pwd := account:gen-password($old-login, $person/Information/Contacts/Email)
   let $groups := if (xdb:exists-user($old-login)) then (: handles very specific case of Username w/o eXist-DB login :)
                    xdb:get-user-groups($old-login) (: saves current group membership :)
                  else 
                    account:gen-groups-for-user($person)
-  let $to := normalize-space($person/Contacts/Email)
+  let $to := normalize-space($person/Information/Contacts/Email)
   return (
     system:as-user(account:get-secret-user(), account:get-secret-password(), xdb:create-user($new-login, $new-pwd, $groups, ())),
     if (xdb:exists-user($new-login)) then (: check operation was successful :)
@@ -98,9 +99,9 @@ declare function local:update-user-account( $person as element(), $data as eleme
 :)
 declare function local:create-user-account( $person as element(), $data as element(), $lang as xs:string ) as element() {
   let $new-login := normalize-space($data/Login)
-  let $new-pwd := account:gen-password($new-login, $person/Contacts/Email)
+  let $new-pwd := account:gen-password($new-login, $person/Information/Contacts/Email)
   let $groups := account:gen-groups-for-user($person)
-  let $to := normalize-space($person/Contacts/Email)
+  let $to := normalize-space($person/Information/Contacts/Email)
   return (
     system:as-user(account:get-secret-user(), account:get-secret-password(), xdb:create-user($new-login, $new-pwd, $groups, ())),
     if (xdb:exists-user($new-login)) then (: check operation was successful :)
@@ -127,7 +128,7 @@ declare function local:create-user-account( $person as element(), $data as eleme
    ======================================================================
 :)
 declare function local:create-or-update-account( $person as element(), $lang as xs:string ) as element() {
-  let $to := normalize-space($person/Contacts/Email) (: pre-condition: email to send new access information :)
+  let $to := normalize-space($person/Information/Contacts/Email) (: pre-condition: email to send new access information :)
   return
     if ($to) then
       let $data := oppidum:get-data()
@@ -151,7 +152,7 @@ declare function local:create-or-update-account( $person as element(), $lang as 
 declare function local:gen-user-account-for-editing( $p as element()? ) as element()* {
   if (empty($p) or empty($p/UserProfile) or empty($p/UserProfile/Username)) then
     <UserProfile>
-      { $p/Contacts/Email }
+      { $p/Information/Contacts/Email }
       <Access>non</Access>
     </UserProfile>
   else
@@ -159,7 +160,7 @@ declare function local:gen-user-account-for-editing( $p as element()? ) as eleme
       {
       let $u := $p/UserProfile/Username
       return (
-        $p/Contacts/Email,
+        $p/Information/Contacts/Email,
         $u,
         if ($u/text() and xdb:exists-user($u/text())) then
           <Access>yes</Access>
@@ -201,7 +202,7 @@ declare function local:delete-account( $person as element() ) {
    ======================================================================
 :)
 declare function local:regenerate-pwd( $user as element() ) {
-  let $to := normalize-space($user/Contacts/Email/text())
+  let $to := normalize-space($user/Information/Contacts/Email/text())
   let $new-pwd := account:gen-password($user/UserProfile/Username, $to)
   return
     if ($user/UserProfile/Username and xdb:exists-user(normalize-space($user/UserProfile/Username))) then (
@@ -219,7 +220,7 @@ declare function local:regenerate-pwd( $user as element() ) {
 let $m := request:get-method()
 let $cmd := oppidum:get-command()
 let $id := string($cmd/resource/@name)
-let $person := fn:doc(oppidum:path-to-ref())/Persons/Person[Id = $id]
+let $person := globals:collection('persons-uri')//Person[Id = $id]
 let $lang := string($cmd/@lang)
 return
   if ($m = 'POST') then

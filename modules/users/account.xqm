@@ -69,8 +69,8 @@ declare function local:gen-user-name( $prefix as xs:string, $ref as xs:string? )
   let $person := globals:collection('persons-uri')//Person[Id = $ref]
   return
     if ($person) then (
-      <var name="{$prefix}_First_Name">{ $person/Name/FirstName/text() }</var>,
-      <var name="{$prefix}_Last_Name">{ $person/Name/LastName/text() }</var>
+      <var name="{$prefix}_First_Name">{ $person/Information/Name/FirstName/text() }</var>,
+      <var name="{$prefix}_Last_Name">{ $person/Information/Name/LastName/text() }</var>
       )
     else
       <var name="{$prefix}_First_Name">UNKNOWN ref({ $ref }) {$prefix}</var>
@@ -85,7 +85,7 @@ declare function account:gen-groups-for-user( $person as element() ) as xs:strin
   (
   "users",
   for $ref in $person/UserProfile/Roles/Role/FunctionRef/text()
-  let $f := form:get-normative-selector-for('Functions')/Option[Id = $ref]
+  let $f := form:get-normative-selector-for('Functions')/Option[Value = $ref]
   return $f/@Group
   )
 };

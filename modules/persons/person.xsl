@@ -31,7 +31,7 @@
         <xsl:apply-templates select="Contacts/Phone"/>
       </td>
       <td>
-        <xsl:apply-templates select="EnterpriseKey"/>
+        <xsl:apply-templates select="EnterpriseKey | EnterpriseName"/>
       </td>
     </tr>
   </xsl:template>
@@ -59,6 +59,10 @@
 
   <xsl:template match="EnterpriseKey">
     <xsl:value-of select="@_Display"/>
+  </xsl:template>
+
+  <xsl:template match="EnterpriseName">
+    <xsl:value-of select="."/>
   </xsl:template>
 
   <xsl:template match="Email">

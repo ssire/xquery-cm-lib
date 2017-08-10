@@ -119,7 +119,7 @@ declare function display:gen-name-person( $ref as xs:string?, $lang as xs:string
     let $p := globals:collection('persons-uri')//Person[Id = $ref]
     return
       if ($p) then
-        concat($p/Name/LastName, ' ', $p/Name/FirstName)
+        concat($p/Information/Name/LastName, ' ', $p/Information/Name/FirstName)
       else if ($ref eq 'import') then
         "case tracker importer"
       else if ($ref eq 'batch') then
@@ -140,7 +140,7 @@ declare function display:gen-person-email( $ref as xs:string?, $lang as xs:strin
     let $p := globals:collection('persons-uri')//Person[Id = $ref]
     return
       if ($p) then
-        $p/Contacts/Email/text()
+        $p/Information/Contacts/Email/text()
       else
         display:noref($ref, $lang)
   else

@@ -44,8 +44,8 @@ declare function local:validate-user( $login as xs:string, $mail as xs:string ) 
   return
     if (($login ne '') and ($mail ne '')) then
       if ($user) then
-        if ($user/Contacts/Email) then
-          if ($user/Contacts/Email/text() = normalize-space($mail)) then
+        if ($user/Information/Contacts/Email) then
+          if ($user/Information/Contacts/Email/text() = normalize-space($mail)) then
             $user
           else
             ajax:throw-error('VALIDATION-WRONG-EMAIL', $mail)
@@ -74,7 +74,7 @@ declare function local:gen-ask-pwd-model( $user as element() ) {
    ======================================================================
 :)
 declare function local:gen-new-password( $user as element() ) {
-  let $to := $user/Contacts/Email/text()
+  let $to := $user/Information/Contacts/Email/text()
   let $new-pwd := account:gen-password($user/UserProfile/Username, $to)
   return (
     if (account:send-new-password($user, $new-pwd, $to, true())) then (
@@ -99,7 +99,7 @@ declare function local:gen-new-password( $user as element() ) {
    ======================================================================
 :)
 declare function local:change-password( $user as element() ) {
-  let $to := $user/Contacts/Email/text()
+  let $to := $user/Information/Contacts/Email/text()
   let $change := normalize-space(request:get-parameter('change', ()))
   let $check := normalize-space(request:get-parameter('check', ()))
   return

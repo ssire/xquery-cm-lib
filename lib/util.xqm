@@ -379,7 +379,7 @@ declare function misc:same-filter( $src as item()*, $dest as item()*, $blacklist
 :)
 declare function misc:gen-person-email( $ref as xs:string? ) as xs:string? {
   if ($ref) then
-    globals:collection('persons-uri')//Person[Id = $ref]/Contacts/Email/text()
+    globals:collection('persons-uri')//Person[Id = $ref]/Information/Contacts/Email/text()
   else
     ''
 };

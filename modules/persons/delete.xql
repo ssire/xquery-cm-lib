@@ -14,9 +14,9 @@ import module namespace xdb = "http://exist-db.org/xquery/xmldb";
 
 import module namespace request="http://exist-db.org/xquery/request";
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../../oppidum/lib/util.xqm";
+import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../../lib/globals.xqm";
 import module namespace access = "http://oppidoc.com/ns/xcm/access" at "../../lib/access.xqm";
 import module namespace ajax = "http://oppidoc.com/ns/xcm/ajax" at "../../lib/ajax.xqm";
-import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../../lib/globals.xqm";
 
 declare option exist:serialize "method=xml media-type=text/xml";
 
@@ -56,7 +56,7 @@ declare function local:validate-person-delete( $id as xs:string, $person as elem
             for $e in $errors
             return $e/message/text(), '. ')
         return
-          oppidum:throw-error('DELETE-PERSON-FORBIDDEN', (concat($person/Name/FirstName, ' ', $person/Name/LastName), $explain))
+          oppidum:throw-error('DELETE-PERSON-FORBIDDEN', (concat($person/Information/Name/FirstName, ' ', $person/Information/Name/LastName), $explain))
       else
         ()
 };
@@ -77,7 +77,7 @@ declare function local:delete-person( $person as element() ) as element()* {
         <Value>{string($person/Id)}</Value>
       </Payload>
     </Response>
-  let $name := concat($person/Name/FirstName, ' ', $person/Name/LastName)
+  let $name := concat($person/Information/Name/FirstName, ' ', $person/Information/Name/LastName)
   return (
     update delete $person,
     ajax:report-success('DELETE-PERSON-SUCCESS', $name, $result)
@@ -86,9 +86,8 @@ declare function local:delete-person( $person as element() ) as element()* {
 
 let $m := request:get-method()
 let $cmd := oppidum:get-command()
-let $person-uri := oppidum:path-to-ref()
 let $id := tokenize($cmd/@trail,'/')[2]
-let $person := fn:doc($person-uri)/Persons/Person[Id = $id]
+let $person := globals:collection('persons-uri')//Person[Id = $id]
 (:let $lang := string($cmd/@lang):)
 return
   if ($person) then (: sanity check :)
@@ -99,7 +98,7 @@ return
           if ($m = 'DELETE' or (($m = 'POST') and (request:get-parameter('_delete', ()) eq "1"))) then (: real delete  :)
             local:delete-person($person)
           else if ($m = 'POST') then (: delete pre-step - we use POST to avoid forgery - :)
-            ajax:report-success('DELETE-PERSON-CONFIRM', concat($person/Name/FirstName, ' ', $person/Name/LastName))
+            ajax:report-success('DELETE-PERSON-CONFIRM', concat($person/Information/Name/FirstName, ' ', $person/Information/Name/LastName))
           else
             ajax:throw-error('URI-NOT-SUPPORTED', ())
         else

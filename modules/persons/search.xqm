@@ -92,9 +92,9 @@ declare function search:fetch-persons ( $request as element() ) as element()* {
             (: optimization for : not($omni) and access:check-person-update-at-least($uid, $person) :)
         else
         (: search by country direct mention :)
-          let $with-country-refs := globals:collection('persons-uri')//Person[Country = $country]/Id[empty($person) or . = $person]
+          let $with-country-refs := globals:collection('persons-uri')//Person[Information/Country = $country]/Id[empty($person) or . = $person]
           (: extends to coaches having coached in one of the target country :)
-          let $by-enterprise-refs := globals:doc('enterprises-uri')//Enterprise[Address/Country = $country]/Id
+          let $by-enterprise-refs := globals:doc('enterprises-uri')//Enterprise[Information/Address/Country = $country]/Id
           let $by-coaching-refs := distinct-values(
             globals:collection('cases-uri')//Case[Information/ClientEnterprise/EnterpriseKey = $by-enterprise-refs]//ResponsibleCoachKey[not(. = $with-country-refs)]
             )

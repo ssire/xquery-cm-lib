@@ -37,8 +37,8 @@ declare function alert:gen-user-name-for( $prefix as xs:string, $refs as xs:stri
     let $person := globals:collection('persons-uri')//Person[Id = $ref]
     return
       if ($person) then (
-        <var name="{$prefix}_First_Name">{ $person/Name/FirstName/text() }</var>,
-        <var name="{$prefix}_Last_Name">{ $person/Name/LastName/text() }</var>
+        <var name="{$prefix}_First_Name">{ $person/Information/Name/FirstName/text() }</var>,
+        <var name="{$prefix}_Last_Name">{ $person/Information/Name/LastName/text() }</var>
         )
       else
         <var name="{$prefix}_First_Name">UNKNOWN ref({ $ref }) {$prefix}</var>
@@ -106,14 +106,14 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
       else 
         let $p := globals:collection('persons-uri')//Person[Id eq $ref]
         return
-          if (check:is-email($p/Contacts/Email)) then
-            $p/Contacts/Email/text()
+          if (check:is-email($p/Information/Contacts/Email)) then
+            $p/Information/Contacts/Email/text()
           else
             ()
   return
     for $ref in $to[. != '-1']
     let $p := globals:collection('persons-uri')//Person[Id = $ref]
-    let $email := if (check:is-email($ref)) then $ref else $p/Contacts/Email/text()
+    let $email := if (check:is-email($ref)) then $ref else $p/Information/Contacts/Email/text()
     return
       if ($email) then
         if (check:is-email($email)) then
@@ -125,7 +125,7 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
           else
             <error>impossible to send e-mail to { $email }</error>
         else
-          <error>malformed e-mail address "{ $email }" for { $p/Name/FirstName } { $p/Name/LastName }</error>
+          <error>malformed e-mail address "{ $email }" for { $p/Information/Name/FirstName } { $p/Information/Name/LastName }</error>
       else
         <error>unkown person with reference { $ref }</error>
 };

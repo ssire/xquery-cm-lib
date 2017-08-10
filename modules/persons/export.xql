@@ -35,8 +35,8 @@ declare option exist:serialize "method=xml media-type=text/xml";
 declare function local:gen-coach-sample( $p as element() ) as element() {
   <Coach> 
     {
-    $p/Name,
-    $p/Contacts/Email,
+    $p/Information/Name,
+    $p/Information/Contacts/Email,
     $p//Username
     }
   </Coach>
@@ -86,12 +86,12 @@ return
         if ($search/@Format eq 'profile') then 
           for $p in globals:collection('persons-uri')//Person[UserProfile//FunctionRef = '4']
           where (empty($re) or matches($p//LastName, $re))
-            and (empty($email) or (normalize-space($p/Contacts/Email) eq $email))
+            and (empty($email) or (normalize-space($p/Information/Contacts/Email) eq $email))
           return local:gen-coach-profile($p)
         else
           for $p in globals:collection('persons-uri')//Person[UserProfile//FunctionRef = '4']
           where (empty($re) or matches($p//LastName, $re))
-            and (empty($email) or (normalize-space($p/Contacts/Email) eq $email))
+            and (empty($email) or (normalize-space($p/Information/Contacts/Email) eq $email))
           return local:gen-coach-sample($p)
         }
       </Coaches>

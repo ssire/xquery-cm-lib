@@ -11,6 +11,8 @@ xquery version "1.0";
 
    Creation: Stéphane Sire <s.sire@oppidoc.fr>
 
+   DEPRECATED : WILL BE DELETED 
+
    August 2017 - (c) Copyright 2017 Oppidoc SARL. All Rights Reserved.
    ----------------------------------------------- :)
 
