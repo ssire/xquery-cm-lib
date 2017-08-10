@@ -135,7 +135,7 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
    into a normalized Alert element for archiving
    This can be either an Alert (automatic or spontaneous) with Addressees / Message
    or an Email with From / To / Message fields and an optional server-side generated attachment
-   Always sets SenderRef to current user
+   Always sets SenderKey to current user
    ======================================================================
 :)
 declare function local:gen-message-for-writing(
@@ -151,20 +151,22 @@ declare function local:gen-message-for-writing(
   <Alert>
     <Id>{ $index }</Id>
     <Date>{ current-dateTime() }</Date>
-    <SenderRef>
+    <SenderKey>
       { 
       $model/@Mode,
       $uid 
       }
-    </SenderRef>
+    </SenderKey>
     { 
       $model/(From | Addressees | To | Subject | Key),
-      if ($cur-status) then <ActivityStatusRef>{ $cur-status }</ActivityStatusRef> else (),
+      if ($cur-status) then <CurrentStatusRef>{ $cur-status }</CurrentStatusRef> else (),
       if ($prev-status) then <PreviousStatusRef>{ $prev-status }</PreviousStatusRef> else (),
-      element { local-name($model) } {(
+      <Payload Generator="{ lower-case(local-name($model)) }">
+        {
         $model/Message,
         $attachment
-      )}
+        }
+      </Payload>
     }
   </Alert>
 };
@@ -255,13 +257,13 @@ declare function alert:apply-recipients(
               <Addressees>
                 {
                 for $a in $send-to
-                return <AddresseeRef>{ $a }</AddresseeRef>,
+                return <AddresseeKey>{ $a }</AddresseeKey>,
                 for $a in $send-cc
                 return 
                   if (check:is-email($a)) then
                     <Addressee CC="1">{ $a }</Addressee>
                   else
-                    <AddresseeRef CC="1">{ $a }</AddresseeRef>
+                    <AddresseeKey CC="1">{ $a }</AddresseeKey>
                 }
               </Addressees>
               { 

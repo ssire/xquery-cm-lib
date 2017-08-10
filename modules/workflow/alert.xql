@@ -52,7 +52,7 @@ declare function local:prefill-message( $context as xs:string, $workflow as xs:s
       <Addressees>
         {
         for $a in $send-to
-        return  <AddresseeRef>{ $a }</AddresseeRef>
+        return  <AddresseeKey>{ $a }</AddresseeKey>
         }
       </Addressees>
       { $alert/( Subject | Message) }
@@ -93,30 +93,6 @@ declare function local:prefill-notification( $workflow as xs:string, $case as el
 };
 
 (: ======================================================================
-   Saves a time stamp (Date, SentByRef) instead of existing one in parent
-   or create it the first time
-   ======================================================================
-:)
-declare function local:save-timestamp( $parent as element(), $legacy as element()?, $tag as xs:string ) {
-  let $stamp :=
-    element { $tag } {
-      (
-      <Date>{ current-dateTime() }</Date>,
-      misc:gen-current-person-id('SentByRef'),
-      if ($legacy) then (: persists any extra field :)
-        $legacy/*[not(local-name(.) = ('Date', 'SentByRef'))]
-      else
-        ()
-      )
-    }
-  return
-    if ($legacy) then
-      update replace $legacy with $stamp
-    else
-      update insert $stamp into $parent
-};
-
-(: ======================================================================
    Validates Alert or Email submitted data.
    Returns an empty sequence or a list of thrown errors
    TODO:
@@ -128,7 +104,7 @@ declare function local:validate-submission( $submitted as element() ) as element
   let $name := local-name($submitted)
   return (
     if ($name eq 'Alert') then
-      if (empty($submitted//AddresseeRef)) then
+      if (empty($submitted//AddresseeKey)) then
         ajax:throw-error('NO-RECIPIENT', ())
       else
         ()
@@ -179,7 +155,7 @@ declare function local:gen-reply-to-for-alert( $submitted as element() ) as xs:s
 
 (: ======================================================================
    Returns an Alert element for achiving an e-mail
-   Merges to (list of AddresseeRef) and cc for archival
+   Merges to (list of AddresseeKey) and cc for archival
    TODO: eventually support @Key on Recipients (but how because of client-side indirection ?)
    ====================================================================== 
 :)
@@ -188,9 +164,9 @@ declare function local:gen-alert-for-writing( $from as xs:string?, $send-cc as x
     <Alert>
       <Addressees>
         {
-        $submitted/Addressees/AddresseeRef,
+        $submitted/Addressees/AddresseeKey,
         for $a in $send-cc
-        return  <AddresseeRef CC="1">{ $a }</AddresseeRef>
+        return  <AddresseeKey CC="1">{ $a }</AddresseeKey>
         }
       </Addressees>
       {
@@ -220,7 +196,7 @@ declare function local:add-alert(
   return
     if (empty($errors)) then
       let $from := local:gen-reply-to-for-alert($submitted)
-      let $send-to := $submitted/Addressees/AddresseeRef[. != '-1']/text()
+      let $send-to := $submitted/Addressees/AddresseeKey[. != '-1']/text()
       let $total := count($send-to)
       let $res := alert:send-email-to('workflow', $from, $send-to, $send-cc, $submitted)
       return

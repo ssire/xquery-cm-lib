@@ -67,7 +67,7 @@ declare function workflow:get-persons-for-role ( $role as xs:string, $case as el
 };
 
 (: ======================================================================
-   Converts a list of AddresseeRef elements into a tag named element 
+   Converts a list of AddresseeKey elements into a tag named element 
    containing a string with all unreferenced person's name
    ====================================================================== 
 :)
@@ -115,7 +115,7 @@ declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang 
     else
       let $usergroups := oppidum:get-current-user-groups()
       return
-        if ($item/Email) then (: e.g. SME Agreement Email, SME feedback form Email :)
+        if ($item/Payload[@Generator eq 'email']) then (: e.g. SME Agreement Email, SME feedback form Email :)
           <Email>
           {
           if ($usergroups = ('coaching-assistant','coaching-manager','admin-system')) then
@@ -130,9 +130,9 @@ declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang 
           </Email>
         (: Workflow status changes alert :)
         else if ($usergroups = ('coaching-assistant','coaching-manager','admin-system')) then
-          $item/Alert
+          $item/Payload
         else
-          media:obfuscate($item/Alert),
+          media:obfuscate($item/Payload),
     $item/Id, 
     <Date>
       {
@@ -146,21 +146,25 @@ declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang 
       }
     </Date>,
     <ActivityStatus>
-      { display:gen-name-for('ActivityWorkflowStatus', $item/ActivityStatusRef, $lang) }
+      { 
+      (: TODO: annotate CurrentStatusRef with extra @Workflow if heuristic can't work :)
+      let $workflow := local-name($item/CurrentStatusRef/ancestor::Alerts/parent::*)
+      return display:gen-name-for(concat($workflow, 'WorkflowStatus'), $item/CurrentStatusRef, $lang)
+      }
     </ActivityStatus>,
     $item/Subject,
-    if ($item/SenderRef) then
+    if ($item/SenderKey) then
       <Sender>
         {
-        $item/SenderRef/@Mode,
-        display:gen-person-name($item/SenderRef,$lang)
+        $item/SenderKey/@Mode,
+        display:gen-person-name($item/SenderKey,$lang)
         }
       </Sender>
     else
       (),
     $item/From,
     $item/To,
-    local:gen-addressees-for-viewing('Addressees', $item/Addressees/AddresseeRef[not(@CC)], $lang),
+    local:gen-addressees-for-viewing('Addressees', $item/Addressees/AddresseeKey[not(@CC)], $lang),
     local:gen-addressees-for-viewing('CC', $item/Addressees/*[@CC], $lang)
     }
   </Alert>
@@ -672,7 +676,7 @@ declare function workflow:pre-check-transition( $m as xs:string, $type as xs:str
 
 (: ======================================================================
    Returns a list of recipients for the given transition from to to of the case (or activity).
-   Returns a sequence of AddresseeRef elements inside an Addressees element.
+   Returns a sequence of AddresseeKey elements inside an Addressees element.
    The target specifies if it is a 'Case' or 'Activity' transition.
    DEPRECATED: to be replaced with workflow:gen-recipient-refs
    ======================================================================
@@ -688,7 +692,7 @@ declare function workflow:gen-recipients( $from as xs:string, $to as xs:string, 
       <Addressees T="{$target}" From="{$from}" To="{$to}" D="{$recipients}">
         {
         for $p in distinct-values($persons)
-        return <AddresseeRef>{$p}</AddresseeRef>
+        return <AddresseeKey>{$p}</AddresseeKey>
         }
       </Addressees>
     else

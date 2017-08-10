@@ -38,10 +38,9 @@ declare function local:validate-person-delete( $id as xs:string, $person as elem
   let $coach := globals:collection('cases-uri')//ResponsibleCoachKey[. = $id][1]/ancestor::Case/Information/Acronym/text()
   let $ref := for $c in globals:collection('cases-uri')//
                 (
-                AddresseeRef[. = $id][1] |
-                SenderRef[. = $id][1] |
-                AssignedByKey[. = $id][1] |
-                SentByRef[. = $id][1]
+                AddresseeKey[. = $id][1] |
+                SenderKey[. = $id][1] |
+                AssignedByKey[. = $id][1]
                 )
               return $c/ancestor::Case/Information/Acronym/text()
   let $login := if (empty($person/UserProfile/Username)) then () else ajax:throw-error('PERSON-WITH-LOGIN', ())
