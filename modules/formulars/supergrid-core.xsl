@@ -435,6 +435,19 @@
   </xsl:template>  
 
   <!-- ************* -->
+  <!--     Hide      -->
+  <!-- ************* -->
+  <xsl:template match="Hide">
+    <span style="display:none">
+      <xsl:apply-templates select="@Class"/>
+      <site:field force="true">
+        <xsl:copy-of select="@Key"/>
+        <xsl:copy-of select="@Tag"/>
+      </site:field>
+    </span>
+  </xsl:template>
+
+  <!-- ************* -->
   <!--     Field     -->
   <!-- ************* -->
 

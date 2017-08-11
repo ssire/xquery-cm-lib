@@ -281,9 +281,9 @@ declare function access:assert-transition( $from as xs:string, $to as xs:string,
    ====================================================================== 
 :)
 declare function access:assert-transition( $transition as element()?, $case as element(), $activity as element()? ) as xs:boolean {
-  let $item := if ($activity) then $activity else $case
+  let $subject := if ($activity) then $activity else $case
   return
-    if ($transition and ($item/StatusHistory/CurrentStatusRef eq string($transition/@From))) then
+    if ($transition and ($subject/StatusHistory/CurrentStatusRef eq string($transition/@From))) then
       every $check in 
         for $assert in $transition/Assert
         let $base := util:eval($assert/@Base)
