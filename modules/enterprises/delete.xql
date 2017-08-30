@@ -22,14 +22,14 @@ declare option exist:serialize "method=xml media-type=text/xml";
 (: ======================================================================
    Checks that deleting $enterprise is compatible with current DB state :
    - not linked to a Case (as ClientEnterprise)
-   - not linked to a Person (as EnterpriseRef except in a saved search request)
+   - not linked to a Person (as EnterpriseKey except in a saved search request)
    WARNING: those rules do not prevent to delete an Enterprise while someone else is performing
    an action that could reference that enterprise (wiki lost copy dilmena) but this should be rare
    ======================================================================
 :)
 declare function local:validate-enterprise-delete( $id as xs:string ) as element()* {
-  let $case := globals:collection('cases-uri')//EnterpriseRef[. = $id][1]/ancestor::Case/Information/Acronym/text()
-  let $person := globals:collection('persons-uri')//Person[EnterpriseRef = $id][1]/Name
+  let $case := globals:collection('cases-uri')//EnterpriseKey[. = $id][1]/ancestor::Case/Information/Acronym/text()
+  let $person := globals:collection('persons-uri')//Person[Information/EnterpriseKey = $id][1]/Information/Name
   return
     let $err1 := if (empty($case)) then () else ajax:throw-error('ENTERPRISE-LINKED-TO-CASE', $case)
     let $err2 := if (empty($person)) then () else ajax:throw-error('ENTERPRISE-LINKED-TO-PERSON', concat($person/FirstName, " ", $person/LastName))
@@ -60,7 +60,7 @@ declare function local:delete-enterprise( $enterprise as element(), $lang as xs:
         <Value>{string($enterprise/Id)}</Value>
       </Payload>
     </Response>
-  let $name := string($enterprise/Name)
+  let $name := string($enterprise/Information/Name)
   return (
     update delete $enterprise,
     cache:invalidate('enterprise', $lang),
@@ -84,7 +84,7 @@ return
           if ($m = 'DELETE' or (($m = 'POST') and (request:get-parameter('_delete', ()) eq "1"))) then (: real delete  :)
             local:delete-enterprise($enterprise, $lang)
           else if ($m = 'POST') then (: delete pre-step - we use POST to avoid forgery - :)
-            ajax:report-success('DELETE-ENTERPRISE-CONFIRM', $enterprise/Name/text())
+            ajax:report-success('DELETE-ENTERPRISE-CONFIRM', $enterprise/Information/Name)
           else
             ajax:throw-error('URI-NOT-SUPPORTED', ())
         else

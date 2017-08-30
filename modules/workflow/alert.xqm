@@ -37,8 +37,8 @@ declare function alert:gen-user-name-for( $prefix as xs:string, $refs as xs:stri
     let $person := globals:collection('persons-uri')//Person[Id = $ref]
     return
       if ($person) then (
-        <var name="{$prefix}_First_Name">{ $person/Name/FirstName/text() }</var>,
-        <var name="{$prefix}_Last_Name">{ $person/Name/LastName/text() }</var>
+        <var name="{$prefix}_First_Name">{ $person/Information/Name/FirstName/text() }</var>,
+        <var name="{$prefix}_Last_Name">{ $person/Information/Name/LastName/text() }</var>
         )
       else
         <var name="{$prefix}_First_Name">UNKNOWN ref({ $ref }) {$prefix}</var>
@@ -106,14 +106,14 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
       else 
         let $p := globals:collection('persons-uri')//Person[Id eq $ref]
         return
-          if (check:is-email($p/Contacts/Email)) then
-            $p/Contacts/Email/text()
+          if (check:is-email($p/Information/Contacts/Email)) then
+            $p/Information/Contacts/Email/text()
           else
             ()
   return
     for $ref in $to[. != '-1']
     let $p := globals:collection('persons-uri')//Person[Id = $ref]
-    let $email := if (check:is-email($ref)) then $ref else $p/Contacts/Email/text()
+    let $email := if (check:is-email($ref)) then $ref else $p/Information/Contacts/Email/text()
     return
       if ($email) then
         if (check:is-email($email)) then
@@ -125,7 +125,7 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
           else
             <error>impossible to send e-mail to { $email }</error>
         else
-          <error>malformed e-mail address "{ $email }" for { $p/Name/FirstName } { $p/Name/LastName }</error>
+          <error>malformed e-mail address "{ $email }" for { $p/Information/Name/FirstName } { $p/Information/Name/LastName }</error>
       else
         <error>unkown person with reference { $ref }</error>
 };
@@ -135,7 +135,7 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
    into a normalized Alert element for archiving
    This can be either an Alert (automatic or spontaneous) with Addressees / Message
    or an Email with From / To / Message fields and an optional server-side generated attachment
-   Always sets SenderRef to current user
+   Always sets SenderKey to current user
    ======================================================================
 :)
 declare function local:gen-message-for-writing(
@@ -151,20 +151,22 @@ declare function local:gen-message-for-writing(
   <Alert>
     <Id>{ $index }</Id>
     <Date>{ current-dateTime() }</Date>
-    <SenderRef>
+    <SenderKey>
       { 
       $model/@Mode,
       $uid 
       }
-    </SenderRef>
+    </SenderKey>
     { 
       $model/(From | Addressees | To | Subject | Key),
-      if ($cur-status) then <ActivityStatusRef>{ $cur-status }</ActivityStatusRef> else (),
+      if ($cur-status) then <CurrentStatusRef>{ $cur-status }</CurrentStatusRef> else (),
       if ($prev-status) then <PreviousStatusRef>{ $prev-status }</PreviousStatusRef> else (),
-      element { local-name($model) } {(
+      <Payload Generator="{ lower-case(local-name($model)) }">
+        {
         $model/Message,
         $attachment
-      )}
+        }
+      </Payload>
     }
   </Alert>
 };
@@ -255,13 +257,13 @@ declare function alert:apply-recipients(
               <Addressees>
                 {
                 for $a in $send-to
-                return <AddresseeRef>{ $a }</AddresseeRef>,
+                return <AddresseeKey>{ $a }</AddresseeKey>,
                 for $a in $send-cc
                 return 
                   if (check:is-email($a)) then
                     <Addressee CC="1">{ $a }</Addressee>
                   else
-                    <AddresseeRef CC="1">{ $a }</AddresseeRef>
+                    <AddresseeKey CC="1">{ $a }</AddresseeKey>
                 }
               </Addressees>
               { 
@@ -311,7 +313,7 @@ declare function alert:notify-transition(
       let $template :=  (: name of e-mail template to used :)
         if ($name) then
           if ($name eq 'kam-notification') then (: DEPRECATED (UNUSED): conditional "-nologin" suffix trick :)
-            concat($name, alert:check-user-has-login($case/Management/AccountManagerRef))
+            concat($name, alert:check-user-has-login($case/Management/AccountManagerKey))
           else
             $name
         else (: default one :)

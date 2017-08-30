@@ -26,7 +26,8 @@ declare function local:gen-users-for-viewing() as element()* {
   {
   for $p in globals:collection('persons-uri')//Person
   let $login := $p//Username
-  order by lower-case($p/Name/LastName), $p/Name/FirstName
+  let $info := $p/Information
+  order by lower-case($info/Name/LastName), $info/Name/FirstName
   return
     <Person>
       {
@@ -34,7 +35,8 @@ declare function local:gen-users-for-viewing() as element()* {
         attribute { 'Login' } { '1' }
       else 
         (),
-      $p/(Id | Name | Contacts/Email | Country),
+      $p/Id,
+      $info/(Name | Contacts/Email | Country),
       <Roles>{ display:gen-roles-for($p/UserProfile/Roles, 'en') }</Roles>,
       if ($login/text()) then $login else ()
       }

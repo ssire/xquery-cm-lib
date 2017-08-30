@@ -367,7 +367,6 @@
     methods : {
       update : function (aData) {
         if (! this._autofill_running) {
-          alert('autofill updating ' + aData);
           this.__autofill__update(aData);
           this.autofill();
         } // FIXME: short-circuit to avoid reentrant calls because select2 triggers 'change' on load

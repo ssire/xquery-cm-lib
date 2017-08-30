@@ -6,6 +6,8 @@ xquery version "1.0";
 
    CRUD controller to manage user's role in his UserProfile section
 
+   TODO: implement with data templates
+
    April 2014 - (c) Copyright 2014 Oppidoc SARL. All Rights Reserved.
    ----------------------------------------------- :)
 
@@ -75,7 +77,7 @@ declare function local:make-ajax-response( $key as xs:string, $roles as element(
 :)
 declare function local:synch-user-groups( $person as element() ) {
   let $login := string($person//Username)
-  let $uname := concat($person/Name/FirstName, ' ', $person/Name/LastName)
+  let $uname := concat($person/Information/Name/FirstName, ' ', $person/Information/Name/LastName)
   let $results := local:make-ajax-response('profile', $person/UserProfile/Roles, (), $person/Id)
   return
     if ($login and sm:user-exists($login)) then
@@ -154,7 +156,7 @@ declare function local:update-profile( $person as element(), $data as element(),
     if ($synch) then
       local:synch-user-groups($person)
     else (: remote user :)
-      (    
+      (
       let $results := local:make-ajax-response('remote', $person/UserProfile/Roles, $data/Contacts/Email/text(), $person/Key/text())
       let $should := account:gen-groups-for-user($person)
       return 
@@ -173,7 +175,7 @@ declare function local:update-profile( $person as element(), $data as element(),
    ======================================================================
 :)
 declare function local:gen-profile-for-editing( $id as xs:string, $lang as xs:string ) as element()* {
-  let $p := fn:doc(oppidum:path-to-ref())/Persons/Person[Id = $id]
+  let $p := globals:collection('persons-uri')//Person[Id = $id]
   return
     if (empty($p) or empty($p/UserProfile) or empty($p/UserProfile/Roles) or empty($p/UserProfile/Roles/Role)) then
       (: safeguard to avoid AXEL infinite loop in xt:repeat on <Roles/> :)
@@ -201,7 +203,7 @@ let $lang := string($cmd/@lang)
 return
   if ($m = 'POST') then
     let $data := oppidum:get-data()
-    let $person := fn:doc(oppidum:path-to-ref())/Persons/Person[Id = $id]
+    let $person := globals:collection('persons-uri')//Person[Id = $id]
     let $uname := string($person/UserProfile/Username)
     return
       let $errors := local:validate-profile-submission($person, $data, $uname)

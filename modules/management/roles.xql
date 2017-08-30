@@ -26,7 +26,7 @@ declare function local:gen-roles-for-viewing() as element()* {
     {
     string-join(
       for $p in globals:collection('persons-uri')//Person/UserProfile/Roles/Role/FunctionRef[. eq $f/Value]
-      let $n := $p/ancestor::Person/Name
+      let $n := $p/ancestor::Person/Information/Name
       return concat($n/FirstName, ' ', $n/LastName),
       ', '
     )

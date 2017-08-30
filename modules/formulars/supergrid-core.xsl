@@ -435,6 +435,19 @@
   </xsl:template>  
 
   <!-- ************* -->
+  <!--     Hide      -->
+  <!-- ************* -->
+  <xsl:template match="Hide">
+    <span style="display:none">
+      <xsl:apply-templates select="@Class"/>
+      <site:field force="true">
+        <xsl:copy-of select="@Key"/>
+        <xsl:copy-of select="@Tag"/>
+      </site:field>
+    </span>
+  </xsl:template>
+
+  <!-- ************* -->
   <!--     Field     -->
   <!-- ************* -->
 
@@ -1402,6 +1415,7 @@
     <xsl:variable name="label">
       <xsl:value-of select="document(concat($xslt.base-root, concat($xslt.base-formulars, @src)))/*/@Tag"/>
     </xsl:variable>
+    <xsl:apply-templates select="document(concat($xslt.base-root, concat($xslt.base-formulars, @src)))//Verbatim/*"/>
     <xsl:apply-templates select="document(concat($xslt.base-root, concat($xslt.base-formulars, @src)))//Cell[@Tag]|document(concat($xslt.base-root, concat($xslt.base-formulars, @src)))//Cell[not(@Tag) and @TypeName]|document(concat($xslt.base-root, concat($xslt.base-formulars, @src)))//Box|document(concat($xslt.base-root, concat($xslt.base-formulars, @src)))//Plugins/Component/*" mode="component"/>
     <xsl:apply-templates select="document(concat($xslt.base-root, concat($xslt.base-formulars, @src)))/Poll" mode="head"/>
     <xt:component name="t_{$label}_include">

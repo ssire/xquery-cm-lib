@@ -69,8 +69,8 @@ declare function local:gen-user-name( $prefix as xs:string, $ref as xs:string? )
   let $person := globals:collection('persons-uri')//Person[Id = $ref]
   return
     if ($person) then (
-      <var name="{$prefix}_First_Name">{ $person/Name/FirstName/text() }</var>,
-      <var name="{$prefix}_Last_Name">{ $person/Name/LastName/text() }</var>
+      <var name="{$prefix}_First_Name">{ $person/Information/Name/FirstName/text() }</var>,
+      <var name="{$prefix}_Last_Name">{ $person/Information/Name/LastName/text() }</var>
       )
     else
       <var name="{$prefix}_First_Name">UNKNOWN ref({ $ref }) {$prefix}</var>

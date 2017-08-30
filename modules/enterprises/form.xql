@@ -54,7 +54,7 @@ return
 
     <site:view>
       <site:field Key="enterprises">
-        { enterprise:gen-enterprise-selector($lang, ";multiple=yes;xvalue=EnterpriseRef;typeahead=yes") }
+        { enterprise:gen-enterprise-selector($lang, ";multiple=yes;xvalue=EnterpriseKey;typeahead=yes") }
       </site:field>
       <site:field Key="towns">
         { enterprise:gen-town-selector($lang, ";multiple=yes;xvalue=Town;typeahead=yes") }

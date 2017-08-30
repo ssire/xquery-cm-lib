@@ -45,7 +45,7 @@ return
         </site:field>
         <site:field Key="addressees">
           {
-          let $field := person:gen-person-selector($lang, ";multiple=yes;xvalue=AddresseeRef;typeahead=yes")
+          let $field := person:gen-person-selector($lang, ";multiple=yes;xvalue=AddresseeKey;typeahead=yes")
           return
             <xt:use types="choice" values="-1 {$field/@values}" i18n="nobody::only\ for\ archiving {$field/@i18n}" param="{$field/@param}"/>
           }

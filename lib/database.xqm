@@ -130,9 +130,10 @@ declare function database:create-collection-lazy-for ( $db-uri as xs:string, $pa
    This is the version to use with a Root attribute of the Resource element
    to store all the entities in a single file
    Returns the empty sequence or throws an Oppidum errror
+   TODO: return <success type="create" key="{ $key }">path</success> ?
    ======================================================================
 :)
-declare function database:create-entity( $db-uri as xs:string, $name as xs:string, $data as element() ) as element()? {
+declare function database:create-entity( $db-uri as xs:string, $name as xs:string, $data as element()* ) as element()? {
   let $spec := database:get-entity-for($name)
   let $policy := database:get-policy-for($spec/Resource/@Policy)
   return
@@ -263,7 +264,7 @@ declare function database:create-entity-for-key(
               if (fn:doc-available($res-uri)) then (: append to resource file : should we support this ? :)
                 (
                 update insert $data into fn:doc($res-uri)/*[1],
-                <success>{ $res-uri }</success>
+                <success key="{ $key }">{ $res-uri }</success>
                 )
               else (: first time creation :)
                 let $store := if (exists($spec/Resource/@Root)) then 
