@@ -132,6 +132,10 @@ div.select2-drop-auto-width { /* overwrite select2 */
                 'html' plugin
  **************************************************/
 
+.af-html.af-question-comment {
+  margin-left: 0;
+}
+
 .af-html-edit, .af-html {
   border-radius: 4px;
   background-color: #FCFCFC;

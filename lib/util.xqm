@@ -359,17 +359,16 @@ declare function misc:save-content( $parent as element(), $legacy as element()?,
 };
 
 (: ======================================================================
-   Quick and Dirty XML diff between two sequencess which are supposed
+   Quick flat XML diff between two sequencess which are supposed
    to contains the same elements without doublons
    Simply compare string content
    ======================================================================
 :)
 declare function misc:same-filter( $src as item()*, $dest as item()*, $blacklist as xs:string* )  {
-  let $cur := $src[local-name(.) != $blacklist]
-  let $base := $dest[local-name(.) != $blacklist]
+  let $cur := $src[not(local-name(.) = $blacklist)]
+  let $base := $dest[not(local-name(.) = $blacklist)]
   return
     every $n in $cur satisfies (string($n) = string($base[local-name(.) = local-name($n)]))
-
 };
 
 (: ======================================================================

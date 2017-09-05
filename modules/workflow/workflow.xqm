@@ -119,11 +119,11 @@ declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang 
           <Email>
           {
           if ($usergroups = ('coaching-assistant','coaching-manager','admin-system')) then
-            $item/Email/Message
+            $item/Payload/Message
           else
             media:obfuscate($item/Email/Message),
-          if ($item/Email/Attachment) then
-            <Attachment>{ media:message-to-plain-text($item/Email/Attachment) }</Attachment>
+          if ($item/Payload/Attachment) then
+            <Attachment>{ media:message-to-plain-text($item/Payload/Attachment) }</Attachment>
           else
             ()
           }
@@ -289,7 +289,7 @@ declare function workflow:gen-status-change(
     ()
   else
     let $moves :=
-      for $transition in globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From eq string($current-status)][@To ne '-1']
+      for $transition in globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From eq string($current-status)][@To ne '-1'][not(@TriggerBy)]
       where access:check-status-change($transition, $subject, $object)
       return $transition
     return

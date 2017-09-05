@@ -89,6 +89,11 @@
           </xsl:if>
         </xsl:for-each>
         
+        <xsl:for-each select="//Embed">
+          <xsl:if test="not(@src = preceding-sibling::Embed/@src)">
+            <xsl:apply-templates select="." mode="component"/>
+          </xsl:if>
+        </xsl:for-each>
 
         <xsl:if test="/Form/Plugins/RichText">
           <!-- //////////////////////////////////// -->
@@ -1406,7 +1411,7 @@
     <xsl:variable name="element"><xsl:value-of select="@TargetElement"/></xsl:variable>
     <xsl:attribute name="{@Name}"><xsl:value-of select="document(@Source)//EndPoint[Id = 'ccmatch.suggest']/*[local-name(.) = $element]"/></xsl:attribute>
   </xsl:template>
-  
+
   <!-- ************************* -->
   <!--         Include           -->
   <!-- ************************* -->
