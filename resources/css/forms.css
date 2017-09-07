@@ -188,10 +188,19 @@ div.c-display-mode label.axel-choice-unset {
   color: lightgray;
 }
 
-ul.axel-choice.c-inline-choice input {
+ul.axel-choice.c-inline-choice input, ul.axel-choice.c-vertical-choice input {
   float: none;
   margin-right: 8px !important;
   margin-left: 20px !important;
+}
+
+ul.axel-choice.c-vertical-choice {
+  list-style-type: none;
+}
+
+ul.axel-choice.c-vertical-choice label {
+  display: inline;
+  font-size: 12px;
 }
 
 /**************************************************
