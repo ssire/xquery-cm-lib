@@ -55,7 +55,7 @@
       $axel.command.install(document, target);
       $axel.binding.install(document, target); 
       });
-    $('#x-validate').bind('click', function() { $axel.binding.validate($axel('#x-simulator'), 'c-editor-errors', document, 'label') });
+    $('#x-validate').bind('click', function() { $axel.binding.validate($axel('#x-simulator'), 'c-editor-errors', document, 'label', '.hide') });
     $('#x-install').bind('click', 
       function() { $('#x-simulator').load(
         'forms/install?gen=' + $('#x-formular').val().replace('forms/',''),
