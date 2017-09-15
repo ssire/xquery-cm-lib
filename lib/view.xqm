@@ -14,6 +14,7 @@ xquery version "1.0";
    ----------------------------------------------- :)
 
 module namespace view = "http://oppidoc.com/ns/xcm/view";
+declare namespace xhtml = "http://www.w3.org/1999/xhtml";
 
 declare namespace xdb = "http://exist-db.org/xquery/xmldb";
 declare namespace xt = "http://ns.inria.org/xtiger";
@@ -146,13 +147,13 @@ declare function view:message( $cmd as element() ) as node()*
     return (
       (: trick because messages are stored inside session :)
       if ($m/@type = "ACTION-LOGOUT-SUCCESS") then session:invalidate() else (),
-      <p>
+      <xhtml:p>
         {
         for $a in $m/@*[local-name(.) ne 'type']
         return attribute { concat('data-', local-name($a)) } { string($a) },
         $m/(text()|*)
         }
-      </p>
+      </xhtml:p>
     )
 };
 
