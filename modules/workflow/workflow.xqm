@@ -30,7 +30,8 @@ import module namespace alert = "http://oppidoc.com/ns/xcm/alert" at "alert.xqm"
    Returns a list of person identifiers or the empty sequence
    for a given role in a given case and optional activi ty
    See also access:assert-semantic-role in lib/access.xqm for access control
-   TBD: r:contact (or r:sme ?)
+   TODO: utiliser application.xml pour évaluer dynamiquement les rôles 
+   avec les notions subject / object ?
    ======================================================================
 :)
 declare function workflow:get-persons-for-role ( $role as xs:string, $case as element(), $activity as element()? ) as xs:string* {
@@ -306,6 +307,7 @@ declare function workflow:gen-status-change(
             if ($action) then
               <Status Action="{$action}">
                 {
+                $transition/@data-confirm-loc,
                 if ($to) then attribute { 'Argument' } { $arg } else (),
                 if ($to) then attribute { 'To' } { $to } else (),
                 $transition/(@Intent | @Label | @Id) 
