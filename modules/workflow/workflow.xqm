@@ -27,42 +27,29 @@ import module namespace media = "http://oppidoc.com/ns/xcm/media" at "../../lib/
 import module namespace alert = "http://oppidoc.com/ns/xcm/alert" at "alert.xqm";
 
 (: ======================================================================
-   Returns a list of person identifiers or the empty sequence
-   for a given role in a given case and optional activi ty
+   Returns a list of person identifiers with the given role or an empty sequence.
+   Implements semantic roles against the optional subject and object
+   as defined by the Groups element of application.xml
    See also access:assert-semantic-role in lib/access.xqm for access control
-   TODO: utiliser application.xml pour évaluer dynamiquement les rôles 
-   avec les notions subject / object ?
    ======================================================================
 :)
-declare function workflow:get-persons-for-role ( $role as xs:string, $case as element(), $activity as element()? ) as xs:string* {
+declare function workflow:get-persons-for-role ( $role as xs:string, $subject as element()?, $object as element()? ) as xs:string* {
   let $prefix := substring-before($role, ':')
   let $suffix := substring-after($role, ':')
   return
     if ($prefix eq 'u') then (: targets specific user :)
-      globals:collection('persons-uri')//Person[UserProfile/Username = $suffix]/Id/text()  (: FIXME: which realm has to be used in that case :)
+      globals:collection('persons-uri')//Person[UserProfile/Username = $suffix]/Id/text() (: FIXME: realm ? :)
     else if ($prefix eq 'g') then (: targets users belonging to a generic group :)
       let $group-ref := globals:get-normative-selector-for('Functions')/Option[@Role eq $suffix]/Value
-                        (: TODO: factorize as form:gen-function-ref( $suffix ) ?  :)
       return
         globals:collection('persons-uri')//Person[UserProfile/Roles/Role/FunctionRef eq $group-ref]/Id/text()
     else  if ($prefix eq 'r') then
-      let $func-ref := globals:get-normative-selector-for('Functions')/Option[@Role eq $suffix]/Id/text()
+      let $group := globals:doc('application-uri')/Application/Security/Groups/Group[@Name eq $suffix]/Meet
       return
-        if ($suffix eq 'region-manager') then
-          let $region-entity := $case/Information/ManagingEntity/RegionalEntityRef/text()
-          return
-            for $role in globals:collection('persons-uri')//Role[(FunctionRef eq $func-ref) and (RegionalEntityRef eq $region-entity)]
-            return $role/ancestor::Person/Id/text()
-        else if ($suffix eq 'kam') then
-          $case/Management/AccountManagerKey/text()
-        else if ($suffix eq 'coach') then
-          $activity/Assignment/ResponsibleCoachKey/text()
-        else if ($suffix eq 'service-head') then
-          let $service := $activity/Assignment/ServiceRef/text()
-          return
-            globals:collection('persons-uri')//Person[UserProfile/Roles/Role[(FunctionRef eq $func-ref) and (ServiceRef eq $service)]]/Id/text()
+        if ($group) then
+          util:eval($group)
         else
-          ()
+          false()
     else
       ()
 };
