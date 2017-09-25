@@ -40,12 +40,12 @@ declare option exist:serialize "method=xml media-type=text/xml";
    or a generic sender mailbox
    ======================================================================
 :)
-declare function local:prefill-message( $context as xs:string, $workflow as xs:string, $case as element(), $activity as element()? ) as element() {
+declare function local:prefill-message( $context as xs:string, $workflow as xs:string, $subject as element(), $object as element()? ) as element() {
   let $spec := globals:doc('application-uri')/Application/Messages/Email[@Context eq $context]
   let $recipients := $spec/Recipients
-  let $send-to := workflow:gen-recipient-refs($recipients/text(), $workflow, $case, $activity)
+  let $send-to := workflow:gen-recipient-refs($recipients/text(), $workflow, $subject, $object)
   (: cc: automatically added when posting :)
-  let $alert := email:render-alert(if ($spec/@Template) then $spec/@Template else 'Unkown', 'en', $case, $activity)
+  let $alert := email:render-alert(if ($spec/@Template) then $spec/@Template else 'Unkown', 'en', $subject, $object)
   return (: by default Date and Sender prefilled directly from form.xql :)
     <Alert>
       { misc:rename-element('Sender', $alert/From) }
@@ -66,27 +66,23 @@ declare function local:prefill-message( $context as xs:string, $workflow as xs:s
    See also alert:notify-transition in alert.xqm
    ======================================================================
 :)
-declare function local:prefill-notification( $workflow as xs:string, $case as element(), $activity as element()? ) as element() {
-  let $item := if ($activity) then $activity else $case
+declare function local:prefill-notification( $workflow as xs:string, $subject as element(), $object as element()? ) as element() {
+  let $item := if ($object) then $object else $subject
   let $wf-to := $item/StatusHistory/CurrentStatusRef/text()
   let $wf-from := $item/StatusHistory/PreviousStatusRef/text()
   let $transition := if ($wf-from) then workflow:get-transition-for($workflow, $wf-from, $wf-to) else ()
-  let $check-login := $transition/@Template eq 'kam-notification'
   let $template :=
     if ($transition/@Template) then
-      if ($check-login) then
-        concat(string($transition/@Template), alert:check-user-has-login($case/Management/AccountManagerKey))
-      else
-        string($transition/@Template)
+      string($transition/@Template)
     else
       concat(lower-case($workflow), '-workflow-transition')
   let $extra-vars := alert:gen-action-status-names($wf-from, $wf-to, $workflow) (: not in variables.xml :)
-  let $alert := email:render-alert($template, 'en', $case, $activity, $extra-vars)
+  let $alert := email:render-alert($template, 'en', $subject, $object, $extra-vars)
   return (: by default Date and Sender prefilled directly from form.xql :)
     <Alert>
       { 
       misc:rename-element('Sender', $alert/From),
-      workflow:gen-recipients($wf-from, $wf-to, $workflow, $case, $activity),
+      workflow:gen-recipients($wf-from, $wf-to, $workflow, $subject, $object),
       $alert/(Subject | Message) 
       }
     </Alert>
@@ -190,6 +186,8 @@ declare function local:add-alert(
   $host as element(),
   $submitted as element(),
   $send-cc as xs:string*,
+  $subject as element()?,
+  $object as element()?,
   $lang as xs:string ) as element()?
 {
   let $errors := local:validate-submission($submitted)
@@ -198,7 +196,7 @@ declare function local:add-alert(
       let $from := local:gen-reply-to-for-alert($submitted)
       let $send-to := $submitted/Addressees/AddresseeKey[. != '-1']/text()
       let $total := count($send-to)
-      let $res := alert:send-email-to('workflow', $from, $send-to, $send-cc, $submitted)
+      let $res := alert:send-email-to('workflow', $from, $send-to, $send-cc, $submitted, $subject, $object)
       return
         if (($total eq 0) or (count($res[local-name(.) eq 'error']) < $total)) then 
           (: TODO: add error in case count($mailErrors) > 0 
@@ -219,9 +217,9 @@ declare function local:add-alert(
    (would require to include it into client-side formular)
    ======================================================================
 :)
-declare function local:add-notification( $workflow as xs:string, $host as element(), $submitted as element(), $lang as xs:string ) as element()*
+declare function local:add-notification( $workflow as xs:string, $host as element(), $submitted as element(), $subject as element()?, $object as element()?, $lang as xs:string ) as element()*
 {
-  local:add-alert( $workflow, $host, $submitted, (),  $lang)
+  local:add-alert( $workflow, $host, $submitted, (),  $subject, $object, $lang)
 };
 
 (: ======================================================================
@@ -230,13 +228,13 @@ declare function local:add-notification( $workflow as xs:string, $host as elemen
    that controls one case or activity document.
    ======================================================================
 :)
-declare function local:add-message( $context as xs:string, $workflow as xs:string, $case as element(), $activity as element()?, $submitted as element(), $lang as xs:string ) as element()*
+declare function local:add-message( $context as xs:string, $workflow as xs:string, $subject as element(), $object as element()?, $submitted as element(), $lang as xs:string ) as element()*
 {
-  let $host := if ($activity) then $activity else $case
+  let $host := if ($object) then $object else $subject
   let $spec := globals:doc('application-uri')/Application/Messages/Email[@Context eq $context]
-  let $send-cc := workflow:gen-recipient-refs($spec/Recipients/@CC, $workflow, $case, $activity)
+  let $send-cc := workflow:gen-recipient-refs($spec/Recipients/@CC, $workflow, $subject, $object)
   return
-    local:add-alert($workflow, $host, $submitted, $send-cc, $lang)
+    local:add-alert($workflow, $host, $submitted, $send-cc, $subject, $object, $lang)
 };
 
 (: ======================================================================
@@ -335,7 +333,7 @@ return
               (: feature not used in demo version :)
               local:add-message($from, $target, $case, $activity, $submitted, $lang)
             else (: message sent upon workflow transition :)
-              local:add-notification($target, $item, $submitted, $lang)
+              local:add-notification($target, $item, $submitted, $case, $activity, $lang)
         else
           ()
     else (: assumes GET :)

@@ -59,3 +59,22 @@ declare function user:get-function-ref-for-role( $roles as xs:string* ) as xs:st
   else
     ()
 };
+
+
+(: ======================================================================
+   Gets user's properties as defined in application.xml
+   ====================================================================== 
+:)
+declare function user:get-property-for( $name as xs:string, $uid as xs:string, $subject as element()?, $object as element()? ) {
+  let $formula := globals:doc('application-uri')//Persons/Property[@Name eq $name]
+  return 
+    if ($formula) then 
+      let $res := util:eval($formula)
+      return
+        if ($res and $res ne '') then 
+          $res
+        else
+          concat('property ', $name, ' of person (', $uid, ') not found')
+    else
+      concat('application configuration does not allow to compute "', $name, '" of person (', $uid, ')')
+};

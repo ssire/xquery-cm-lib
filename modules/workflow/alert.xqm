@@ -71,19 +71,6 @@ declare function alert:gen-action-status-names( $from as xs:string?, $to as xs:s
 };
 
 (: ======================================================================
-   Returns '-nologin' if the user ref hasn't got a login
-   ======================================================================
-:)
-declare function alert:check-user-has-login( $ref as element()? ) as xs:string {
-  if ($ref) then 
-    let $login := normalize-space(globals:collection('persons-uri')//Person[Id = $ref/text()]/UserProfile/Username) (: FIXME: become inconsistent since using ECAS we cannot assert it (?) :)
-    return 
-      if ($login and xdb:exists-user($login)) then '' else '-nologin'
-  else
-    ''
-};
-
-(: ======================================================================
    Sends an email to a list of recipients by reference using the category channel
    The from parameter will become the email reply-to field it must contains 
    a valid e-mail address if defined, defaults to DefaultEmailSender in settings.xml
@@ -93,31 +80,43 @@ declare function alert:check-user-has-login( $ref as element()? ) as xs:string {
    in carbon copy for each recipient, usually this should be used with a unique 
    recipient otherwise they will receive duplicated messages
    Returns a list of success and/or error elements for each recipient
+
+   TODO: review error messages when $to contains direct e-mail address
    ======================================================================
 :)
-declare function alert:send-email-to( $category as xs:string, $from as xs:string?, $to as xs:string*, $cc as xs:string*, $mail as element() ) as element()* {
-  let $subject := $mail/Subject/text()
+declare function alert:send-email-to( 
+  $category as xs:string, 
+  $from as xs:string?, 
+  $to as xs:string*, 
+  $cc as xs:string*, 
+  $mail as element(), 
+  $subject as element()?, 
+  $object as element()? ) as element()* 
+{
+  let $mail-subject := $mail/Subject/text()
   let $content := media:message-to-plain-text($mail/Message)
   let $to-cc := (: converts cc refs to e-mail addresses :)
     for $ref in $cc
     return
       if (check:is-email($ref)) then
         $ref
-      else 
-        let $p := globals:collection('persons-uri')//Person[Id eq $ref]
+      else (: limitation: ref MUST be convertible to e-mail using 
+              application.xml and given subject and object :)
+        let $addr := user:get-property-for('email', $ref, $subject, $object)
         return
-          if (check:is-email($p/Information/Contacts/Email)) then
-            $p/Information/Contacts/Email/text()
-          else
-            ()
+          if (check:is-email($addr)) then $addr else ()
   return
     for $ref in $to[. != '-1']
-    let $p := globals:collection('persons-uri')//Person[Id = $ref]
-    let $email := if (check:is-email($ref)) then $ref else $p/Information/Contacts/Email/text()
+    let $email := 
+      if (check:is-email($ref)) then 
+        $ref 
+      else (: limitation: ref MUST be convertible to e-mail using 
+              application.xml and given subject and object :)
+        user:get-property-for('email', $ref, $subject, $object)
     return
       if ($email) then
         if (check:is-email($email)) then
-          if (media:send-email($category, $from, $email, $to-cc, $subject, $content)) then
+          if (media:send-email($category, $from, $email, $to-cc, $mail-subject, $content)) then
             if ($to-cc) then
               <success>{ $email } (with copy to {string-join($to-cc, ', ')})</success>
             else 
@@ -125,7 +124,7 @@ declare function alert:send-email-to( $category as xs:string, $from as xs:string
           else
             <error>impossible to send e-mail to { $email }</error>
         else
-          <error>malformed e-mail address "{ $email }" for { $p/Information/Name/FirstName } { $p/Information/Name/LastName }</error>
+          <error>malformed e-mail address "{ $email }" for { user:get-property-for('fullname', $ref, $subject, $object)}</error>
       else
         <error>unkown person with reference { $ref }</error>
 };
@@ -226,16 +225,16 @@ declare function alert:gen-keys( $key as attribute()? ) as element()* {
 declare function alert:apply-recipients(
   $recipients as element()?,
   $category as xs:string,
-  $case as element(),
-  $activity as element()?,
+  $subject as element(),
+  $object as element()?,
   $alert as element(), 
   $from as xs:string?,
   $flow-to as xs:string?,
   $flow-from as xs:string?
   ) as element()
 {
-  let $send-to := workflow:gen-recipient-refs($recipients, (), $case, $activity)
-  let $send-cc := (workflow:gen-recipient-refs($recipients/@CC, (), $case, $activity), $alert/CC/text())
+  let $send-to := workflow:gen-recipient-refs($recipients, (), $subject, $object)
+  let $send-cc := (workflow:gen-recipient-refs($recipients/@CC, (), $subject, $object), $alert/CC/text())
   return
     let $to :=
       if ($alert/To) then (: To (from e-mail template) has priority over Recipients :)
@@ -243,13 +242,13 @@ declare function alert:apply-recipients(
       else 
         $send-to
     let $total := count($to[. ne '-1']) (: -1 means nobody, archiving purpose :)
-    let $res := alert:send-email-to($category, $from, $to, $send-cc, $alert)
+    let $res := alert:send-email-to($category, $from, $to, $send-cc, $alert, $subject, $object)
     let $done := if ($total eq 0) then 1 else count($res[local-name(.) eq 'success'])
     return
       <Report Total="{ $done }" Message="{ string-join($res, ', ') }">
         {
         if ($done > 0) then (: succeeded for at list one recipient => archives it :)
-          let $home := if ($activity) then $activity else $case
+          let $home := if ($object) then $object else $subject
           (: TODO: test @Archive eq 'no' :)
           let $archive := (: merges to and cc for archival :)
             <Alert>
@@ -294,13 +293,13 @@ declare function alert:apply-recipients(
 declare function alert:notify-transition(
   $transition as element(), 
   $workflow as xs:string, 
-  $case as element(), 
-  $activity as element()?,
+  $subject as element(), 
+  $object as element()?,
   $name as xs:string?, 
   $recipients as element()?
   ) as element()* 
 {
-  let $host := if ($activity) then $activity else $case
+  let $host := if ($object) then $object else $subject
   return 
     if (($recipients/@Max eq '1') and ($recipients/@Key) and ($host/Alerts/Alert[Key eq tokenize($recipients/@Key, ' ')[1]])) then
       (: automatic notification with no duplicate e-mail :)
@@ -312,21 +311,18 @@ declare function alert:notify-transition(
       let $wf-to := string($transition/@To)
       let $template :=  (: name of e-mail template to used :)
         if ($name) then
-          if ($name eq 'kam-notification') then (: DEPRECATED (UNUSED): conditional "-nologin" suffix trick :)
-            concat($name, alert:check-user-has-login($case/Management/AccountManagerKey))
-          else
-            $name
+          $name
         else (: default one :)
           concat(lower-case($workflow), '-workflow-transition')
       let $extra-vars := alert:gen-action-status-names($wf-from, $wf-to, $workflow) (: not in variables.xml :)
-      let $alert := email:render-alert($template, 'en', $case, $activity, $extra-vars)
+      let $alert := email:render-alert($template, 'en', $subject, $object, $extra-vars)
       return
         let $from :=
           if ($alert/From) then (: sender defaults to current user :)
             $alert/From/text() 
           else 
             media:gen-current-user-email(false())
-        let $report := alert:apply-recipients($recipients, 'workflow', $case, $activity, $alert, $from, $wf-to, $wf-from)
+        let $report := alert:apply-recipients($recipients, 'workflow', $subject, $object, $alert, $from, $wf-to, $wf-from)
         return (
           if ($report/@Total ne '0') then
             $report/*

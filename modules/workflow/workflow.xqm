@@ -4,12 +4,15 @@ xquery version "1.0";
 
    Creator: Stéphane Sire <s.sire@opppidoc.fr>
 
-   Shared functions to display workflow view
+   Shared functions to display workflow user interface and to implement 
+   workflow actions as specified in application.xml
+
    Contains the functions to generate an HTML fragment to display the entities
    which can be added inside a drawer, these are used when generating
 
    FIXME:
-   - maybe we could move these functions directly inside lib/display.xqm ?
+   - actually the breadcrumb functionality supposes the case subject 
+     and the activity subject are identified with a No element 
 
    January 2014 - (c) Copyright 2014 Oppidoc SARL. All Rights Reserved.
    ------------------------------------------------------------------ :)
