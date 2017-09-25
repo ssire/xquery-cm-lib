@@ -1392,4 +1392,52 @@
   $axel.command.register('autoexec', AutoExecCommand, { check : false });
 }());
 
+/*****************************************************************************\
+|                                                                             |
+|  'load' binding for ajax loading                                            |
+|                                                                             |
+|  Very basic version to be completed (accepts dataType XML to load data in   |
+|  a target editor fragment                                                   |
+|                                                                             |
+\*****************************************************************************/
+(function ($axel) {
 
+  var _Load = {
+
+    onInstall : function ( host ) {
+      this.editor = $axel(host);
+      this.spec = $(host);
+      this.cache = $("#" + this.spec.attr('data-replace-target')).clone();
+      host.bind('axel-update', $.proxy(this.load, this));
+    },
+
+    methods : {
+
+      load : function  (ev, editor) {
+        var target = $("#" + this.spec.attr('data-replace-target')),
+            tmp = this.editor.text(),
+            url;
+        if (tmp !== '') {
+          url = this.spec.attr('data-url').replace('$_', tmp);
+          $.ajax({
+            url : url,
+            type : 'get',
+            dataType : 'html',
+            cache : false,
+            timeout : 20000,
+            success : function( data ) { target.replaceWith(data); },
+            error : function( data ) { target.html('<p class="text-error">network communication error</p>'); }
+          });
+        } else {
+          target.html(this.cache.clone());
+        }
+        return true; // not a validation binding
+      }
+    }
+  };
+
+  $axel.binding.register('load',
+    null, // no options
+    { }, // parameters
+    _Load);
+}($axel));
