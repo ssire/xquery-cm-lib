@@ -295,9 +295,13 @@
   <!--  Implementations  -->
   <!-- ***************** -->
   
+  <!-- TODO: factorize Resource with other templates ? -->
   <xsl:template name="formular-imp">
     <div data-template="{Template}">
       <xsl:apply-templates select="@Id"/>
+      <xsl:if test="Resource">
+        <xsl:attribute name="data-src" select="Resource"/>
+      </xsl:if>
       <xsl:apply-templates select="Submission" mode="Formular"/>
       <noscript loc="app.message.js">Activez Javascript</noscript>
       <p loc="app.message.loading">Chargement du formulaire en cours</p>

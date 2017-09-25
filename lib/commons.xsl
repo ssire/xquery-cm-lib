@@ -114,7 +114,31 @@
       <xsl:apply-templates select="@* | *"/>
     </div>
   </xsl:template>
-  
+
+  <!-- ****************************************** -->
+  <!--             STANDARD COMPONENTS            -->
+  <!-- ****************************************** -->
+
+  <xsl:template match="Title[@Level]">
+    <xsl:element name="h{@Level}">
+      <xsl:copy-of select="@loc|@style"/>
+      <xsl:apply-templates select="@Offset"/>
+      <xsl:apply-templates select="* | text()"/>
+    </xsl:element>
+  </xsl:template>
+
+  <xsl:template match="Title[not(@Level)]">
+    <xsl:element name="h1">
+      <xsl:copy-of select="@loc|@style"/>
+      <xsl:apply-templates select="@Offset"/>
+      <xsl:apply-templates select="* | text()"/>
+    </xsl:element>
+  </xsl:template>
+
+  <!-- ****************************************** -->
+  <!--              OTHER MECHANISMS              -->
+  <!-- ****************************************** -->
+
   <!-- Generic mechanism for intra-page Models inclusion
        FIXME: hard-coded to work only with Display top level -->
   <xsl:template match="Insert">

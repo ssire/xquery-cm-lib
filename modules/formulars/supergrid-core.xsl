@@ -1049,6 +1049,11 @@
     </xsl:choose>
   </xsl:template>
 
+  <xsl:template match="Binding">
+    <xsl:attribute name="data-binding"><xsl:value-of select="@Name"/></xsl:attribute>
+    <xsl:copy-of select="@*[starts-with(local-name(),'data-')]"/>
+  </xsl:template>
+
   <!-- ************************* -->
   <!--         Plugins           -->
   <!-- ************************* -->
