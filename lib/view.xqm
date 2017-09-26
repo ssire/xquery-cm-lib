@@ -196,7 +196,7 @@ declare function view:field( $cmd as element(), $source as element(), $view as e
       else
         $source/*
     else
-      let $f := $view/site:field[@Key = $source/@Key] (: field generated from form.xql :)
+      let $f := $view/site:field[@Key = $source/@Key or (exists(@Prefix) and starts-with($source/@Key, @Prefix))] (: field generated from form.xql :)
       return
         if ($f) then
           if ($f[@filter = 'no']) then
