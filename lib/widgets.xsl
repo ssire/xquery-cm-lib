@@ -299,6 +299,7 @@
   <xsl:template name="formular-imp">
     <div data-template="{Template}">
       <xsl:apply-templates select="@Id"/>
+      <xsl:copy-of select="@class"/>
       <xsl:if test="Resource">
         <xsl:attribute name="data-src" select="Resource"/>
       </xsl:if>
