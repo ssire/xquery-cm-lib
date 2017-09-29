@@ -256,7 +256,11 @@ declare function alert:apply-recipients(
               <Addressees>
                 {
                 for $a in $send-to
-                return <AddresseeKey>{ $a }</AddresseeKey>,
+                return 
+                  if (check:is-email($a)) then
+                    <Addressee>{ $a }</Addressee>
+                  else
+                    <AddresseeKey>{ $a }</AddresseeKey>,
                 for $a in $send-cc
                 return 
                   if (check:is-email($a)) then

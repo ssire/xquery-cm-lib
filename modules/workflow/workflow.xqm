@@ -33,6 +33,8 @@ import module namespace alert = "http://oppidoc.com/ns/xcm/alert" at "alert.xqm"
    Returns a list of person identifiers with the given role or an empty sequence.
    Implements semantic roles against the optional subject and object
    as defined by the Groups element of application.xml
+   The person identifiers are expected to be application Person identifiers
+   or eventually e-mail addresses when calling this to send e-mail notifications
    See also access:assert-semantic-role in lib/access.xqm for access control
    ======================================================================
 :)
@@ -58,8 +60,9 @@ declare function workflow:get-persons-for-role ( $role as xs:string, $subject as
 };
 
 (: ======================================================================
-   Converts a list of AddresseeKey elements into a tag named element 
-   containing a string with all unreferenced person's name
+   Converts a list of Addressees into a tag named element containing a 
+   comma separated list with all unreferenced person's name for AddresseeKey
+   elements and direct email or name for Addressee elements
    ====================================================================== 
 :)
 declare function local:gen-addressees-for-viewing( $tag as xs:string, $addr as element()*, $lang as xs:string ) as element()? {
@@ -95,6 +98,8 @@ declare function local:gen-addressees-for-viewing( $tag as xs:string, $addr as e
    Note per construction To is exclusive of Addressees output (but not of CC) because e-mail
    templates with a To element (see email.xml) overwrite any other principal recipients,
    it can only be combined with CC recipients (see also alert:notify-transition in alert.xqm)
+
+   FIXME: remove dependency on hard-coded group names, handle direct Email in Addressees
    ======================================================================
 :)
 declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang as xs:string, $item as element(), $base as xs:string? ) as element()
@@ -155,7 +160,7 @@ declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang 
       (),
     $item/From,
     $item/To,
-    local:gen-addressees-for-viewing('Addressees', $item/Addressees/AddresseeKey[not(@CC)], $lang),
+    local:gen-addressees-for-viewing('Addressees', $item/Addressees/*[not(@CC)], $lang),
     local:gen-addressees-for-viewing('CC', $item/Addressees/*[@CC], $lang)
     }
   </Alert>
@@ -671,6 +676,7 @@ declare function workflow:pre-check-transition( $m as xs:string, $type as xs:str
    Returns a sequence of AddresseeKey elements inside an Addressees element.
    The target specifies if it is a 'Case' or 'Activity' transition.
    DEPRECATED: to be replaced with workflow:gen-recipient-refs
+   NOTE: not compatible with e-mail persons identifiers !
    ======================================================================
 :)
 declare function workflow:gen-recipients( $from as xs:string, $to as xs:string, $target as xs:string, $case as element(), $activity as element()? ) as element()*
@@ -692,8 +698,9 @@ declare function workflow:gen-recipients( $from as xs:string, $to as xs:string, 
 };
 
 (: ======================================================================
-   Returns a list of person references or the empty sequence
-   TODO: remove useless workflow parameter (!)
+   Returns a list of person identifiers (application Person identifier 
+   oe e-mail identifier) or the empty sequence
+   TODO: remove useless workflow parameter
    ====================================================================== 
 :)
 declare function workflow:gen-recipient-refs( $rule as xs:string?, $workflow as xs:string?, $case as element(), $activity as element()? ) as xs:string*

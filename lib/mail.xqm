@@ -39,8 +39,8 @@ import module namespace enterprise = "http://oppidoc.com/ns/xcm/enterprise" at "
 declare function email:gen-variables-for( 
   $name as xs:string,
   $lang as xs:string,
-  $case as element()?,
-  $activity as element()?,
+  $subject as element()?,
+  $object as element()?,
   $extras as element()* ) as element() 
 {
   <vars>
@@ -63,7 +63,7 @@ declare function email:gen-variables-for(
                   ()
                 else
                   let $custom := util:import-module(
-                                  xs:anyURI("http://oppidoc.com/ns/xcm/custom"),
+                                  xs:anyURI("http://oppidoc.com/ns/application/custom"),
                                   'custom',
                                   xs:anyURI(concat(system:get-exist-home(), '/webapp/', globals:app-folder(), '/', globals:app-name(), '/app/custom.xqm'))
                                 )
@@ -89,11 +89,11 @@ declare function email:gen-variables-for(
 declare function email:render-email( 
   $name as xs:string,
   $lang as xs:string,
-  $case as element()?,
-  $activity as element()?,
+  $subject as element()?,
+  $object as element()?,
   $extras as element()* ) as element() 
 {
-  media:render-email($name, email:gen-variables-for($name, $lang, $case, $activity, $extras), $lang)
+  media:render-email($name, email:gen-variables-for($name, $lang, $subject, $object, $extras), $lang)
 };
 
 (: ======================================================================
@@ -103,11 +103,11 @@ declare function email:render-email(
 declare function email:render-alert( 
   $name as xs:string,
   $lang as xs:string,
-  $case as element()?,
-  $activity as element()?,
+  $subject as element()?,
+  $object as element()?,
   $extras as element()* ) as element() 
 {
-  media:render-alert($name, email:gen-variables-for($name, $lang, $case, $activity, $extras), $lang)
+  media:render-alert($name, email:gen-variables-for($name, $lang, $subject, $object, $extras), $lang)
 };
 
 (: ======================================================================
@@ -117,9 +117,9 @@ declare function email:render-alert(
 declare function email:render-alert( 
   $name as xs:string,
   $lang as xs:string,
-  $case as element()?,
-  $activity as element()?) as element() 
+  $subject as element()?,
+  $object as element()?) as element() 
 {
-  media:render-alert($name, email:gen-variables-for($name, $lang, $case, $activity, ()), $lang)
+  media:render-alert($name, email:gen-variables-for($name, $lang, $subject, $object, ()), $lang)
 };
 
