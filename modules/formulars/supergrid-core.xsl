@@ -574,7 +574,7 @@
             <xsl:otherwise>
               <site:field Size="{number($W) - number(@Gap)}" force="true">
                 <xsl:copy-of select="@Key | @Tag | @Placeholder-loc"/>
-                <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[@Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]">
+                <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[not(@Feedback) or @Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]">
                   <xsl:attribute name="Filter">event</xsl:attribute>
                 </xsl:if>
                 <xsl:if test="/Form/Bindings/Require[contains(@Keys, $key)]">
@@ -1005,7 +1005,7 @@
     <p class="af-error" data-regexp-error="{$key}"><xsl:apply-templates select="@Message-loc"/><xsl:value-of select="@Message"/></p>
   </xsl:template>
   
-  <xsl:template match="Mandatory[@Feedback != 'none']" mode="pre">
+  <xsl:template match="Mandatory[not(@Feedback) or @Feedback != 'none']" mode="pre">
     <xsl:param name="key"/>
     <xsl:attribute name="data-binding">mandatory</xsl:attribute>
     <xsl:attribute name="data-variable">_undef</xsl:attribute>
@@ -1022,8 +1022,7 @@
   </xsl:template>
 
   <!-- assumes 'off' to turn off red borders feedback -->
-  <xsl:template match="Mandatory[@Feedback = 'none']" mode="pre">
-  </xsl:template>
+  <xsl:template match="Mandatory[@Feedback = 'none']" mode="pre"></xsl:template>
 
   <xsl:template match="@Message-loc">
     <xsl:attribute name="loc"><xsl:value-of select="."/></xsl:attribute>
@@ -1074,7 +1073,7 @@
     <xsl:variable name="filter">
       <xsl:if test="@Filter"><xsl:value-of select="@Filter"/><xsl:text> </xsl:text></xsl:if>
       <xsl:text>optional</xsl:text>
-      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[@Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]"><xsl:text> </xsl:text>event</xsl:if>
+      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[not(@Feedback) or @Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]"><xsl:text> </xsl:text>event</xsl:if>
     </xsl:variable>
     <xsl:variable name="klass">
       <xsl:if test="@Class"><xsl:text> </xsl:text><xsl:value-of select="@Class"/></xsl:if>
@@ -1157,7 +1156,7 @@
     <xsl:variable name="filter">
       <xsl:if test="@Filter"><xsl:value-of select="@Filter"/><xsl:text> </xsl:text></xsl:if>
       <xsl:text>optional</xsl:text>
-      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[@Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]"><xsl:text> </xsl:text>event</xsl:if>
+      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[not(@Feedback) or @Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]"><xsl:text> </xsl:text>event</xsl:if>
     </xsl:variable>
     <xsl:variable name="required">
       <xsl:if test="//Form/Bindings/Require[contains(@Keys, $key)]">;required=true</xsl:if>
