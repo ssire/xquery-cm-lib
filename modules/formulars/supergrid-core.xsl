@@ -274,11 +274,16 @@
     <span class="sg-mandatory" rel="tooltip" title="{.}"><xsl:copy-of select="@style | @data-placement"/><xsl:apply-templates select="@loc" mode="hint"/>*</span>
   </xsl:template>
   
-  <xsl:template match="Hint">
+  <xsl:template match="Hint[not(@Appearance)]">
     <span class="sg-hint" rel="tooltip" title="{.}"><xsl:copy-of select="@style | @data-placement"/><xsl:apply-templates select="@loc" mode="hint"/>?</span>
   </xsl:template>
 
-  <xsl:template match="Hint[@meet or @avoid or @flag]">
+  <!-- assumes Appearance="mandatory" -->
+  <xsl:template match="Hint[@Appearance]">
+    <span class="sg-mandatory" rel="tooltip" title="{.}"><xsl:copy-of select="@style | @data-placement"/><xsl:apply-templates select="@loc" mode="hint"/>*</span>
+  </xsl:template>
+
+  <xsl:template match="Hint[@meet or @avoid or @flag]" priority="1">
     <site:conditional force="true">
       <xsl:copy-of select="@meet | @avoid | @flag"/>
       <span class="sg-hint" rel="tooltip" title="{.}"><xsl:copy-of select="@style | @data-placement"/><xsl:apply-templates select="@loc" mode="hint"/>?</span>
@@ -480,12 +485,12 @@
               <xsl:attribute name="style"><xsl:value-of select="concat(concat(concat('width:', @Gap * 60),'px'), $align)"/></xsl:attribute>
             </xsl:if>
           <xsl:value-of select="."/>            
-          <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag)]"/>            
-          <xsl:apply-templates select="/Form/Hints/Hint[contains(@Keys, $key)]"/>            
+          <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag) or contains(@Keys, $key)]"/>
+          <xsl:apply-templates select="/Form/Hints/Hint[contains(@Keys, $key)]"/>
         </label>
         <div class="controls">
           <xsl:apply-templates select="@Class"/>
-          <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag)]" mode="pre">
+          <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag) or contains(@Keys, $key)]" mode="pre">
             <xsl:with-param name="key"><xsl:value-of select="$key"/></xsl:with-param>
           </xsl:apply-templates>
           <xsl:if test="$gap = ''">
@@ -537,14 +542,14 @@
             <xsl:attribute name="style"><xsl:value-of select="concat(concat(concat('width:', @Gap * 60),'px'), $align)"/></xsl:attribute>
           </xsl:if>
           <xsl:value-of select="."/>
-          <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag)]">
+          <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag) or contains(@Keys, $key)]">
             <xsl:with-param name="key"><xsl:value-of select="$key"/></xsl:with-param>
           </xsl:apply-templates>
-          <xsl:apply-templates select="/Form/Hints/Hint[contains(@Keys, $key)]"/>          
+          <xsl:apply-templates select="/Form/Hints/Hint[contains(@Keys, $key)]"/>
         </label>
         <div class="controls">
           <xsl:apply-templates select="@Class"/>
-          <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag)]" mode="pre">
+          <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag) or contains(@Keys, $key)]" mode="pre">
             <xsl:with-param name="key"><xsl:value-of select="$key"/></xsl:with-param>
           </xsl:apply-templates>
           <xsl:if test="$gap = ''">
@@ -569,7 +574,7 @@
             <xsl:otherwise>
               <site:field Size="{number($W) - number(@Gap)}" force="true">
                 <xsl:copy-of select="@Key | @Tag | @Placeholder-loc"/>
-                <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[contains(@Tags, $tag)]">
+                <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[@Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]">
                   <xsl:attribute name="Filter">event</xsl:attribute>
                 </xsl:if>
                 <xsl:if test="/Form/Bindings/Require[contains(@Keys, $key)]">
@@ -1000,7 +1005,7 @@
     <p class="af-error" data-regexp-error="{$key}"><xsl:apply-templates select="@Message-loc"/><xsl:value-of select="@Message"/></p>
   </xsl:template>
   
-  <xsl:template match="Mandatory" mode="pre">
+  <xsl:template match="Mandatory[@Feedback != 'none']" mode="pre">
     <xsl:param name="key"/>
     <xsl:attribute name="data-binding">mandatory</xsl:attribute>
     <xsl:attribute name="data-variable">_undef</xsl:attribute>
@@ -1014,6 +1019,10 @@
         <xsl:otherwise>ul</xsl:otherwise> <!-- assuming dynamically generated item lists/radio buttons (ie select2/choice2) -->
       </xsl:choose>
     </xsl:attribute>
+  </xsl:template>
+
+  <!-- assumes 'off' to turn off red borders feedback -->
+  <xsl:template match="Mandatory[@Feedback = 'none']" mode="pre">
   </xsl:template>
 
   <xsl:template match="@Message-loc">
@@ -1065,7 +1074,7 @@
     <xsl:variable name="filter">
       <xsl:if test="@Filter"><xsl:value-of select="@Filter"/><xsl:text> </xsl:text></xsl:if>
       <xsl:text>optional</xsl:text>
-      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[contains(@Tags, $tag)]"><xsl:text> </xsl:text>event</xsl:if>
+      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[@Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]"><xsl:text> </xsl:text>event</xsl:if>
     </xsl:variable>
     <xsl:variable name="klass">
       <xsl:if test="@Class"><xsl:text> </xsl:text><xsl:value-of select="@Class"/></xsl:if>
@@ -1148,7 +1157,7 @@
     <xsl:variable name="filter">
       <xsl:if test="@Filter"><xsl:value-of select="@Filter"/><xsl:text> </xsl:text></xsl:if>
       <xsl:text>optional</xsl:text>
-      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[contains(@Tags, $tag)]"><xsl:text> </xsl:text>event</xsl:if>
+      <xsl:if test="/Form/Bindings/Enforce/*[contains(@Keys, $key)] or /Form/Hints/Mandatory[@Feedback != 'none'][contains(@Tags, $tag) or contains(@Keys, $key)]"><xsl:text> </xsl:text>event</xsl:if>
     </xsl:variable>
     <xsl:variable name="required">
       <xsl:if test="//Form/Bindings/Require[contains(@Keys, $key)]">;required=true</xsl:if>
