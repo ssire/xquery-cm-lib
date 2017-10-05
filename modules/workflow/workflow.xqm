@@ -160,7 +160,7 @@ declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang 
       (),
     $item/From,
     $item/To,
-    local:gen-addressees-for-viewing('Addressees', $item/Addressees/*[not(@CC)], $lang),
+    local:gen-addressees-for-viewing('Addressees', $item/Addressees/*[empty(@CC)], $lang),
     local:gen-addressees-for-viewing('CC', $item/Addressees/*[@CC], $lang)
     }
   </Alert>

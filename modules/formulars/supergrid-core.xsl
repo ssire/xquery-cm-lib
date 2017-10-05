@@ -318,6 +318,9 @@
       <xsl:when test="not(@W) and not(@Offset)">
         <xsl:attribute name="style">margin-left:0<xsl:value-of select="$style"/></xsl:attribute>
       </xsl:when>
+      <xsl:otherwise>
+        <xsl:copy-of select="@style"/>
+      </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 
