@@ -857,7 +857,7 @@ declare function workflow:gen-new-activity-tab ( $case as element(), $activity a
 
 declare function workflow:gen-activities-tab ( $case as element(), $activity as element()?, $activities as element()*, $lang as xs:string ) as element() {
   <Tab Id="activities" Counter="Activity">
-    <Name loc="workflow.tab.activities">List coaching activities</Name>
+    <Name loc="workflow.tab.activities">Related activities</Name>
     <Heading class="case">
       <Title loc="workflow.title.activities">List of activities</Title>
     </Heading>

@@ -15,7 +15,7 @@
       <site:content>
         <div class="row" data-axel-base="{$xslt.base-url}">
           <div class="span12">
-            <xsl:apply-templates select="Tabs"/>
+            <xsl:apply-templates select="Tabs|TabGroups"/>
             <xsl:apply-templates select="Modals"/>
             <!-- <xsl:apply-templates select="//Activities/Add" mode="activity-modal"/> -->
           </div>

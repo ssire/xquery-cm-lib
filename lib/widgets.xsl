@@ -15,18 +15,46 @@
   xmlns:site="http://oppidoc.com/oppidum/site"
   xmlns="http://www.w3.org/1999/xhtml">
 
+
+  <!-- ****************************************** -->
+  <!--                TAB GROUPS                  -->
+  <!--               (with Group)                 -->
+  <!-- ****************************************** -->
+
+  <xsl:template match="TabGroups">
+    <div class="tabbable">
+      <div style="float:left;width:140px">
+        <div class="well" style="width:120px;padding:10px 0 0">
+          <div class="nav tabs-left">
+            <ul class="nav nav-list tab-groups" style="width:100px">
+              <xsl:apply-templates select="Group"/>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="tab-content">
+        <xsl:apply-templates select="Group/Tab"/>
+      </div>
+    </div>
+  </xsl:template>
+
+  <xsl:template match="Group">
+    <li class="nav-header"><xsl:value-of select="Name"/></li>
+    <xsl:apply-templates select="Tab" mode="nav"/>
+  </xsl:template>
+
   <!-- ****************************************** -->
   <!--               SIMPLE TABS                  -->
-  <!--          (w/o TabBox/TabGroup)             -->
+  <!--           (with or w/o Group)              -->
   <!-- ****************************************** -->
 
   <xsl:template match="Tabs">
     <div class="tabbable tabs-left">
       <ul class="nav nav-tabs" style="width:120px">
-        <xsl:apply-templates select="Tab" mode="nav"/>
+        <xsl:apply-templates select="Tab|Group/Tab" mode="nav"/>
       </ul>
       <div class="tab-content">
-        <xsl:apply-templates select="Tab"/>
+        <xsl:apply-templates select="Tab|Group/Tab"/>
       </div>
     </div>
   </xsl:template>

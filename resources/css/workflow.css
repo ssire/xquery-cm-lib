@@ -76,6 +76,16 @@ div.accordion-inner.c-editing-mode, div.accordion-inner.c-editing-mode > div > f
   width: 100%;
 }
 
+/* Tab Groups */
+
+ul.tab-groups > li.nav-header {
+  padding: 3px 5px;
+}
+
+.nav-list.tab-groups > li > a {
+  margin-right: -5px;
+}
+
 /* Tabs */
 
 div.c-tab-heading {
