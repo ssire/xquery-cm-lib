@@ -493,9 +493,19 @@ declare function access:get-entity-permissions( $action as xs:string, $type as x
 :)
 declare function access:get-tab-permissions( $action as xs:string, $tab as xs:string, $subject as element()? ) as  element()
 {
+  access:get-tab-permissions($action, $tab, $subject, ())
+};
+
+(: ======================================================================
+   Stub function to call access:get-tab-permissions and to raise 
+   appropriate oppidum errors when necessary
+   ======================================================================
+:)
+declare function access:get-tab-permissions( $action as xs:string, $tab as xs:string, $subject as element()?, $object as element()? ) as  element()
+{
   if (empty($subject)) then
     oppidum:throw-error('URI-NOT-FOUND', ())
-  else if (access:check-tab-permissions($action, $tab, $subject, ())) then
+  else if (access:check-tab-permissions($action, $tab, $subject, $object)) then
     <allow/>
   else
     oppidum:throw-error('FORBIDDEN', ())
