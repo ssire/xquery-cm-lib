@@ -132,6 +132,7 @@
       <div class="modal-body">
         <xsl:apply-templates select="@Goal" mode="Modal-body"/>
         <div id="{@Id}" data-command="transform" data-template="{Template}">
+          <xsl:apply-templates select="@Gap" mode="Modal-editor"/>
           <xsl:apply-templates select="@Goal" mode="Modal-editor"/>
         </div>
       </div>
@@ -147,6 +148,12 @@
   <!-- FIXME: move px into Width to align with supergrid.xsl and workflow.xsl -->
   <xsl:template match="@Width" mode="Modal">
     <xsl:attribute name="style">width:<xsl:value-of select="."/>px;margin-left:-<xsl:value-of select=". div 2"/>px</xsl:attribute>
+  </xsl:template>
+
+  <!-- Adds a left margin to the modal body, this has been added for instance to leave space 
+       for hierarchical drop down lists opening left side (i.e. choice2_position="left") -->
+  <xsl:template match="@Gap" mode="Modal-editor">
+    <xsl:attribute name="style">margin-left:<xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
 
   <xsl:template match="@Goal[. = 'read']" mode="Modal-body">

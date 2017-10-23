@@ -293,7 +293,7 @@ div.c-editor-menu.c-perm-menu {
 }
 
 #c-workflow.ActivityWorkflowStatus span {
-  max-width: 62px;
+  width: 62px;
   padding: .7em 1em .7em 0.5em;
 }
 

@@ -80,7 +80,7 @@ return
               search:fetch-enterprises($saved-request)
         }
         <Modals>
-          <Modal Id="c-item-viewer" Goal="read">
+          <Modal Id="c-item-viewer" Goal="read" Gap="80px" Width="700px">
             <Template>templates/enterprise?goal=read</Template>
             <Commands>
               {
@@ -94,7 +94,7 @@ return
               <Close/>
             </Commands>
           </Modal>
-          <Modal Id="c-item-editor" data-backdrop="static" data-keyboard="false">
+          <Modal Id="c-item-editor" Gap="80px" Width="700" data-backdrop="static" data-keyboard="false">
             <Template>templates/enterprise?goal=update</Template>
             <Commands>
               <Save/>
@@ -103,7 +103,7 @@ return
           </Modal>
           {
           if ($can-create) then
-            <Modal Id="c-item-creator" data-backdrop="static" data-keyboard="false">
+            <Modal Id="c-item-creator" Gap="80px" Width="700" data-backdrop="static" data-keyboard="false">
               <Name>Add a new company</Name>
               <Template>templates/enterprise?goal=create</Template>
               <Commands>

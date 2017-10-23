@@ -30,7 +30,7 @@ declare variable $local:json-selectors := true();
    TODO: move to form.xqm
    ====================================================================== 
 :)
-declare function local:gen-hierarchical-selector ($tag as xs:string, $xvalue as xs:string?, $optional as xs:boolean, $lang as xs:string ) {
+declare function local:gen-hierarchical-selector ($tag as xs:string, $xvalue as xs:string?, $optional as xs:boolean, $left as xs:boolean, $lang as xs:string ) {
   let $filter := if ($optional) then ' optional' else ()
   let $params := if ($xvalue) then
                   concat(';multiple=yes;xvalue=', $xvalue, ';typeahead=yes')
@@ -39,7 +39,12 @@ declare function local:gen-hierarchical-selector ($tag as xs:string, $xvalue as 
   return
     if ($local:json-selectors) then
       form:gen-json-selector-for($tag, $lang,
-        concat($filter, $params, ";choice2_width1=300px;choice2_width2=300px;choice2_closeOnSelect=true")) 
+        concat($filter, 
+               $params, 
+               ";choice2_width1=300px;choice2_width2=300px;choice2_closeOnSelect=true",
+               if ($left) then ";choice2_position=left" else ()
+               )
+        ) 
     else
       form:gen-selector-for($tag, $lang, concat($filter, $params))
 };
@@ -66,10 +71,10 @@ return
         { form:gen-selector-for('Sizes', $lang, ";multiple=yes;xvalue=SizeRef;typeahead=yes;select2_minimumResultsForSearch=1") }
       </site:field>
       <site:field Key="domains-of-activities">
-        { local:gen-hierarchical-selector('DomainActivities', 'DomainActivityRef', false(), $lang) }
+        { local:gen-hierarchical-selector('DomainActivities', 'DomainActivityRef', false(), false(), $lang) }
       </site:field>
       <site:field Key="targeted-markets">
-        { local:gen-hierarchical-selector('TargetedMarkets', 'TargetedMarketRef', false(), $lang) }
+        { local:gen-hierarchical-selector('TargetedMarkets', 'TargetedMarketRef', false(), false(), $lang) }
       </site:field>
       <site:field Key="persons">
         { person:gen-person-selector($lang, ";multiple=yes;xvalue=Person;typeahead=yes") }
@@ -106,10 +111,10 @@ return
           { form:gen-selector-for('Sizes', $lang, " optional;multiple=no;typeahead=yes;select2_minimumResultsForSearch=1") }
         </site:field>
         <site:field Key="domain-activity">
-          { local:gen-hierarchical-selector('DomainActivities', (), true(), $lang) }
+          { local:gen-hierarchical-selector('DomainActivities', (), true(), true(), $lang) }
         </site:field>
         <site:field Key="targeted-markets">
-          { local:gen-hierarchical-selector('TargetedMarkets', 'TargetedMarketRef', true(), $lang) }
+          { local:gen-hierarchical-selector('TargetedMarkets', 'TargetedMarketRef', true(), true(), $lang) }
           </site:field>
       </site:view>
     

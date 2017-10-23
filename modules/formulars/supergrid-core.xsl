@@ -1339,6 +1339,7 @@
         <div class="modal-body">
           <div id="{@Id}" data-command="transform">
             <xsl:apply-templates select="@Template" mode="modal"/>
+            <xsl:apply-templates select="@Gap" mode="modal"/>
           </div>
         </div>
         <div class="modal-footer c-menu-scope">
@@ -1395,6 +1396,12 @@
 
   <xsl:template match="@EventTarget">
     <xsl:attribute name="data-event-target"><xsl:value-of select="."/></xsl:attribute>
+  </xsl:template>
+
+  <!-- Adds a left margin to the modal body, this has been added for instance to leave space 
+       for hierarchical drop down lists opening left side (i.e. choice2_position="left") -->
+  <xsl:template match="@Gap" mode="modal">
+    <xsl:attribute name="style">margin-left:<xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
 
   <xsl:template match="Title" mode="modal">
