@@ -334,9 +334,9 @@ declare function access:assert-transition-partly( $item as element(), $assert as
 declare function access:check-status-change( $transition as element(), $subject as element(), $object as element()? ) as xs:boolean {
   let $status :=
     if ($object) then
-      $object/StatusHistory/CurrentStatusRef/text()
+      $object/StatusHistory/*[local-name() = ('CurrentStatusRef', 'ConcurrentStatusRef')]/text()
     else
-      $subject/StatusHistory/CurrentStatusRef/text()
+      $subject/StatusHistory/*[local-name() = ('CurrentStatusRef', 'ConcurrentStatusRef')]/text()
   return
     if ($transition/@From = $status) then (: see pre-condition :)
       access:assert-access-rules($transition, $subject, $object)

@@ -251,7 +251,7 @@ declare function workflow:gen-annexe-for-viewing (
    ====================================================================== 
 :)
 declare function workflow:gen-status-change(
-  $current-status as xs:double,
+  $current-status as xs:string,
   $workflow as xs:string,
   $subject as element(),
   $object as element()?,
@@ -273,7 +273,7 @@ declare function workflow:gen-status-change(
    ====================================================================== 
 :)
 declare function workflow:gen-status-change(
-  $current-status as xs:double,
+  $current-status as xs:string,
   $workflow as xs:string,
   $subject as element(),
   $object as element()?,
@@ -285,16 +285,16 @@ declare function workflow:gen-status-change(
     ()
   else
     let $moves :=
-      for $transition in globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From eq string($current-status)][@To ne '-1'][not(@TriggerBy)]
-      where access:check-status-change($transition, $subject, $object)
+      for $transition in globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From = $current-status][@To ne '-1'][not(@TriggerBy)]
+      (:where access:check-status-change($transition, $subject, $object):)
       return $transition
     return
       if ($moves) then
-        <ChangeStatus Status="{$current-status}" TargetEditor="{ $target-modal }">
-          {(
-          if ($id) then attribute Id { $id } else (),
+        <ChangeStatus Status="{ $current-status }" TargetEditor="{ $target-modal }">
+          {
+          if ($id) then attribute { 'Id' } { $id } else (),
           for $transition in $moves
-          let $from := $current-status
+          let $from := number($transition/@From)
           let $to := if ($transition/@To castable as xs:integer) then number($transition/@To) else ()
           let $action := if ($to) then if ($from <= $to) then 'increment' else 'decrement' else if ($transition/@To eq 'last()') then 'revert' else () 
           let $arg := if ($to) then if ($from >= $to) then $from - $to else $to - $from else ()
@@ -305,12 +305,12 @@ declare function workflow:gen-status-change(
                 $transition/@data-confirm-loc,
                 if ($to) then attribute { 'Argument' } { $arg } else (),
                 if ($to) then attribute { 'To' } { $to } else (),
-                $transition/(@Intent | @Label | @Id) 
-                }
+                $transition/(@Intent | @Label | @Id)
+              }
               </Status>
             else (: TODO: throw syntax error ? :)
               ()
-          )}
+          }
         </ChangeStatus>
       else
         <ChangeStatus/> (: in case there is an isolated Spawn, FIXME: move Spawn inside :)
@@ -378,7 +378,7 @@ let $rules := $assert/true
    or they are all successful, returns a non-void sequence otherwise
    ======================================================================
 :)
-declare function workflow:validate-document($documents as element(), $doc as element(), $cur-status as xs:string, $case as element(), $activity as element()? ) as xs:boolean {
+declare function workflow:validate-document($documents as element(), $doc as element(), $cur-status as xs:string+, $case as element(), $activity as element()? ) as xs:boolean {
   count(
     for $assert in $doc/DynamicAssert
     return
@@ -422,6 +422,8 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
   let $target := if ($workflow eq 'Case') then $case else $activity
   let $prev-status := $target/StatusHistory/PreviousStatusRef/text()
   let $cur-status := $target/StatusHistory/CurrentStatusRef/text()
+  let $concur-status := $target/StatusHistory/ConcurrentStatusRef/text()
+  let $all-status := ($cur-status, $concur-status)
   let $status-def := globals:get-normative-selector-for(concat($workflow, 'WorkflowStatus'))/Option[Value eq $cur-status]
   let $cur := if ($status-def/@Type eq 'final') then $prev-status else $cur-status
   return
@@ -431,18 +433,19 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
       for $doc in $documents/Document[not(@Accordion) or (@Accordion eq 'no')][not(@Deprecated)]
       (: FIXME: we have to find a trick to allow some role to update at any status :)
       let $actions := 
-        for $a in $doc/Action[tokenize(string(@AtStatus), " ") = $cur-status]
+        for $a in $doc/Action[tokenize(string(@AtStatus), " ") = $all-status]
         where (string($a/@Type) ne 'status')
               or (: keeps only latest 'status' action :)
               not(
                  some $x in $doc/following-sibling::Document[tokenize(string(@AtStatus), " ") = $cur]/Action[@Type eq 'status'] 
-                 satisfies tokenize(string($x/@AtStatus), " ") = $cur-status
+                 satisfies tokenize(string($x/@AtStatus), " ") = $all-status
                  )
         return $a
       let $suffix := if ($doc/@Blender eq 'yes') then 'blend' else 'xml'
       return
         (: selects visible documents : either testing current status or previous status if current status is a "cementary" state :)
-        if (((tokenize(string($doc/@AtStatus), " ") = $cur) or ($cur-status = tokenize(string($doc/@AtFinalStatus), " "))) and (workflow:validate-document($documents, $doc, $cur-status, $case, $activity))) then
+        (: FIXME: why $cur ? :)
+        if (((tokenize(string($doc/@AtStatus), " ") = $all-status) or ($all-status = tokenize(string($doc/@AtFinalStatus), " "))) and (workflow:validate-document($documents, $doc, $all-status, $case, $activity))) then
           <Document Status="current">
           {(
           $doc/@class,
@@ -481,7 +484,15 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
                     else
                       ()
                 else if ($a/@Type eq 'status') then
-                  workflow:gen-status-change(number($cur-status), $workflow, $case, $activity, string($a/@Id))
+                  let $from-status := if ($a/@Group) then 
+                                        $target/StatusHistory/ConcurrentStatusRef[@Group eq $a/@Group]
+                                      else
+                                        $cur-status
+                  return
+                    if ($from-status) then
+                      workflow:gen-status-change($from-status, $workflow, $case, $activity, $a/Id)
+                    else
+                      ()
                 else if ($a/@Type eq 'spawn') then
                   let $control := globals:doc('application-uri')/Application/Security/Documents/Document[@TabRef eq string($a/@ProxyTab)]
                   let $rules := $control/Action[@Type eq 'create']
@@ -553,12 +564,20 @@ declare function workflow:validate-transition( $transition as element(), $overwr
 declare function workflow:apply-transition( $transition as element(), $case as element(), $activity as element()? ) as element()? {
   if ($transition/@To eq 'last()') then
     let $history := if ($activity) then $activity/StatusHistory else $case/StatusHistory
-    let $previous := $history/PreviousStatusRef/text()
+    let $previous := if ($transition/@Group) then 
+                       $history/ConcurrentPreviousStatusRef[@Group eq $transition/@Group]/text()
+                     else
+                       $history/PreviousStatusRef/text()
     return
       if (exists($previous)) then
-        workflow:apply-transition-to($previous, $case, $activity)
+        if ($transition/@Group) then
+          workflow:apply-concurrent-transition-to($transition/@Group, $previous, $case, $activity)
+        else
+          workflow:apply-transition-to($previous, $case, $activity)
       else
         ()
+  else if ($transition/@Group) then
+    workflow:apply-concurrent-transition-to($transition/@Group, $transition/@To, $case, $activity)
   else
     workflow:apply-transition-to(string($transition/@To), $case, $activity)
 };
@@ -581,6 +600,41 @@ declare function workflow:apply-transition-to( $new-status as xs:string, $case a
         update value $previous with $current/text()
       else (: first lazy creation :)
         update insert <PreviousStatusRef>{$current/text()}</PreviousStatusRef> following $current,
+      if ($current) then
+        update value $current with $new-status
+      else (: should not happen :)
+        (),
+      if (empty($status-log)) then
+        let $log :=
+          <Status>
+            <Date>{current-dateTime()}</Date>
+            <ValueRef>{$new-status}</ValueRef>
+          </Status>
+        return
+          update insert $log into $history
+      else
+        update replace $status-log/Date with <Date>{current-dateTime()}</Date> 
+      )
+    else
+      oppidum:throw-error("WFSTATUS-NO-HISTORY", ())
+};
+
+(: ======================================================================
+   Same as above but for a concurrent transition group
+   ====================================================================== 
+:)
+declare function workflow:apply-concurrent-transition-to( $group as xs:string, $new-status as xs:string, $case as element(), $activity as element()? ) as element()? {
+  let $history := if ($activity) then $activity/StatusHistory else $case/StatusHistory
+  let $previous := $history/ConcurrentPreviousStatusRef[@Group eq $group]
+  let $current := $history/ConcurrentStatusRef[@Group eq $group]
+  let $status-log := $history/Status[ValueRef = $new-status]
+  return
+    if ($history) then (: sanity check :)
+      (
+      if ($previous) then
+        update value $previous with $current/text()
+      else (: first lazy creation :)
+        update insert <ConcurrentPreviousStatusRef Group="{ $group }">{$current/text()}</ConcurrentPreviousStatusRef> following $current,
       if ($current) then
         update value $current with $new-status
       else (: should not happen :)
@@ -630,9 +684,10 @@ declare function workflow:pre-check-transition( $m as xs:string, $type as xs:str
   return
     if (exists($subject)) then
       if (($m = 'POST') and $item) then
-        let $cur-status := $item/StatusHistory/CurrentStatusRef/text()
+        let $cur-status := $item/StatusHistory/CurrentStatusRef
+        let $concur-status := $item/StatusHistory/ConcurrentStatusRef
         return
-          if ($from ne $cur-status) then
+          if (not($from = ($cur-status, $concur-status))) then
             ajax:throw-error('WFSTATUS-ORIGIN-ERROR', ())
           else if (not($cur-status castable as xs:decimal)) then
             ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
@@ -641,7 +696,7 @@ declare function workflow:pre-check-transition( $m as xs:string, $type as xs:str
           else if (($action = ()) and not($argument castable as xs:decimal)) then
             ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
           else
-            let $to := local:decode-status-to($action, $cur-status, $argument)
+            let $to := local:decode-status-to($action, $from, $argument)
             let $transition := workflow:get-transition-for($type, $from, $to)
             return
               if (not($transition)) then
@@ -759,12 +814,13 @@ declare function workflow:apply-notification(
 };
 
 (: ======================================================================
-   Generates model data to show a given type of the workflow bar
+   Generates model to display a timeline view of the workflow
    Status may be a step or a state
    ======================================================================
 :)
 declare function workflow:gen-workflow-steps( $workflow as xs:string, $item as element(), $lang as xs:string ) {
   let $current-status := $item/StatusHistory/CurrentStatusRef
+  let $concurrent-status := $item/StatusHistory/ConcurrentStatusRef
   let $workflow-def := globals:get-normative-selector-for(concat($workflow, 'WorkflowStatus'))
   return
     <Workflow>
@@ -774,19 +830,39 @@ declare function workflow:gen-workflow-steps( $workflow as xs:string, $item as e
       $workflow-def/@Name,
       for $s in $workflow-def/Option[not(@Deprecated)]
       let $ref := $s/Value/text()
+      let $group := $s/@Group
+      where empty($group) or ($s/@Type eq 'final') or empty($s/preceding-sibling::Option[@Group eq $group])
       return
         if ($s/@Type eq 'final') then
-          if ($ref = $current-status) then
+          if ($ref = ($current-status, $concurrent-status)) then
             <Step Display="state" Status="current" StartDate="{display:gen-display-date($item/StatusHistory/Status[ValueRef = $ref]/Date, $lang)}" Num="{$ref}"/>
           else
             <Step Display="state" StartDate="{display:gen-display-date($item/StatusHistory/Status[ValueRef = $ref]/Date, $lang)}" Num="{$ref}"/>
         else (: step :)
-          if ($ref = $current-status) then
-            <Step Display='step' Status="current" StartDate="{display:gen-display-date($item/StatusHistory/Status[ValueRef = $ref]/Date, $lang)}" Num="{$ref}"/>
-          else
-            <Step Display='step' StartDate="{display:gen-display-date($item/StatusHistory/Status[ValueRef = $ref]/Date, $lang)}" Num="{$ref}">
-              { if ($s/@Type eq 'final') then attribute { 'Display'} { 'state' } else () }
-            </Step>
+          let $flatten := if (exists($group)) then
+                            let $elected := $item/StatusHistory/ConcurrentStatusRef[@Group eq $group]
+                            return if ($workflow-def/Option[Value eq $elected]/@Type eq 'final') then () else $elected
+                          else
+                            $ref
+          return
+            if ($flatten) then
+              <Step Display='step' StartDate="{display:gen-display-date($item/StatusHistory/Status[ValueRef = $flatten]/Date, $lang)}" Num="{$flatten}">
+                {
+                if ($flatten = ($current-status, $concurrent-status)) then
+                  let $focus := $workflow-def/Option[Value eq $flatten]/@Focus
+                  return
+                    if (empty($focus) or ($focus ne 'none')) then
+                      attribute { 'Status'} { 'current' }
+                    else
+                      ()
+                else if ($s/@Type eq 'final') then 
+                  attribute { 'Display'} { 'state' } 
+                else 
+                  ()
+                }
+              </Step>
+            else
+              ()
       )}
     </Workflow>
 };
