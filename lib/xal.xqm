@@ -279,7 +279,10 @@ declare function local:apply-xal-create( $subject as element()?, $xal-spec as el
   let $entity := database:get-entity-for($xal-spec/@Entity)
   return
     if (exists($entity/Collection/@Sharding) or contains($entity/Resource, '$_')) then
-      database:create-entity-for-key($db, $xal-spec/@Entity, $xal-spec/*, $xal-spec/@Key)
+      if ($entity/Collection/@Sharding eq 'mirror') then
+        database:create-entity-for-key($db, $xal-spec/@Entity, $xal-spec/*, $xal-spec/@Key, $xal-spec/@Bucket)
+      else
+        database:create-entity-for-key($db, $xal-spec/@Entity, $xal-spec/*, $xal-spec/@Key)
     else
       let $created := database:create-entity($db, $xal-spec/@Entity, $xal-spec/*)
       return

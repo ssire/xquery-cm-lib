@@ -161,21 +161,26 @@ declare function database:create-entity( $db-uri as xs:string, $name as xs:strin
 
 (: ======================================================================
    Generates a new key to store a resource according to database.xml
+   Returns the empty() sequence if database.xml does not define any @Pivot
    ====================================================================== 
 :)
 declare function database:make-new-key-for( $db-uri as xs:string, $name as xs:string ) as item()? {
   let $spec := database:get-entity-for($name)
-  let $pivot := string($spec/Resource/@Pivot)
-  let $expr := concat("fn:collection('", $db-uri, "/", $spec/Collection, "')", $pivot)
+  let $pivot := $spec/Resource/@Pivot
   return
-    util:eval (
-      concat(
-        "if (exists(", $expr, ")) then ",
-        "max(for $k in ", $expr,
-        " return if ($k castable as xs:integer) then number($k) else 0) + 1",
-        " else 1"
+    if (exists($pivot)) then
+      let $expr := concat("fn:collection('", $db-uri, "/", $spec/Collection, "')", $pivot)
+      return
+        util:eval (
+          concat(
+            "if (exists(", $expr, ")) then ",
+            "max(for $k in ", $expr,
+            " return if ($k castable as xs:integer) then number($k) else 0) + 1",
+            " else 1"
+            )
         )
-    )
+    else
+      ()
 };
 
 (: ======================================================================
@@ -228,6 +233,8 @@ declare function database:create-collection-for-key (
                      else if (starts-with($spec/Collection/@Sharding, 'bucket')) then
                        concat($spec/Collection, '/', local:by-bucket(xs:integer($key), 4, 50))
                        (: TODO: decode and implement bucket($widht,$size) :)
+                     else if ($spec/Collection/@Sharding eq 'mirror') then
+                       concat($spec/Collection, '/', $key)
                      else
                        $spec/Collection
         return 
@@ -239,9 +246,24 @@ declare function database:create-collection-for-key (
 };
 
 (: ======================================================================
+   Stub function to call database:create-entity-for-key without 
+   the optional bucket parameter to mirror
+   ======================================================================
+:)
+declare function database:create-entity-for-key( 
+  $db-uri as xs:string, 
+  $name as xs:string, 
+  $data as element(), 
+  $key as item()? ) as element()
+{
+  database:create-entity-for-key($db-uri, $name, $data, $key, ())
+};
+
+(: ======================================================================
    Stores the resource entity into the database as per database.xml
    This is the version to use to create one file per resource using 
    a sharding algorithm
+   The bucket parameter is only required when Sharding="mirror"
    Returns a success element or throws an Oppidum error
    ======================================================================
 :)
@@ -249,17 +271,23 @@ declare function database:create-entity-for-key(
   $db-uri as xs:string, 
   $name as xs:string, 
   $data as element(), 
-  $key as item()? ) as element() 
+  $key as item()?,
+  $bucket as item()? ) as element()
 {
   if (exists($key)) then
     let $spec := database:get-entity-for($name)
     let $policy := database:get-policy-for($spec/Resource/@Policy)
     return
       if (exists($policy)) then
-        let $result := database:create-collection-for-key($db-uri, $name, $key)
+        let $result := database:create-collection-for-key($db-uri, $name, 
+                         if ($spec/Collection/@Sharding eq 'mirror') then
+                           $bucket
+                         else
+                           $key
+                         )
         return
           if (local-name($result) eq 'success') then 
-            let $res-uri := concat($result, '/', $spec/Resource)
+            let $res-uri := concat($result, '/', replace(string($spec/Resource), '\$_', $key))
             return
               if (fn:doc-available($res-uri)) then (: append to resource file : should we support this ? :)
                 (
