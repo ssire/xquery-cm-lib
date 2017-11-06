@@ -185,7 +185,7 @@ declare function view:field( $cmd as element(), $source as element(), $view as e
             { $source/xt:use/@label }
           </xt:use>
         else if ($source[@signature = 'richtext']) then (: sg <RichText> :)
-          <xt:use types="html" param="class=span a-control" label="{$source/div/xt:repeat/@label}"/>
+          <xt:use types="html" param="class=span a-control" label="{$source//xt:repeat/@label}"/>
         else if ($source[@signature = 'append']) then (: sg <Constant> with @Append :)
           <div class="input-append fill">
             <xt:use param="class=uneditable-input fill a-control text-right;" label="{$source/@Tag}" types="constant"></xt:use>
