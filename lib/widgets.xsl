@@ -89,10 +89,22 @@
   </xsl:template>
 
   <!-- Pseudo-tab navigating to a new page -->
-  <xsl:template match="Tab[@Link]" mode="nav">
+  <xsl:template match="Tab[@Link]" mode="nav" priority="1">
     <li>
       <xsl:copy-of select="@class"/>
       <a href="{@Link}">
+        <xsl:copy-of select="Name/@loc"/>
+        <xsl:value-of select="Name"/>
+      </a>
+    </li>
+  </xsl:template>
+
+  <!-- Pseudo-tab triggering a command -->
+  <xsl:template match="Tab[OnClick]" mode="nav" priority="1.25">
+    <li>
+      <xsl:copy-of select="@class"/>
+      <xsl:apply-templates select="OnClick/Command" mode="Tab"/>
+      <a>
         <xsl:copy-of select="Name/@loc"/>
         <xsl:value-of select="Name"/>
       </a>
@@ -103,12 +115,20 @@
     <div id="c-pane-{@Id}">
       <xsl:attribute name="class">tab-pane<xsl:if test="@class"><xsl:text> </xsl:text><xsl:value-of select="@class"/></xsl:if></xsl:attribute>
       <xsl:apply-templates select="@*[(local-name(.) != 'Id') and (local-name(.) != 'class')]"/>
-      <xsl:apply-templates select="*[local-name(.) != 'Name' and local-name(.) != 'Controller' and local-name(.) != 'Content']"/>
+      <xsl:apply-templates select="*[local-name(.) != 'Name' and local-name(.) != 'Controller' and local-name(.) != 'Content' and local-name(.) != 'OnClick']"/>
     </div>
   </xsl:template>
 
   <xsl:template match="Controller" mode="Tab">
     <xsl:attribute name="data-src"><xsl:value-of select="."/></xsl:attribute>
+  </xsl:template>
+
+  <!-- ****************************************** -->
+  <!--                  COMMANDS                  -->
+  <!-- ****************************************** -->
+  <xsl:template match="Command" mode="Tab">
+    <xsl:attribute name="data-command"><xsl:value-of select="Name"/></xsl:attribute>
+    <xsl:apply-templates select="Controller" mode="Tab"/>
   </xsl:template>
 
   <!-- ****************************************** -->

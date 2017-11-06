@@ -911,32 +911,23 @@ declare function workflow:gen-source ( $mode as xs:string, $case as element() ) 
     ()
 };
 
-declare function workflow:gen-new-activity-tab ( $case as element(), $activity as element()?, $prefixUrl as xs:string ) as element() {
-  <Tab Id="new-activity">
-    <Name loc="workflow.tab.new.activity">Add</Name>
-    <Heading class="case">
-      <Title loc="workflow.title.new.activity">Add</Title>
-    </Heading>
-    {
-    if (access:check-document-permissions('create', 'Assignment', $case)) then
-      let $proxy := globals:doc('application-uri')//Workflow[@Id eq 'Case']/Documents/Document[@Tab eq 'coaching-assignment']
-      return
-        (
-        <Legend>To create a new coaching activity click on the button below. The coaching activity will start in the coaching assignment status where you will have to fill a form to assign a coach to the activity.</Legend>,
-        <Legend>Because the selection of the coach should depend on the results of the needs analysis it is strongly advised to check that the needs analysis is complete first.</Legend>,
-        <Spawn>
-          <Controller>{$prefixUrl}{$proxy/Controller/text()}</Controller>
-        </Spawn>
-        )
-    else
-      let $cur-status := $case/StatusHistory/CurrentStatusRef/text()
-      return
-        if ($cur-status = ('1', '2')) then
-          <Legend>This panel will show a button to create new coaching activities once the case workflow reaches the needs analysis status.</Legend>
-        else
-          <Legend>The functionality to create new coaching activities from the needs analysis is only available to the KAM in charge of the Case.</Legend>
-    }
-  </Tab>
+declare function workflow:gen-new-activity-tab ( $case as element(), $activity as element()?, $prefixUrl as xs:string ) as element()? {
+  if (access:check-document-permissions('create', 'Assignment', $case)) then
+    <Tab Id="new-activity">
+      <Name loc="workflow.tab.new.activity">Add</Name>
+      <OnClick>
+        <Command>
+          <Name>confirm</Name>
+          <Controller>{$prefixUrl}{globals:doc('application-uri')//Workflow[@Id eq 'Case']/Documents/Document[@Tab eq 'coaching-assignment']/Controller/text()}</Controller>
+        </Command>
+      </OnClick>
+      <Heading class="case">
+        <Title loc="workflow.title.new.activity">Add</Title>
+      </Heading>
+      <Legend>Click on the tab on the left to create a new coaching activity</Legend>
+    </Tab>
+  else
+    ()
 };
 
 declare function workflow:gen-activities-tab ( $case as element(), $activity as element()?, $activities as element()*, $lang as xs:string ) as element() {
