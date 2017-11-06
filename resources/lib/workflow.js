@@ -114,8 +114,8 @@
         pane.load(url, function(txt, status, xhr) { if (status !== "success") { pane.html('Impossible to load the page, maybe your session has expired, please reload the page to login again'); } });
     });
 
-    $('.accordion-group.c-documents').on('shown', openAccordion);
-    $('.accordion-group.c-documents').on('hidden', closeAccordion);
+    // $('.accordion-group.c-documents').on('shown', openAccordion);
+    // $('.accordion-group.c-documents').on('hidden', closeAccordion);
     // FundingRequest
     $('#c-editor-funding-request').bind('axel-editor-ready', install_frequest);
     $('#c-editor-funding-request').bind('axel-content-ready', function () { update_frequest(); }); // initialization

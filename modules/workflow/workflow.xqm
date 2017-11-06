@@ -323,11 +323,13 @@ declare function workflow:gen-status-change(
    ======================================================================
 :)
 declare function local:configure-template( $doc as element(), $case as element(), $activity as element()? ) as xs:string {
+  let $workflow := if ($activity) then 'Activity' else 'Case'
   let $flags :=
     for $f in $doc/Host/Flag
     let $root := string($f/parent::Host/@RootRef)
     return
-      if (access:check-document-permissions(string($f/@Action), $root, $case, $activity)) then
+      if (access:check-workflow-permissions(string($f/@Action), $workflow, $root, $case, $activity)) then
+      (:if (access:check-document-permissions(string($f/@Action), $root, $case, $activity)) then:)
         concat(string($f/@Name), '=1')
       else
         ()
@@ -449,6 +451,11 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
           <Document Status="current">
           {(
           $doc/@class,
+          (: quick implementation to pre-open an accordion document :)
+          if ($doc/@PreOpenAtStatus and tokenize($doc/@PreOpenAtStatus, " ") = $cur-status) then
+            attribute  { 'data-accordion-status' } { 'opened' }
+          else 
+            (),
           attribute { 'Id' } { string($doc/@Tab) },
           <Name loc="workflow.title.{$doc/@Tab}">{string($doc/@Tab)}</Name>,
           <Resource>{$doc/Controller/text()}.{$suffix}?goal=read{local:configure-resource($doc)}</Resource>,

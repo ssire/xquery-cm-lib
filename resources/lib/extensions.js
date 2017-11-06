@@ -976,7 +976,122 @@
 
 /*****************************************************************************\
 |                                                                             |
-|  'view' command object                                                      |
+|  'accordion' command object                                                 |
+|                                                                             |
+|  Loads a template inside an Accordion Document target editor then loads an  |
+|  XML resource inside it. Keeps monitoring the editor and reloads it on      |
+|  'axel-cancel-edit' and on 'axel-save-done' event.                          |
+|                                                                             |
+|  MUST be placed on the drawer's accordion '.accordion-group' div            |
+|                                                                             |
+|*****************************************************************************|
+|                                                                             |
+|  Required attributes :                                                      |
+|  - data-target : id of the editor to control                                |
+|  - data-with-template : template URL                                        |
+|  - data-src : XML resource URL                                              |
+|                                                                             |
+\*****************************************************************************/
+(function ($axel) {
+
+  function AccordionCommand ( identifier, node ) {
+    this.spec = $(node);
+    this.key = identifier;
+    this.viewing = false;
+    this.listening = false;
+    this.spec.on('shown', $.proxy(this, 'open'));
+    this.spec.on('hidden', $.proxy(this, 'close'));
+    if (this.spec.attr('data-accordion-status') === 'opened') {
+      this.open({ 'target': node });
+    }
+  }
+
+  AccordionCommand.prototype = {
+
+    _dismiss : function (event) {
+      // $('#' + this.key).unbind('axel-cancel-edit', $.proxy(this, 'cancel'));
+      // $('#' + this.key).unbind('axel-save-done', $.proxy(this, 'saved'));
+      // $('#' + this.key).unbind('axel-editor-ready', $.proxy(this, 'stolen'));
+      // this.spec.get(0).disabled = false;
+      $('#' + this.key).removeClass('c-display-mode').closest('.accordion-inner').addClass('c-editing-mode');
+      this.viewing = false;
+    },
+
+    // opens the accordion's panel, do some inits the first time
+    open : function(ev) {
+      var target = $(ev.target);
+      if (! (target.hasClass('c-drawer') || target.hasClass('sg-hint') || target.hasClass('sg-mandatory')) ) {
+        this.spec.toggleClass('c-opened');
+        if (! this.spec.data('done')) {
+          this.execute();
+          this.spec.data('done',true); // FIXME: only on success (?)
+        }
+      }
+    },
+
+    close : function (ev) {
+      var target = $(ev.target);
+      if (!this.spec.data('done')) { // never activated
+        return;
+      }
+      if (! (target.hasClass('c-drawer') || target.hasClass('sg-hint')) ) {
+        this.spec.toggleClass('c-opened');
+      }
+    },
+
+    execute : function () {
+      var ed;
+      if (! this.viewing) {
+        $('#' + this.spec.attr('data-target-ui')).add('#' + this.spec.attr('data-target-ui') + '-bottom').hide();
+        ed = $axel.command.getEditor(this.key);
+        ed.attr('data-src', this.spec.attr('data-src'));
+        ed.transform(this.spec.attr('data-with-template'));
+        if ($axel('#' + this.key).transformed() && !this.viewing) { // assumes synchronous transform()
+          this.viewing = true;
+          // this.spec.get(0).disabled = true;
+          if (! this.listening) {
+            $('#' + this.key).bind('axel-cancel-edit', $.proxy(this, 'cancel'))
+              .bind('axel-save-done', $.proxy(this, 'saved'))
+              .bind('axel-editor-ready', $.proxy(this, 'stolen'));
+            this.listening = true;
+          }
+        }
+        // The transformation above will trigger the stolen callback...
+        $('#' + this.key).addClass('c-display-mode').closest('.accordion-inner').removeClass('c-editing-mode');
+      }
+    },
+
+    // as 'accordion' command cannot be cancelled this comes from the other command sharing the editor (aka 'edit')
+    cancel : function (event) {
+      this.execute();
+      // as next 'edit' action will reset() the editor we remove any potential editor's validation error pane
+      this.spec.children('.accordion-body').children('.accordion-inner').children('.af-validation-failed').removeClass('af-validation-failed');
+      // FIXME: merge 'view' and 'edit' command into a 'swap' command to avoid reloading data/editor ?
+    },
+
+    // as 'view' command cannot be cancelled this comes from the other command sharing the editor (aka 'edit')
+    saved : function (event, editor, source) {
+      var ed = $axel.command.getEditor(this.key);
+      if (this.viewing && source && (ed !== source)) {
+        // called from an editor embedded inside the target editor
+        ed.reload();
+      } else {
+        this.execute();
+      }
+    },
+
+    // some other document editor loaded
+    stolen : function (event) {
+      this._dismiss();
+    }
+  };
+
+  $axel.command.register('accordion', AccordionCommand, { check : true });
+}($axel));
+
+/*****************************************************************************\
+|                                                                             |
+|  DEPRECATED 'view' command object (replace with 'accordion' command)        |
 |                                                                             |
 |  Loads a template inside a target editor and loads an XML resource into it  |
 |  Keeps monitoring the editor and reloads it on 'axel-cancel-edit' and on    |

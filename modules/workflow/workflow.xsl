@@ -236,11 +236,16 @@
     </div>
   </xsl:template>
 
-  <!-- Display documents into workflow using their XTiger XML template -->
+  <!-- Display documents into workflow using their XTiger XML template
+       TODO: add support for @data-autoscroll-shift -->
   <xsl:template match="Document">
-    <div class="accordion-group c-documents" data-command="view" data-target="c-editor-{@Id}"
+    <xsl:variable name="opened">
+      <xsl:if test="@data-accordion-status = 'opened'"> in</xsl:if>
+    </xsl:variable>
+    <div class="accordion-group c-documents" data-command="accordion" data-target="c-editor-{@Id}"
       data-target-ui="c-editor-{@Id}-menu" data-with-template="{Template}"
       data-src="{/Display/@ResourceNo}/{Resource}">
+      <xsl:copy-of select="@data-accordion-status"/>
       <div class="accordion-heading c-{@Status} {@class}">
         <span class="c-document-menu c-menu-scope"><xsl:apply-templates select="Actions/*[local-name(.) != 'Spawn']"/></span>
         <span id="c-editor-{@Id}-menu" class="c-editor-menu c-menu-scope">
@@ -253,7 +258,7 @@
           </a>
         </h3>
       </div>
-      <div id="collapse-{@Id}" class="accordion-body collapse">
+      <div id="collapse-{@Id}" class="accordion-body collapse{$opened}">
         <div class="accordion-inner">
           <div id="c-editor-{@Id}-errors" class="alert alert-error af-validation"></div>
           <div id="c-editor-{@Id}" class="c-autofill-border" data-command="transform"
