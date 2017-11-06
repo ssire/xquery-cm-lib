@@ -322,6 +322,23 @@ declare function access:assert-transition-partly( $item as element(), $assert as
 };
 
 (: ======================================================================
+   Implements one Assert element independently of workflow status
+   ====================================================================== 
+:)
+declare function access:assert( $assert as element()?, $subject as element()?) as xs:string? {
+  if ($assert/@Error) then
+    let $rules := $assert/true
+    let $base := util:eval($assert/@Base)
+    return 
+      if (count($rules) eq 0 or (every $expr in $rules satisfies util:eval($expr/text()))) then
+        ()
+      else 
+        $assert/@Error
+  else
+    ()
+};
+
+(: ======================================================================
    Returns true if the transition is allowed for case or activity for current user,
    or false otherwise
    Pre-condition :
