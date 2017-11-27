@@ -458,8 +458,18 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
             (),
           attribute { 'Id' } { string($doc/@Tab) },
           <Name loc="workflow.title.{$doc/@Tab}">{string($doc/@Tab)}</Name>,
-          <Resource>{$doc/Controller/text()}.{$suffix}?goal=read{local:configure-resource($doc)}</Resource>,
-          <Template>{string($doc/parent::Documents/@TemplateBaseURL)}{$doc/Template/text()}?goal=read{local:configure-template($doc, $case, $activity)}</Template>,
+          if ($doc/Controller) then
+            <Resource>{$doc/Controller/text()}.{$suffix}?goal=read{local:configure-resource($doc)}</Resource>
+          else
+            (),
+          if ($doc/Template) then
+            <Template>
+             {
+             string($doc/parent::Documents/@TemplateBaseURL)}{$doc/Template/text()}?goal=read{local:configure-template($doc, $case, $activity)
+             }
+            </Template>
+          else
+            (),
           $doc/Content,
           if ($actions) then
             <Actions>
@@ -480,14 +490,22 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
                         </Edit>
                       else if ($verb eq 'drawer') then
                           <Drawer>
-                            { $a/@Forward }
-                            { $a/@loc }
-                            { $a/@AppenderId }
-                            <Controller>{$doc/Controller/text()}</Controller>
-<Template>{string($doc/parent::Documents/@TemplateBaseURL)}{$doc/Template/text()}?goal=create{local:configure-template($doc, $case, $activity)}</Template>
+                            { 
+                            $a/@Forward,
+                            $a/@loc,
+                            $a/@AppenderId,
+                            let $controller := if ($doc/Controller) then $doc/Controller else $a/Controller
+                            let $template := if ($doc/Template) then $doc/Template else $a/Template
+                            return (
+                              <Controller>{$controller/text()}</Controller>,
+<Template>{ string($doc/parent::Documents/@TemplateBaseURL)}{ $template/text() }?goal=create{local:configure-template($doc, $case, $activity) }</Template>
+                              )
+                            }
                           </Drawer>
-                      else (: assumes delete :)
+                      else if ($verb eq 'delete' and (empty($a/@Render) or $a/@Render ne 'off')) then
                         <Delete/>
+                      else
+                        ()
                     else if (request:get-parameter('roles', ())) then  (: FIXME: temporary :)
                       <Debug>{ $rules }</Debug>
                     else
