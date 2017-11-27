@@ -128,7 +128,8 @@
   <!--***** Drawers *****-->
   <!--*******************-->
 
-  <xsl:template match="Drawer[@Command = 'annex']">
+  <!-- Drawer element directly inside a Tav -->
+  <xsl:template match="Drawer[@Command = 'annex']" priority="1">
     <xsl:variable name="Id">
       <xsl:value-of select="ancestor::Tab/@Id"/>
     </xsl:variable>
@@ -164,6 +165,7 @@
     </div>
   </xsl:template>
 
+  <!-- Drawer element directly inside a Tav -->
   <xsl:template match="Drawer">
     <xsl:variable name="Id">
       <xsl:value-of select="ancestor::Tab/@Id"/>
@@ -292,9 +294,9 @@
       loc="action.cancel">Annuler</button>
   </xsl:template> 
 
-  <!-- Document w/o associated editor (direct visualization of inline items, e.g. closed Logbook) -->
-  <xsl:template match="Document[not(Template) and not(Resource)]">
-    <div class="accordion-group c-documents">
+  <!-- Document w/o associated editor (direct visualization of inline items) -->
+  <xsl:template match="Document[not(Template) and not(Resource)]" priority="1">
+    <div class="accordion-group c-documents c-auto-open">
       <div class="accordion-heading c-{@Status}">
         <h3 class="c-document-title">
           <a class="c-accordion-toggle" data-toggle="collapse" href="#collapse-{@Id}">
@@ -314,8 +316,8 @@
   <!-- Document with Drawer action to manage the creation of a read-only collection of (small) associated documents
        Currently the Document cannot have it's own editable representation (this is left as a future extension)
        NOTE: this is different than a Drawer directly inside a Tab (see above) -->
-  <xsl:template match="Document[Actions/Drawer]">
-    <div class="accordion-group c-documents">
+  <xsl:template match="Document[Actions/Drawer]" priority="1.25">
+    <div class="accordion-group c-documents c-auto-open">
       <div class="accordion-heading c-{@Status}">
         <span class="c-document-menu c-menu-scope"><xsl:apply-templates select="Actions/*"/></span>
         <h3 class="c-document-title">
@@ -327,7 +329,7 @@
       </div>
       <div id="collapse-{@Id}" class="accordion-body collapse">
         <div class="accordion-inner">
-          <div id="c-drawer-{@Id}" class="collapse c-drawer" data-command="acc-drawer"
+          <div id="c-drawer-{@Id}" class="collapse" data-command="acc-drawer"
             data-target="c-editor-{@Id}" data-drawer-trigger="c-drawer-{@Id}-action">
             <div id="c-editor-{@Id}" class="c-autofill-border" data-command="transform"
               data-validation-output="c-editor-{@Id}-errors" data-validation-label="label">
@@ -369,8 +371,8 @@
   <!--** Actions **-->
   <!--*************-->
 
-  <!-- Accordion 'edit' action to edits the given Resource with a given Template -->
-  <xsl:template match="Actions/Drawer">
+  <!-- Drawer action to be placed inside the menu of a Document (Accordion widget) -->
+  <xsl:template match="Actions/Drawer" priority="1.25">
     <xsl:variable name="Id">
       <xsl:value-of select="ancestor::Document/@Id"/>
     </xsl:variable>

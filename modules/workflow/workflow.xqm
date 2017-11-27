@@ -482,6 +482,7 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
                           <Drawer>
                             { $a/@Forward }
                             { $a/@loc }
+                            { $a/@AppenderId }
                             <Controller>{$doc/Controller/text()}</Controller>
 <Template>{string($doc/parent::Documents/@TemplateBaseURL)}{$doc/Template/text()}?goal=create{local:configure-template($doc, $case, $activity)}</Template>
                           </Drawer>
