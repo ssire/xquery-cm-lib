@@ -12,6 +12,7 @@ xquery version "1.0";
 declare namespace site = "http://oppidoc.com/oppidum/site";
 declare namespace xt = "http://ns.inria.org/xtiger";
 
+import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../lib/globals.xqm";
 import module namespace form = "http://oppidoc.com/ns/xcm/form" at "../lib/form.xqm";
 import module namespace display = "http://oppidoc.com/ns/xcm/display" at "../lib/display.xqm";
@@ -44,7 +45,8 @@ declare function local:gen-choices( $name as xs:string, $output as xs:string ) {
   </div>
 };
 
-let $lang := 'en'
+let $cmd := oppidum:get-command()
+let $lang := $cmd/@lang
 let $selectors := globals:collection('global-info-uri')//Description[@Lang = $lang]//Selector[not(parent::Group)]
 return
   <site:view>
