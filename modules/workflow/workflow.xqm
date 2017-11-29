@@ -623,7 +623,7 @@ declare function local:decode-status-to( $action as xs:string, $from as xs:strin
    ======================================================================
 :)
 declare function workflow:pre-check-transition( $m as xs:string, $type as xs:string, $subject as element()?, $object as element()? ) as element() {
-  let $item := if ($type eq 'Case') then $subject else $object
+  let $item := $object
   let $action := request:get-parameter('action', ())
   let $argument := request:get-parameter('argument', 'nil')
   let $from := request:get-parameter('from', "-1")
@@ -642,7 +642,7 @@ declare function workflow:pre-check-transition( $m as xs:string, $type as xs:str
             ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
           else
             let $to := local:decode-status-to($action, $cur-status, $argument)
-            let $transition := workflow:get-transition-for($type, $from, $to)
+            let $transition := fn:filter( workflow:get-transition-for($type, $from, $to), function ($t) { access:check-status-change($t, $subject, $object) } )[1]
             return
               if (not($transition)) then
                 ajax:throw-error('WFSTATUS-NO-TRANSITION', ())
