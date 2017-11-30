@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
   <xsl:output indent="yes"/>
+
   <xsl:template match="/">
     <xsl:apply-templates select="*"/>
   </xsl:template>
@@ -14,40 +16,30 @@
     </xsl:copy>
   </xsl:template>
 
+  <xsl:template match="Text">
+    <xhtml:p><xsl:value-of select="."/></xhtml:p>
+  </xsl:template>
+
+  <!-- FIXME: DEPRECATED ? -->
   <xsl:template match="ContextDescription">
     <ContextDescription>
       <xsl:apply-templates select="*"/>
     </ContextDescription>
   </xsl:template>
   
-  <xsl:template match="Text">
-    <xhtml:p><xsl:value-of select="."/></xhtml:p>
-  </xsl:template>
-  
+  <!-- FIXME: move to local application version ? -->
   <xsl:template match="Summary[Text]">
     <xsl:copy>
       <xsl:apply-templates select="*"/>
     </xsl:copy>
   </xsl:template>
 
+  <!-- FIXME: move to local application version ? -->
   <xsl:template match="Description[Text]">
     <xsl:copy>
       <xsl:apply-templates select="*"/>
     </xsl:copy>
   </xsl:template>
-
-  <!-- 
-    <xsl:template match="ActivityDescription">
-    <ActivityDescription>
-      <xsl:apply-templates select="*"/>
-    </ActivityDescription>
-  </xsl:template>
-
-  <xsl:template match="Objectives">
-    <Objectives>
-      <xsl:apply-templates select="*"/>
-    </Objectives>
-  </xsl:template> -->
 
   <!--///////////////////////
     Rich Text block
@@ -57,14 +49,6 @@
     <xhtml:h3>
       <xsl:value-of select="."/>
     </xhtml:h3>
-  </xsl:template>
-  
-  <xsl:template match="Title[parent::FundingRequest or parent::Information]">
-    <xsl:copy-of select="."/>
-  </xsl:template>
-  
-  <xsl:template match="Title[parent::Case]">
-    <xsl:copy-of select="."/>
   </xsl:template>
 
   <xsl:template match="Parag">
