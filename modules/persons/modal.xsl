@@ -13,6 +13,8 @@
 
   <xsl:output method="xml" media-type="text/html" omit-xml-declaration="yes" indent="yes"/>
 
+  <xsl:param name="xslt.base-url">/</xsl:param>
+
   <xsl:template match="Person">
     <div>
       <p><xsl:apply-templates select="Name"/></p>
@@ -57,7 +59,7 @@
   </xsl:template>
   
   <xsl:template match="Photo">
-    <img src="persons/{.}" style="float:right;max-width:200px"/>
+    <img src="{$xslt.base-url}persons/{.}" style="float:right;max-width:200px"/>
   </xsl:template>
 
   <xsl:template match="Roles">

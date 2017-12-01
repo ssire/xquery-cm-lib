@@ -144,7 +144,7 @@
   
   <!-- Modal editor window with associated formular template and command menu
        NOTE that a Modal MUST be completed with ad'hoc Javascript code to hide/show the Modal and to load its content  -->
-  <xsl:template match="Modal">
+  <xsl:template match="Modal[Template]">
     <div id="{@Id}-modal" aria-hidden="true" aria-labelledby="label-{@Id}" role="dialog" tabindex="-1" class="modal hide fade">
       <xsl:copy-of select="@*[starts-with(local-name(.), 'data-' )]"/>
       <xsl:apply-templates select="@Width" mode="Modal"/>
@@ -164,7 +164,7 @@
       </div>
     </div>
   </xsl:template>
-  
+
   <!-- FIXME: move px into Width to align with supergrid.xsl and workflow.xsl -->
   <xsl:template match="@Width" mode="Modal">
     <xsl:attribute name="style">width:<xsl:value-of select="."/>px;margin-left:-<xsl:value-of select=". div 2"/>px</xsl:attribute>
@@ -203,7 +203,7 @@
   <xsl:template match="Name" mode="Modal">
     <div class="modal-header">
       <button aria-hidden="true" data-dismiss="modal" class="close" type="button">×</button>
-      <h3 id="label-{parent::Modal/@Id}"><xsl:value-of select="."/></h3>
+      <h3 id="label-{parent::Modal/@Id}"><xsl:copy-of select="@loc"/><xsl:value-of select="."/></h3>
       <xsl:apply-templates select="parent::Modal/Legend" mode="Modal"/>
     </div>
   </xsl:template>
