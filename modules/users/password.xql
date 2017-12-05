@@ -65,7 +65,7 @@ declare function local:gen-ask-pwd-model( $user as element() ) {
   <AskUserPassword>
     <Controller>me</Controller>
     { $user/UserProfile/Username }
-    <Name>{ concat($user/Name/FirstName, " ",  $user/Name/LastName) }</Name>
+    <Name>{ concat($user/Information/Name/FirstName, " ",  $user/Information/Name/LastName) }</Name>
   </AskUserPassword>
 };
 

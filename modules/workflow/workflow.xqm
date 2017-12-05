@@ -286,7 +286,7 @@ declare function workflow:gen-status-change(
   else
     let $moves :=
       for $transition in globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From = $current-status][@To ne '-1'][not(@TriggerBy)]
-      (:where access:check-status-change($transition, $subject, $object):)
+      where access:check-status-change($transition, $subject, $object)
       return $transition
     return
       if ($moves) then
