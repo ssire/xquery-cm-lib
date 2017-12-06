@@ -39,7 +39,7 @@
   </xsl:template>
 
   <xsl:template match="Group">
-    <li class="nav-header"><xsl:value-of select="Name"/></li>
+    <li class="nav-header"><xsl:copy-of select="Name/@loc"/><xsl:value-of select="Name"/></li>
     <xsl:apply-templates select="Tab" mode="nav"/>
   </xsl:template>
 
@@ -83,6 +83,7 @@
     <li>
       <xsl:copy-of select="@class"/>
       <a id="c-counter-{@Id}" href="#c-pane-{@Id}" data-toggle="tab">
+        <xsl:copy-of select="Name/@loc"/>
         <xsl:value-of select="Name"/> [<xsl:value-of select="count(descendant::*/*[local-name() = $enum])"/>]
       </a>
     </li>
