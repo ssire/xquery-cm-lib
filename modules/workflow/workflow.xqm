@@ -620,10 +620,15 @@ declare function local:decode-status-to( $action as xs:string, $from as xs:strin
    Implements Ajax 'status' command protocol
    Checks and returns a Transition element for a given workflow type
    or throws and returns an error element
+   In case of multiple concurrent transitions (e.g. for different user roles)
+   picks up the first one which is status/role compatible and returns it 
+   if it passes document assertions or return an error element otherwise
+   TODO: - type agnostic ('Case' is a case tracker dependency)
+         - test next one for assertions in case first one fails
    ======================================================================
 :)
 declare function workflow:pre-check-transition( $m as xs:string, $type as xs:string, $subject as element()?, $object as element()? ) as element() {
-  let $item := $object
+  let $item := if ($type eq 'Case') then $subject else $object
   let $action := request:get-parameter('action', ())
   let $argument := request:get-parameter('argument', 'nil')
   let $from := request:get-parameter('from', "-1")
@@ -642,15 +647,18 @@ declare function workflow:pre-check-transition( $m as xs:string, $type as xs:str
             ajax:throw-error('WFSTATUS-SYNTAX-ERROR', ())
           else
             let $to := local:decode-status-to($action, $cur-status, $argument)
-            let $transition := fn:filter( workflow:get-transition-for($type, $from, $to), function ($t) { access:check-status-change($t, $subject, $object) } )[1]
+            let $transition := workflow:get-transition-for($type, $from, $to)
+            let $filtered := fn:filter($transition, function ($t) { access:check-status-change($t, $subject, $object) })
             return
-              if (not($transition)) then
+              if (empty($transition)) then
                 ajax:throw-error('WFSTATUS-NO-TRANSITION', ())
-              else if (not(access:check-status-change($transition, $subject, $object))) then
+              else if (empty($filtered)) then
                 ajax:throw-error('WFSTATUS-NOT-ALLOWED', ())
               else
-                (: checks if some document is missing data :)
-                let $omissions := workflow:validate-transition($transition, $subject, $object)
+                (: FIXME: picks up only 1st transition :)
+                let $elected := $transition[1]
+                (: checks Assertions :)
+                let $omissions := workflow:validate-transition($elected, $subject, $object)
                 return
                   if (count($omissions) gt 1) then
                     let $explain :=
@@ -659,12 +667,12 @@ declare function workflow:pre-check-transition( $m as xs:string, $type as xs:str
                         let $e := ajax:throw-error($o, ())
                         return $e/message/text(), '&#xa;&#xa;')
                     return
-                      ajax:throw-error(string($transition/@GenericError), concat('&#xa;&#xa;',$explain))
+                      ajax:throw-error(string($elected/@GenericError), concat('&#xa;&#xa;',$explain))
                   else if ($omissions) then
                     ajax:throw-error($omissions, ())
                   else
                     (: everything okay, returns Transition element :)
-                    $transition
+                    $elected
       else
         ajax:throw-error('URI-NOT-SUPPORTED', ())
     else
