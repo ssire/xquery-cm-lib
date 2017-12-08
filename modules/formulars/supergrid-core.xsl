@@ -335,6 +335,7 @@
   <xsl:template match="Row">
     <div class="row-fluid">
       <xsl:copy-of select="@style | @id"/>
+      <xsl:copy-of select="@*[starts-with(local-name(),'data-')]"/>
       <xsl:apply-templates select="*"/>
     </div>
   </xsl:template>
@@ -342,6 +343,7 @@
   <xsl:template match="Row[@Class]">
     <div class="row-fluid {@Class}">
       <xsl:copy-of select="@style | @id"/>
+      <xsl:copy-of select="@*[starts-with(local-name(),'data-')]"/>
       <xsl:apply-templates select="*"/>
     </div>
   </xsl:template>
@@ -475,6 +477,7 @@
     <xsl:variable name="align"><xsl:if test="@Align">;text-align:<xsl:value-of select="@Align"/></xsl:if></xsl:variable>
     <div class="{$offset}span{$W}">
       <xsl:call-template name="margin-left"/>
+      <xsl:copy-of select="@*[starts-with(local-name(),'data-')]"/>
       <div class="control-group">
         <xsl:apply-templates select="/Form/Plugins/RichText[contains(@Keys, $key)]" mode="pre">
             <xsl:with-param name="key"><xsl:value-of select="$key"/></xsl:with-param>
@@ -532,6 +535,7 @@
     <xsl:variable name="align"><xsl:if test="@Align">;text-align:<xsl:value-of select="@Align"/></xsl:if></xsl:variable>
     <div class="{$offset}span{$W}">
       <xsl:call-template name="margin-left"/>
+      <xsl:copy-of select="@*[starts-with(local-name(),'data-')]"/>
       <div class="control-group">
         <xsl:apply-templates select="/Form/Bindings/Enforce/*[contains(@Keys, $key)]" mode="pre">
             <xsl:with-param name="key"><xsl:value-of select="$key"/></xsl:with-param>
