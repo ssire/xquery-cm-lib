@@ -655,8 +655,8 @@ declare function workflow:pre-check-transition( $m as xs:string, $type as xs:str
               else if (empty($filtered)) then
                 ajax:throw-error('WFSTATUS-NOT-ALLOWED', ())
               else
-                (: FIXME: picks up only 1st transition :)
-                let $elected := $transition[1]
+                (: FIXME: picks up only 1st transition, filtering out TriggerBy transition when possible :)
+                let $elected := (if (some $t in $filtered satisfies not($t/@TriggerBy)) then $filtered[not(@TriggerBy)] else $filtered)[1]
                 (: checks Assertions :)
                 let $omissions := workflow:validate-transition($elected, $subject, $object)
                 return
