@@ -1449,12 +1449,18 @@
     </xt:component>
   </xsl:template>
 
-  <xsl:template match="Include">
+  <xsl:template match="Include[not(@TypeName)]">
     <xsl:variable name="label">
       <xsl:value-of select="document(concat($xslt.base-root, concat($xslt.base-formulars, @src)))/*/@Tag"/>
     </xsl:variable>
     <xt:use types="t_{$label }_include" label="{ $label }"/>
   </xsl:template>
+
+  <!-- shortcut version to include a single component w/o tagging with the form @Tag
+       Limitation: currently can be used only once to include a single component -->
+  <xsl:template match="Include[@TypeName]">
+    <xt:use types="t_{@TypeName }"/>
+  </xsl:template>  
 
   <!-- ************************* -->
   <!--         Copy              -->
