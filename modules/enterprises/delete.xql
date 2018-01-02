@@ -63,8 +63,8 @@ declare function local:delete-enterprise( $enterprise as element(), $lang as xs:
   let $name := string($enterprise/Information/Name)
   return (
     update delete $enterprise,
-    cache:invalidate('enterprise', $lang),
-    cache:invalidate('town', $lang),
+    cache:invalidate('enterprise'),
+    cache:invalidate('town'),
     ajax:report-success('DELETE-ENTERPRISE-SUCCESS', $name, $result)
     )
 };

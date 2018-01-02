@@ -47,8 +47,8 @@ declare function local:create-enterprise( $cmd as element(), $data as element(),
         let $result := database:create-entity($cmd/@db, 'enterprise', $enterprise)
         return
           if (local-name($result) ne 'error') then (
-            cache:invalidate('enterprise', $lang),
-            cache:invalidate('town', $lang),
+            cache:invalidate('enterprise'),
+            cache:invalidate('town'),
             (: FIXME: invalidate 'beneficiary' in case of creation from a Case ? :)
             if ($next = 'redirect') then
               ajax:report-success-redirect('ACTION-CREATE-SUCCESS', (), concat($cmd/@base-url, $cmd/@trail, '?preview=', $newkey))

@@ -65,7 +65,7 @@ declare function enterprise:unreference-enterprise( $ref as element()?, $tag as 
    ======================================================================
 :)
 declare function enterprise:gen-enterprise-selector ( $lang as xs:string, $params as xs:string ) as element() {
-  let $inCache := cache:lookup('enterprise', $lang)
+  let $inCache := cache:lookup('enterprise')
   return
     if ($inCache) then
       <xt:use hit="1" types="choice" values="{$inCache/Values}" i18n="{$inCache/I18n}" param="select2_complement=town;select2_minimumInputLength=2;{form:setup-select2($params)}"/>
@@ -81,7 +81,7 @@ declare function enterprise:gen-enterprise-selector ( $lang as xs:string, $param
         let $ids := string-join(for $n in $pairs return string($n/@id), ' ') (: FLWOR to defeat document ordering :)
         let $names := string-join(for $n in $pairs return $n/text(), ' ') (: idem :)
         return (
-          cache:update('enterprise',$lang, $ids, $names),
+          cache:update('enterprise', $ids, $names),
           <xt:use types="choice" values="{$ids}" i18n="{$names}" param="select2_complement=town;select2_minimumInputLength=2;{form:setup-select2($params)}"/>
           )
 };
@@ -92,7 +92,7 @@ declare function enterprise:gen-enterprise-selector ( $lang as xs:string, $param
    ======================================================================
 :)
 declare function enterprise:gen-town-selector ( $lang as xs:string, $params as xs:string ) as element() {
-  let $inCache := cache:lookup('town', $lang)
+  let $inCache := cache:lookup('town')
   return
     if ($inCache) then
       <xt:use hit="1" types="choice" values="{$inCache/Values}" param="{form:setup-select2($params)}"/>
@@ -105,7 +105,7 @@ declare function enterprise:gen-town-selector ( $lang as xs:string, $params as x
       return
         let $ids := string-join($towns, ' ')
         return (
-          cache:update('town',$lang, $ids, ()),
+          cache:update('town', $ids, ()),
           <xt:use types="choice" values="{$ids}" param="{form:setup-select2($params)}"/>
           )
 };
