@@ -27,10 +27,10 @@ declare function local:gen-enterprise-sample ( $e as element(), $lang as xs:stri
   return
     <Enterprise>
       { ($e/Id, $info/Name) }
-      <DomainActivity>{ display:gen-name-for('DomainActivities', $info/DomainActivityRef, 'en') }</DomainActivity>
+      <DomainActivity>{ display:gen-name-for('DomainActivities', $info/DomainActivityRef, $lang) }</DomainActivity>
       <Address>{ ($info/Address/Town, $info/Address/Country) }</Address>
-      <Size>{ display:gen-name-for('Sizes', $info/SizeRef, 'en') }</Size>
-      <TargetedMarkets>{ display:gen-name-for('TargetedMarkets', $info/TargetedMarkets/TargetedMarketRef, 'en') }</TargetedMarkets>
+      <Size>{ display:gen-name-for('Sizes', $info/SizeRef, $lang) }</Size>
+      <TargetedMarkets>{ display:gen-name-for('TargetedMarkets', $info/TargetedMarkets/TargetedMarketRef, $lang) }</TargetedMarkets>
       <Persons>
         {
         string-join(for $p in globals:collection('persons-uri')//Person[Information/EnterpriseKey eq $e/Id]
@@ -45,7 +45,7 @@ declare function local:gen-enterprise-sample ( $e as element(), $lang as xs:stri
    Returns Enterprise(s) matching request with request timing
    ======================================================================
 :)
-declare function search:fetch-enterprises ( $request as element() ) as element() {
+declare function search:fetch-enterprises ( $request as element(), $lang as xs:string ) as element() {
   (: FIXME: pass Enterprise for finner grain access control :)
   let $omni := access:check-entity-permissions('update', 'Enterprise')
   return
@@ -54,9 +54,9 @@ declare function search:fetch-enterprises ( $request as element() ) as element()
         {
         if ($omni) then attribute { 'Update' } { 'y' } else (),
         if (count($request/*/*) = 0) then (: empty request :)
-          local:fetch-all-enterprises()
+          local:fetch-all-enterprises($lang)
         else
-          local:fetch-some-enterprises($request)
+          local:fetch-some-enterprises($request, $lang)
         }
       </Enterprises>
     </Results>
@@ -66,19 +66,19 @@ declare function search:fetch-enterprises ( $request as element() ) as element()
    Dumps all enterprises in database
    ======================================================================
 :)
-declare function local:fetch-all-enterprises () as element()* 
+declare function local:fetch-all-enterprises ($lang as xs:string) as element()* 
 {
   for $e in globals:doc('enterprises-uri')/Enterprises/Enterprise
   order by $e/Name
   return
-    local:gen-enterprise-sample($e, 'en')
+    local:gen-enterprise-sample($e, $lang)
 };
 
 (: ======================================================================
    Dumps a subset of enterprise filtered by criterias
    ======================================================================
 :)
-declare function local:fetch-some-enterprises ( $filter as element() ) as element()*
+declare function local:fetch-some-enterprises ( $filter as element(), $lang as xs:string ) as element()*
 {
   let $enterprise := $filter//EnterpriseKey/text()
   let $town := $filter//Town/text()
@@ -98,5 +98,5 @@ declare function local:fetch-some-enterprises ( $filter as element() ) as elemen
       and (empty($person) or globals:collection('persons-uri')//Person[(Id = $person) and (Information/EnterpriseKey eq $e/Id)])
     order by $e/Name
     return
-      local:gen-enterprise-sample($e, 'en')
+      local:gen-enterprise-sample($e, $lang)
 };

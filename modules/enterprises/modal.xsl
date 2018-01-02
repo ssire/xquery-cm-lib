@@ -34,7 +34,7 @@
   <xsl:template match="Country"><xsl:value-of select="@_Display"/></xsl:template>
 
   <xsl:template match="CreationYear">
-    <p>Established in <xsl:value-of select="."/></p>
+    <p><span loc="modal.legend.establishment">Established in</span><xsl:text> </xsl:text><xsl:value-of select="."/></p>
   </xsl:template>
 
   <xsl:template match="WebSite">

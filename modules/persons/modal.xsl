@@ -55,7 +55,7 @@
   </xsl:template>
 
   <xsl:template match="Email[. = '']">
-    <p>Unkown E-mail</p>
+    <p loc="modal.legend.email.missing">Unkown E-mail</p>
   </xsl:template>
   
   <xsl:template match="Photo">
@@ -74,14 +74,14 @@
     <xsl:value-of select="."/><xsl:apply-templates select="./following-sibling::Name[1]" mode="function"/>
   </xsl:template>
   
-  <xsl:template match="Name[.!='']" mode="function"> for <xsl:value-of select="."/>
+  <xsl:template match="Name[.!='']" mode="function"><xsl:text> </xsl:text><span loc="modal.term.for">for</span><xsl:text> </xsl:text><xsl:value-of select="."/>
   </xsl:template>
 
   <xsl:template name="pretty-print">
     <xsl:param name="var"/>
     <xsl:choose>
       <xsl:when test="$var != ''"><xsl:value-of select="$var"/></xsl:when>
-      <xsl:otherwise>not known</xsl:otherwise>
+      <xsl:otherwise><span loc="modal.term.unknown">not known</span></xsl:otherwise>
     </xsl:choose>
   </xsl:template>
 

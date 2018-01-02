@@ -42,7 +42,7 @@ declare function misc:gen_display_name( $refs as element()*, $tag as xs:string )
     ()
 };
 
-declare function misc:gen_display_attribute( $refs as element()* ) as attribute()? {
+declare function misc:gen_display_attribute( $refs as element()*, $lang as xs:string ) as attribute()? {
   if ($refs) then
     let $driver := local-name($refs[1])
     let $root := if (ends-with($driver, 'Ref')) then substring-before($driver, 'Ref') else $driver
@@ -52,7 +52,7 @@ declare function misc:gen_display_attribute( $refs as element()* ) as attribute(
       else
         concat($root, 's')
     return
-      let $label := display:gen-name-for($type, $refs, 'en')
+      let $label := display:gen-name-for($type, $refs, $lang)
       return
         if ($label) then
           attribute { '_Display' } { $label }
@@ -74,7 +74,7 @@ declare function misc:gen_display_attribute( $refs as element()* ) as attribute(
      multiple times
    ======================================================================
 :)
-declare function misc:unreference( $nodes as item()* ) as item()* {
+declare function misc:unreference( $nodes as item()*, $lang as xs:string ) as item()* {
   for $node in $nodes
   return
     typeswitch($node)
@@ -89,7 +89,7 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
             if (exists($node/@_Unref)) then
               element { $tag }
                 {
-                misc:unref_display_attribute($node, 'en'),
+                misc:unref_display_attribute($node, $lang),
                 $node/(*|text())
                 }
             else if (ends-with($tag, 's') and (count($node/*) > 0) and
@@ -99,13 +99,13 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
                 if (exists($node/@_Display)) then
                   $node/@_Display
                 else
-                  misc:gen_display_attribute($node/*),
+                  misc:gen_display_attribute($node/*, $lang),
                 $node/*
                 }
             else if (ends-with($tag, 'ByRef')) then
               element { $tag }
                 {(
-                  attribute { '_Display' } { display:gen-person-name($node/text(), 'en') },
+                  attribute { '_Display' } { display:gen-person-name($node/text(), $lang) },
                   $node/text()
                 )}
             else if (ends-with($tag, 'Ref') or ($tag eq 'Country')) then
@@ -114,14 +114,14 @@ declare function misc:unreference( $nodes as item()* ) as item()* {
                 if (exists($node/@_Display)) then
                   $node/@_Display
                 else
-                  misc:gen_display_attribute($node),
+                  misc:gen_display_attribute($node, $lang),
                 $node/text()
                 }
             else if ($tag eq 'Date') then
-              misc:unreference-date($node)
+              misc:unreference-date($node, $lang)
             else
               element { $tag }
-                { misc:unreference($node/(attribute()|node())) }
+                { misc:unreference($node/(attribute()|node()), $lang) }
       default
         return $node
 };
@@ -138,12 +138,12 @@ declare function misc:unref_display_attribute( $ref as element(), $lang as xs:st
 declare function misc:unreference( $ref as element()?, $tag as xs:string, $lang as xs:string ) as element() {
   element { $tag }
     {(
-    misc:gen_display_attribute($ref),
+    misc:gen_display_attribute($ref, $lang),
     $ref/text()
     )}
 };
 
-declare function misc:unreference-date( $node as element()? ) as element()? {
+declare function misc:unreference-date( $node as element()?, $lang as xs:string ) as element()? {
   if ($node) then
     element { local-name($node) }
       {
@@ -152,7 +152,7 @@ declare function misc:unreference-date( $node as element()? ) as element()? {
           (
           attribute { '_Display' } {
             if (string-length($value) > 10) then (: full date time skips time :)
-              display:gen-display-date(substring($value, 1, 10), 'en')
+              display:gen-display-date(substring($value, 1, 10), $lang)
             else
               display:gen-display-date($value, 'en')
           },

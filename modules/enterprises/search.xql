@@ -23,14 +23,16 @@ import module namespace access = "http://oppidoc.com/ns/xcm/access" at "../../li
 
 declare option exist:serialize "method=xml media-type=text/xml";
 
+let $cmd := oppidum:get-command()
 let $m := request:get-method()
+let $lang := string($cmd/@lang)
 return
   if ($m eq 'POST') then (: executes search requests :)
     let $request := oppidum:get-data()
     return
       <Search>
         {
-        search:fetch-enterprises($request)
+        search:fetch-enterprises($request, $lang)
         }
       </Search>
   else (: shows search page with default results - assumes GET :)
@@ -69,7 +71,8 @@ return
               <Enterprises>
                 <EnterpriseKey>{$preview}</EnterpriseKey>
               </Enterprises>
-            </SearchEnterprisesRequest>
+            </SearchEnterprisesRequest>,
+            $lang
           )
         else
           let $saved-request := submission:get-default-request('SearchEnterprisesRequest')
@@ -77,7 +80,7 @@ return
             if (local-name($saved-request) = local-name($submission:empty-req)) then
               <NoRequest/>
             else
-              search:fetch-enterprises($saved-request)
+              search:fetch-enterprises($saved-request, $lang)
         }
         <Modals>
           <Modal Id="c-item-viewer" Goal="read" Gap="80px" Width="700px">
@@ -104,7 +107,7 @@ return
           {
           if ($can-create) then
             <Modal Id="c-item-creator" Gap="80px" Width="700" data-backdrop="static" data-keyboard="false">
-              <Name>Add a new company</Name>
+              <Name loc="action.create.enterprise">Add a new company</Name>
               <Template>templates/enterprise?goal=create</Template>
               <Commands>
                 <Save/>

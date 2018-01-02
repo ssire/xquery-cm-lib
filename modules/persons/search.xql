@@ -114,7 +114,7 @@ declare function local:gen-search-ui ( $coach as xs:boolean, $create as xs:boole
         </Modal>,
         if ($create) then
           <Modal Id="c-item-creator" data-backdrop="static" data-keyboard="false">
-            <Name>Add a new person</Name>
+            <Name loc="action.add.person">Add a new person</Name>
             <Template>templates/person?goal=create</Template>
             <Commands>
               <Save/>

@@ -111,7 +111,7 @@ declare function local:gen-enterprise( $ref as xs:string, $lang as xs:string, $g
                 (
                 local:gen-enterprise-reference($e),
                 $e/(ShortName | CreationYear),
-                misc:unreference($e/(SizeRef | DomainActivityRef)),
+                misc:unreference($e/(SizeRef | DomainActivityRef), $lang),
                 $e/WebSite,
                 if ($context = 'Case') then
                   <TargetedMarkets>{
@@ -153,11 +153,11 @@ declare function local:gen-enterprise( $ref as xs:string, $lang as xs:string, $g
       <Enterprise>
         {
         $e/(Name | ShortName | CreationYear),
-        misc:unreference($e/(SizeRef | DomainActivityRef)),
+        misc:unreference($e/(SizeRef | DomainActivityRef), $lang),
         $e/WebSite,
         $e/MainActivities,
-        misc:unreference($e/TargetedMarkets),
-        misc:unreference($e/Address)
+        misc:unreference($e/TargetedMarkets, $lang),
+        misc:unreference($e/Address, $lang)
         }
       </Enterprise>
 };

@@ -16,7 +16,7 @@ declare function crud:get-document( $name as xs:string, $case as element(), $act
   let $src := globals:collection('templates-uri')//Template[@Mode eq 'read'][@Name eq $name]
   return
     if ($src) then
-      misc:unreference(util:eval(string-join($src/text(), ''))) (: FIXME: $lang :)
+      misc:unreference(util:eval(string-join($src/text(), '')), $lang)
     else
       oppidum:throw-error('CUSTOM', concat('Missing "', $name, '" template for read mode'))
 };
@@ -29,7 +29,7 @@ declare function crud:get-vanilla( $document as xs:string, $case as element(), $
   let $src := globals:collection('templates-uri')//Template[@Mode eq 'read'][@Name eq 'vanilla']
   return
     if ($src) then
-      misc:unreference(util:eval(string-join($src/text(), ''))) (: FIXME: $lang :)
+      misc:unreference(util:eval(string-join($src/text(), '')), $lang)
     else
       oppidum:throw-error('CUSTOM', concat('Missing vanilla template for read mode'))
 };
