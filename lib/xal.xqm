@@ -300,7 +300,11 @@ declare function local:apply-xal-invalidate( $xal-spec as element() ) {
   else
     (),
   for $entry in $xal-spec/Cache
-  return cache:invalidate($entry, $xal-spec/@Lang)
+  return 
+    if (exists($xal-spec/@Lang)) then
+      cache:invalidate($entry, $xal-spec/@Lang)
+    else 
+      cache:invalidate($entry)
 };
 
 (: ======================================================================
