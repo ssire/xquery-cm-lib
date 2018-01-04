@@ -140,7 +140,7 @@ return
       else
         ajax:throw-error('URI-NOT-SUPPORTED', ())
     else if ($cmd/resource/@name = 'me') then (: tunnel to change password :)
-      let $user := globals:collection('persons-uri')//Person[UserProfile/Username = xdb:get-current-user()]
+      let $user := globals:collection('persons-uri')//Person[UserProfile/Username = oppidum:get-current-user()]
       return
         if ($user) then
           if ($m eq 'GET') then

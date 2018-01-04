@@ -59,6 +59,7 @@ declare function alert:gen-current-user-name() as element()* {
 
 (: ======================================================================
    Utility to return variables representing current user name
+   DEPRECATED: use variables in variables.xml instead
    ======================================================================
 :)
 declare function alert:gen-action-status-names( $from as xs:string?, $to as xs:string, $workflow as xs:string ) as element()* {
@@ -318,8 +319,7 @@ declare function alert:notify-transition(
           $name
         else (: default one :)
           concat(lower-case($workflow), '-workflow-transition')
-      let $extra-vars := alert:gen-action-status-names($wf-from, $wf-to, $workflow) (: not in variables.xml :)
-      let $alert := email:render-alert($template, 'en', $subject, $object, $extra-vars)
+      let $alert := email:render-alert($template, '*', $subject, $object)
       return
         let $from :=
           if ($alert/From) then (: sender defaults to current user :)

@@ -83,6 +83,23 @@ declare function email:gen-variables-for(
 };
 
 (: ======================================================================
+   Generates an Email model from the name template and the variables
+   ======================================================================
+:)
+declare function local:render-template( $tag as xs:string, $name as xs:string, $lang as xs:string, $subject as element()?, $object as element()?, $extras as element()* ) as element() {
+  let $languages := media:select-languages($lang)
+  return
+    if (count($languages) = (0, 1)) then
+      media:render-template($tag, $name, email:gen-variables-for($name, $lang, $subject, $object, $extras), $lang)
+    else
+      media:merge-email-or-alert(
+        for $l in $languages
+        return
+          media:render-template($tag, $name, email:gen-variables-for($name, $l, $subject, $object, $extras), $l)
+        )
+};
+
+(: ======================================================================
    Generates Email model with variables expansion
    ====================================================================== 
 :)
@@ -93,7 +110,7 @@ declare function email:render-email(
   $object as element()?,
   $extras as element()* ) as element() 
 {
-  media:render-email($name, email:gen-variables-for($name, $lang, $subject, $object, $extras), $lang)
+  local:render-template('Email', $name, $lang, $subject, $object, $extras)
 };
 
 (: ======================================================================
@@ -107,7 +124,7 @@ declare function email:render-alert(
   $object as element()?,
   $extras as element()* ) as element() 
 {
-  media:render-alert($name, email:gen-variables-for($name, $lang, $subject, $object, $extras), $lang)
+  local:render-template('Alert', $name, $lang, $subject, $object, $extras)
 };
 
 (: ======================================================================
@@ -120,6 +137,6 @@ declare function email:render-alert(
   $subject as element()?,
   $object as element()?) as element() 
 {
-  media:render-alert($name, email:gen-variables-for($name, $lang, $subject, $object, ()), $lang)
+  local:render-template('Alert', $name, $lang, $subject, $object, ())
 };
 

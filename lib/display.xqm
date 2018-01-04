@@ -27,6 +27,19 @@ declare namespace site = "http://oppidoc.com/oppidum/site";
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
 
 (: ======================================================================
+   Returns a localized string for a given $lang and $key
+   ======================================================================
+:)
+declare function display:get-local-string( $key as xs:string, $lang as xs:string ) as xs:string {
+  let $res := globals:doc('dico-uri')/site:Dictionary/site:Translations[@lang = $lang]/site:Translation[@key = $key]/text()
+  return
+    if ($res) then
+      $res
+    else
+      concat('missing [', $key, ', lang="', $lang, '"]')
+};
+
+(: ======================================================================
    Returns a hard coded string in case of an unkown reference
    FIXME:
    - read the string from the application thesaurus when available

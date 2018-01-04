@@ -45,7 +45,7 @@ declare function local:prefill-message( $context as xs:string, $workflow as xs:s
   let $recipients := $spec/Recipients
   let $send-to := workflow:gen-recipient-refs($recipients/text(), $workflow, $subject, $object)
   (: cc: automatically added when posting :)
-  let $alert := email:render-alert(if ($spec/@Template) then $spec/@Template else 'Unkown', 'en', $subject, $object)
+  let $alert := email:render-alert(if ($spec/@Template) then $spec/@Template else 'Unkown', '*', $subject, $object)
   return (: by default Date and Sender prefilled directly from form.xql :)
     <Alert>
       { misc:rename-element('Sender', $alert/From) }
@@ -76,8 +76,7 @@ declare function local:prefill-notification( $workflow as xs:string, $subject as
       string($transition/@Template)
     else
       concat(lower-case($workflow), '-workflow-transition')
-  let $extra-vars := alert:gen-action-status-names($wf-from, $wf-to, $workflow) (: not in variables.xml :)
-  let $alert := email:render-alert($template, 'en', $subject, $object, $extra-vars)
+  let $alert := email:render-alert($template, '*', $subject, $object)
   return (: by default Date and Sender prefilled directly from form.xql :)
     <Alert>
       { 
@@ -346,7 +345,7 @@ return
           else if ($from = 'FundingDecision') then
             local:prefill-message($from, $target, $case, $activity)
           else
-            email:render-alert(concat(lower-case($target), '-user-message'), 'en', $case, $activity)
+            email:render-alert(concat(lower-case($target), '-user-message'), '*', $case, $activity)
         else if ($doc-id = 'alerts') then (: not mapped :)
           <Alerts/>
         else (: assumes 'read' :)

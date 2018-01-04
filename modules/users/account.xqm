@@ -137,7 +137,7 @@ declare function account:send-new-password( $user as element(), $pwd as xs:strin
         { local:gen-user-name('Admin', user:get-current-person-id()) }
         { local:gen-user-name('User', $user/Id/text()) }
       </vars>,
-      'en'
+      '*'
       )
   return
     media:send-email('account', $from, $to, $email/Subject/text(), media:message-to-plain-text($email/Message))
@@ -158,7 +158,7 @@ declare function account:send-created-login( $user as element(), $login as xs:st
         { local:gen-user-name('Admin', user:get-current-person-id()) }
         { local:gen-user-name('User', $user/Id/text()) }
       </vars>,
-      'en'
+      '*'
       )
   return
     media:send-email('account', $from, $to, $email/Subject/text(), media:message-to-plain-text($email/Message))
@@ -179,7 +179,7 @@ declare function account:send-updated-login( $user as element(), $login as xs:st
         { local:gen-user-name('Admin', user:get-current-person-id()) }
         { local:gen-user-name('User', $user/Id/text()) }
       </vars>,
-      'en'
+      '*'
       )
   return
     media:send-email('account', $from, $to, $email/Subject/text(), media:message-to-plain-text($email/Message))

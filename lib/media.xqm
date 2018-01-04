@@ -17,9 +17,26 @@ xquery version "1.0";
 
 module namespace media = "http://oppidoc.com/ns/xcm/media";
 
+declare namespace site="http://oppidoc.com/oppidum/site";
+
 import module namespace mail = "http://exist-db.org/xquery/mail";
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
 import module namespace user = "http://oppidoc.com/ns/xcm/user" at "user.xqm";
+
+(: ======================================================================
+   Select in which languages to generate an e-mail message
+   Default to 'en' if settings property is not available for '*' multilingual
+   catch all pattern 
+   ====================================================================== 
+:)
+declare function media:select-languages( $lang as xs:string? ) as xs:string* {
+  if ($lang eq '*') then
+    let $multi := globals:doc('settings-uri')//Module[Name eq 'mail']/Property[Key eq 'languages']/Value
+    return  
+      if (exists($multi)) then tokenize($multi, '\+') else 'en'
+  else
+    tokenize($lang, '\+')
+};
 
 (: ======================================================================
    Utility to return current user E-mail address or the empty sequence
@@ -40,20 +57,83 @@ declare function media:gen-current-user-email( $explain as xs:boolean ) as xs:st
 };
 
 (: ======================================================================
-   Generates an Email model from the name template and the variables
-   ======================================================================
+   Merge several Email or Alert generated messages for a quick and dirty 
+   multilingual message implementation
+   Merge only Subject / Message top child elements, the others are taken 
+   from the first item
+   ======================================================================s
 :)
-declare function media:render-email( $name as xs:string, $vars as element()?, $lang as xs:string ) as element() {
-  let $template := globals:collection('global-info-uri')//Email[@Name eq $name][@Lang eq $lang]
+declare 
+   function media:merge-email-or-alert( $items as element()* ) {
+  let $driver := $items[1]
   return
-    if ($template) then
+    element { local-name($driver) } {
+      $driver/@*,
+      $driver/*[not(local-name(.) = ('Subject', 'Message'))],
+      <Subject>
+        {
+        string-join($items/Subject, ' / ')
+        }
+      </Subject>,
+      <Message>
+        {
+        for $i in $items
+        let $l := $i/@Lang
+        let $key := concat('mail.separator.', $l)
+        let $m := $i/Message
+        return (
+          if (not($m is $items/Message[1])) then
+            <Text>--- { globals:doc('dico-uri')//site:Translations[@lang eq $l]/site:Translation[@key eq $key]/text() } ---</Text>
+          else
+            (),
+          $m/*
+          )
+        }
+      </Message>
+    }
+};
+
+(: ======================================================================
+   Implementation function to render an Email or an Alert
+   Mono-language version ($lang must match one language only)
+   ====================================================================== 
+:)
+declare function local:render-email-or-alert( $tag as xs:string, $name as xs:string, $vars as element()?, $lang as xs:string ) as element() {
+  let $template := globals:collection('global-info-uri')//*[local-name() eq $tag][@Name eq $name][@Lang = $lang]
+  return
+    if (count($template) eq 1) then
       local:render-email-iter($template, $vars)
     else
       <Email>
         <Message>
-          <Text>Template "{ $name }" not found, please contact a database administrator !</Text>
+          <Text>{ if (empty($template)) then concat('Template "', $name, '" not found') else concat('Too many templates "', $name, '" found') } for language "{ $lang }", please contact a database administrator !</Text>
         </Message>
       </Email>
+};
+
+(: ======================================================================
+   Generates an Email model from the name template and the variables
+   ======================================================================
+:)
+declare function media:render-template( $tag as xs:string, $name as xs:string, $vars as element()?, $lang as xs:string ) as element() {
+  let $languages := media:select-languages($lang)
+  return
+    if (count($languages) = (0, 1)) then
+      local:render-email-or-alert($tag, $name, $vars, $lang)
+    else
+      media:merge-email-or-alert(
+        for $l in $languages
+        return
+          local:render-email-or-alert($tag, $name, $vars, $l)
+        )
+};
+
+(: ======================================================================
+   Generates an Email model from the name template and the variables
+   ======================================================================
+:)
+declare function media:render-email( $name as xs:string, $vars as element()?, $lang as xs:string ) as element() {
+  media:render-template('Email', $name, $vars, $lang)
 };
 
 (: ======================================================================
@@ -61,17 +141,9 @@ declare function media:render-email( $name as xs:string, $vars as element()?, $l
    ======================================================================
 :)
 declare function media:render-alert( $name as xs:string, $vars as element()?, $lang as xs:string ) as element() {
-  let $template := globals:collection('global-info-uri')//Alert[@Name eq $name][@Lang eq $lang]
-  return
-    if ($template) then
-      local:render-email-iter($template, $vars)
-    else
-      <Alert>
-        <Message>
-          <Text>Template "{ $name }" not found, please contact a database administrator !</Text>
-        </Message>
-      </Alert>
+  media:render-template('Alert', $name, $vars, $lang)
 };
+
 (: ======================================================================
    Renders (an email) template injecting @@vars@@ in text content
    FIXME:
