@@ -52,8 +52,8 @@ declare function alert:gen-current-user-name() as element()* {
   let $uid := user:get-current-person-id()
   let $user := globals:collection('persons-uri')//Person[Id = $uid]
   return (
-    <var name="User_First_Name">{ $user/Name/FirstName/text() }</var>,
-    <var name="User_Last_Name">{ $user/Name/LastName/text() }</var>
+    <var name="User_First_Name">{ $user/Information/Name/FirstName/text() }</var>,
+    <var name="User_Last_Name">{ $user/Information/Name/LastName/text() }</var>
     )
 };
 
