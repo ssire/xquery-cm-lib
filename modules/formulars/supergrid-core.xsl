@@ -248,25 +248,40 @@
   <!-- Called from Cell when no @Render or @Level
        used by default for instance for plain forms by opposition to document forms  -->
   <xsl:template match="Title">
-    <p class="a-cell-legend"><xsl:copy-of select="@loc|@style"/><xsl:value-of select="./text()"/><xsl:apply-templates select="Menu | Hint"/></p>
+    <xsl:variable name="key"><xsl:value-of select="@Key"/></xsl:variable>
+    <p class="a-cell-legend"><xsl:copy-of select="@loc|@style"/>
+      <xsl:value-of select="./text()"/>
+      <xsl:if test="@Key">
+        <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Keys, $key)]"/>
+      </xsl:if>
+      <xsl:apply-templates select="Menu | Hint"/>
+    </p>
   </xsl:template>
 
   <!-- Called from Form (main Title) or Cell -->
   <xsl:template match="Title[@Render]">
+    <xsl:variable name="key"><xsl:value-of select="@Key"/></xsl:variable>
     <xsl:element name="{@Render}">
       <xsl:copy-of select="@loc|@style"/>
       <xsl:apply-templates select="@Offset"/>
       <xsl:apply-templates select="*|text()"/>
+      <xsl:if test="@Key">
+        <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Keys, $key)]"/>
+      </xsl:if>
     </xsl:element>
   </xsl:template>
 
   <!-- Called from Form (main Title) or Cell -->
   <xsl:template match="Title[@Level]">
+    <xsl:variable name="key"><xsl:value-of select="@Key"/></xsl:variable>
     <xsl:variable name="level"><xsl:value-of select="/Form/@StartLevel + @Level - 1"/></xsl:variable>
     <xsl:element name="h{$level}">
       <xsl:copy-of select="@loc|@style"/>
       <xsl:apply-templates select="@Offset"/>
       <xsl:apply-templates select="* | text()"/>
+      <xsl:if test="@Key">
+        <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Keys, $key)]"/>
+      </xsl:if>
     </xsl:element>
   </xsl:template>
   
@@ -863,11 +878,15 @@
 
   <!-- Generates for testing -->
   <xsl:template match="Box" mode="component">
+    <xsl:variable name="key"><xsl:value-of select="Title/@Key"/></xsl:variable>
     <xt:component name="t_{@Tag}_box">
       <div class="span{@W}">
-        <xsl:call-template name="margin-left"/>        
+        <xsl:call-template name="margin-left"/>
         <fieldgroup class="a-select-box">
-          <legend><xsl:copy-of select="Title/@loc"/><xsl:value-of select="Title/text()"/> <xsl:apply-templates select="Title/Hint"/></legend>
+          <legend><xsl:copy-of select="Title/@loc"/><xsl:value-of select="Title/text()"/> <xsl:apply-templates select="Title/Hint"/><xsl:if test="Title/@Key">
+        <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Keys, $key)]"/>
+      </xsl:if>
+</legend>
           <xt:use types="t_fake_select_box" label="Name"/>
         </fieldgroup>
       </div>
@@ -883,11 +902,14 @@
   <!-- Generates with Oppidum mesh conventional extension point for input field -->
   <!-- FIXME: GENERER un xt:component pour chaque BOX avec son TAG ou sinon faire types="choice" param="appearance=list" -->
   <xsl:template match="Box[$xslt.goal = 'save']" mode="component">
+    <xsl:variable name="key"><xsl:value-of select="Title/@Key"/></xsl:variable>
     <xt:component name="t_{@Tag}_box">
       <div class="span{@W}">
         <xsl:call-template name="margin-left"/>        
         <fieldgroup class="a-select-box">
-          <legend><xsl:copy-of select="Title/@loc"/><xsl:value-of select="Title/text()"/> <xsl:apply-templates select="Title/Hint"/></legend>
+          <legend><xsl:copy-of select="Title/@loc"/><xsl:value-of select="Title/text()"/> <xsl:apply-templates select="Title/Hint"/><xsl:if test="Title/@Key">
+        <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Keys, $key)]"/>
+      </xsl:if></legend>
           <site:field Key="{@Key}" Tag="{@Tag}" force="true">
             <xsl:value-of select="@Key"/>[<xsl:value-of select="@Tag"/>]
           </site:field>
