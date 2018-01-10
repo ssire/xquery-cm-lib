@@ -126,7 +126,7 @@ return
         let $duration := fn:doc('/db/debug/login.xml')/Logs/@Duration
         let $hold := fn:doc('/db/debug/login.xml')/Logs/@Hold
         return
-          if (not(empty($hold)) and ($user ne string($hold))) then
+          if (not(empty($hold)) and not($user = tokenize($hold, ','))) then
             (
             oppidum:add-error('HOLD', (), true()),
             <Hold/>
