@@ -21,6 +21,7 @@
           </div>
         </div>
         <xsl:apply-templates select="Tabs//AutoExec"/>
+        <xsl:apply-templates select="TabGroups//AutoExec"/>
       </site:content>
     </site:view>
   </xsl:template>

@@ -517,7 +517,7 @@ declare function workflow:gen-information( $workflow as xs:string, $case as elem
                                         $cur-status
                   return
                     if ($from-status) then
-                      workflow:gen-status-change($from-status, $workflow, $case, $activity, $a/Id)
+                      workflow:gen-status-change($from-status, $workflow, $case, $activity, $a/@Id)
                     else
                       ()
                 else if ($a/@Type eq 'spawn') then
