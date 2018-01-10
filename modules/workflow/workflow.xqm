@@ -930,21 +930,31 @@ declare function workflow:gen-source ( $mode as xs:string, $case as element() ) 
     ()
 };
 
+(: ======================================================================
+   Generates command to create an Activity
+   ====================================================================== 
+:)
 declare function workflow:gen-new-activity-tab ( $case as element(), $activity as element()?, $prefixUrl as xs:string ) as element()? {
   if (access:check-document-permissions('create', 'Assignment', $case)) then
-    <Tab Id="new-activity">
-      <Name loc="workflow.tab.new.activity">Add</Name>
-      <OnClick>
-        <Command>
-          <Name>confirm</Name>
-          <Controller>{$prefixUrl}{globals:doc('application-uri')//Workflow[@Id eq 'Case']/Documents/Document[@Tab eq 'coaching-assignment']/Controller/text()}</Controller>
-        </Command>
-      </OnClick>
-      <Heading class="case">
-        <Title loc="workflow.title.new.activity">Add</Title>
-      </Heading>
-      <Legend>Click on the tab on the left to create a new coaching activity</Legend>
-    </Tab>
+    let $cur-status := $case/StatusHistory/CurrentStatusRef
+    let $transition := globals:doc('application-uri')//Workflow[@Id eq 'Case']//Transition[@From eq $cur-status][@To eq '-1']
+    return
+      if (exists($transition)) then
+        <Tab Id="new-activity">
+          <Name loc="workflow.tab.new.activity">Add</Name>
+          <OnClick>
+            <Command>
+              <Name>confirm</Name>
+              <Controller>{$prefixUrl}{globals:doc('application-uri')//Workflow[@Id eq 'Case']/Documents/Document[@Tab eq 'coaching-assignment']/Controller/text()}</Controller>
+            </Command>
+          </OnClick>
+          <Heading class="case">
+            <Title loc="workflow.title.new.activity">Add</Title>
+          </Heading>
+          <Legend>Click on the tab on the left to create a new coaching activity</Legend>
+        </Tab>
+      else
+        ()
   else
     ()
 };
