@@ -105,7 +105,7 @@
     <li>
       <xsl:copy-of select="@class"/>
       <xsl:apply-templates select="OnClick/Command" mode="Tab"/>
-      <a>
+      <a class="pointer">
         <xsl:copy-of select="Name/@loc"/>
         <xsl:value-of select="Name"/>
       </a>
