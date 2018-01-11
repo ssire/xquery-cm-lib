@@ -211,7 +211,7 @@
 
   <xsl:template match="Legend" mode="Modal">
     <p class="text-info">
-      <xsl:copy-of select="@class"/>
+      <xsl:copy-of select="@class|@loc"/>
       <xsl:copy-of select="text()|*"/>
     </p>
   </xsl:template>
