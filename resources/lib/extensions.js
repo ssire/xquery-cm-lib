@@ -902,8 +902,10 @@
     },
     // continue w/o sending alert message
     cancel : function (event) {
-      this.spec.triggerHandler('axel-transaction-complete', { command : this });
-      window.location.href = this.redirect;
+      if (this.redirect) { // several 'status' command may share the same alert modal window
+        this.spec.triggerHandler('axel-transaction-complete', { command : this });
+        window.location.href = this.redirect;
+      }
     }
   };
   $axel.command.register('status', ChangeStatusCommand, { check : true });
