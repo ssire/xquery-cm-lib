@@ -129,7 +129,8 @@
   <!--***** Drawers *****-->
   <!--*******************-->
 
-  <!-- Drawer element directly inside a Tav -->
+  <!-- Drawer element directly inside a Tab
+       TODO: merge with generic Drawer command ? -->
   <xsl:template match="Drawer[@Command = 'annex']" priority="1">
     <xsl:variable name="Id">
       <xsl:value-of select="ancestor::Tab/@Id"/>
@@ -139,10 +140,13 @@
         data-collapse="#collapse-{ancestor::Tab/@Id}">
         <div class="accordion-heading {@class}">
           <span class="c-document-menu c-perm-menu">
-            <button class="btn btn-primary" data-command="annex"
-              data-src="{/Display/@ResourceNo}/appendices" data-with-template="{/Display/@ResourceNo}/appendices/template"
-              data-target="c-editor-{$Id}" data-append-target="c-annex-list"
-              loc="action.add.annex">Ajouter une annexe</button>
+            <button class="btn btn-primary"
+              data-command="annex"
+              data-target="c-editor-{$Id}"
+              data-src="{/Display/@ResourceNo}/{Controller}"
+              data-with-template="{/Display/@ResourceNo}/{Template}"
+              data-append-target="{@AppenderId}"
+              loc="{@loc}">Ajouter une annexe</button>
           </span>
           <h3 class="c-drawer-title" loc="{Title/@loc}">
             <xsl:value-of select="Title"/>

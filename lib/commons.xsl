@@ -23,7 +23,7 @@
   <!-- ************************ -->
   
   <xsl:template match="success">
-    <success>
+    <success xmlns="">
       <xsl:copy-of select="message"/>
       <xsl:apply-templates select="payload"/>
       <xsl:copy-of select="forward"/>
@@ -32,7 +32,7 @@
 
   <!-- Ajax response with payload go through XSLT transformation to generate HTML fragments  -->
   <xsl:template match="payload">
-    <payload>
+    <payload xmlns="">
       <xsl:apply-templates select="*"/>
     </payload>
   </xsl:template>

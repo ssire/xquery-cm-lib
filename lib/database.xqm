@@ -289,3 +289,46 @@ declare function database:create-entity-for-key(
   else
     oppidum:throw-error('MISSING-DATABASE-KEY', $name)
 };
+
+(: ======================================================================
+   Stores a binary entity with given data into database setting permissions
+   as per database.xml. Lazily create the collection.
+   Return success element with filename (including file extension) or error.
+   FIXME: does not support @Sharding configuration, stores entity at $path inside $db-uri
+   ======================================================================
+:)
+declare function database:create-binary-entity (
+  $db-uri as xs:string,
+  $entity as xs:string,
+  $path as xs:string,
+  $id as xs:string,
+  $data as xs:base64Binary,
+  $ext as xs:string,
+  $mime as xs:string ) as element()*
+{
+  (: 1. create collection if it does not exist yet :)
+  let $base := database:create-collection-lazy-for($db-uri, $path, $entity)
+  return
+    if (empty($base) or not(xdb:collection-available($base))) then 
+      oppidum:throw-error("DB-CREATE-COLLECTION-ERROR", ())
+    else 
+      (: 2. create binary resource :)
+      let $spec := database:get-entity-for($entity)
+      let $policy := database:get-policy-for($spec/Resource/@Policy)
+      return
+        if (exists($policy)) then
+          let $fullname := concat(normalize-space($id), '.', $ext)
+          let $stored-path := xdb:store(concat($db-uri, '/', $path), $fullname, $data, $mime)
+          return
+            if (not($stored-path eq ())) then
+              <success type="create" key="$id">
+                {
+                compat:set-owner-group-permissions($stored-path, $policy/@Owner, $policy/@Group, $policy/@Perms),
+                $fullname
+                }
+              </success>
+            else
+              oppidum:throw-error('DB-WRITE-BINARY-ERROR', ())
+        else
+          oppidum:throw-error('UNKNOWN-DATABASE-POLICY', $spec/Resource/@Policy)
+};
