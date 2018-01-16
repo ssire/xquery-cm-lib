@@ -22,7 +22,7 @@
 
   <xsl:template name="roles-legend">
     <xsl:variable name="gi">
-      <xsl:value-of select="concat('xmldb:exist:///db/sites/ctracker/global-information/global-information.xml', '')"/>
+      <xsl:value-of select="concat('xmldb:exist:///db/sites/ctracker/global-information/global-information-en.xml', '')"/>
     </xsl:variable>
     <div style="display: -webkit-flex; display: flex; flex-direction:row; -webkit-flex-direction:row; padding: 5px">
       <xsl:for-each select="document($gi)//Function">
@@ -44,8 +44,8 @@
       <p>The database references <b><xsl:value-of select="count(Person)"/></b> community member(s).</p>
       <p> Use the <i>Access</i> column to create a user login for the first time to grant access to the application to a member. Use the <i>Login</i> column to change or to revoke a user login, or to generate a new password for a user. Use the <i>roles</i> links to edit a user's Roles. Click on a user name to see and update his/her personal data. </p>
       <fieldgroup class="noprint" styme="clear:both">
-        <legend>Legend for shortened role name</legend>
-        <xsl:call-template name="roles-legend"/>
+        <!--<legend>Legend for shortened role name</legend>
+        <xsl:call-template name="roles-legend"/>-->
         <p>Click on a column header to sort the table</p>
       </fieldgroup>
       <div id="results-export">
