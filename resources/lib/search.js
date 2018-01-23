@@ -43,10 +43,6 @@
     $('#c-item-editor').bind('axel-save-done', itemSaveDone );
     $('#c-item-viewer').bind('axel-delete-done', itemDeleteDone );
     patchBootstrapModals();
-    // remove modal content to reuse it with different content (applies only to /stage)
-    $('.more-infos').on('hidden', function() {
-        $(this).data('modal').$element.removeData();
-    });
     $('#editor').bind('axel-save-cancel', hideSpinningWheel).bind('axel-save-error', hideSpinningWheel);
     $('#editor').bind('axel-save-done',  // special tooltips in results list
       function (ev, host) {

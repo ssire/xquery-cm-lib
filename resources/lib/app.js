@@ -61,6 +61,10 @@
       });
       $axel.setLocale('en');
     }
+    // remove modal content to reuse it with different content (applies only to /stage)
+    $('.more-infos').on('hidden', function() {
+        $(this).data('modal').$element.removeData();
+    });
   }
 
   jQuery(function() { init(); });

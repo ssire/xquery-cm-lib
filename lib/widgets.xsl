@@ -146,7 +146,8 @@
   <!-- Modal editor window with associated formular template and command menu
        NOTE that a Modal MUST be completed with ad'hoc Javascript code to hide/show the Modal and to load its content  -->
   <xsl:template match="Modal[Template]">
-    <div id="{@Id}-modal" aria-hidden="true" aria-labelledby="label-{@Id}" role="dialog" tabindex="-1" class="modal hide fade">
+    <xsl:variable name="class"><xsl:if test="@class"><xsl:text> </xsl:text><xsl:value-of select="@class"/></xsl:if></xsl:variable>
+    <div id="{@Id}-modal" aria-hidden="true" aria-labelledby="label-{@Id}" role="dialog" tabindex="-1" class="modal hide fade{$class}">
       <xsl:copy-of select="@*[starts-with(local-name(.), 'data-' )]"/>
       <xsl:apply-templates select="@Width" mode="Modal"/>
       <xsl:apply-templates select="Name" mode="Modal"/>
@@ -188,7 +189,8 @@
   <!-- Modal plain window without formular template -->
   <!-- TODO: merge with widgets.xsl / Show ? -->
   <xsl:template match="Modal[not(Template)]">
-    <div id="{@Id}-modal" aria-hidden="true" aria-labelledby="label-{@Id}" role="dialog" tabindex="-1" class="modal hide fade">
+    <xsl:variable name="class"><xsl:if test="@class"><xsl:text> </xsl:text><xsl:value-of select="@class"/></xsl:if></xsl:variable>
+    <div id="{@Id}-modal" aria-hidden="true" aria-labelledby="label-{@Id}" role="dialog" tabindex="-1" class="modal hide fade{$class}">
       <xsl:copy-of select="@*[starts-with(local-name(.), 'data-' )]"/>
       <xsl:apply-templates select="@Width" mode="Modal"/>
       <xsl:apply-templates select="Name" mode="Modal"/>
