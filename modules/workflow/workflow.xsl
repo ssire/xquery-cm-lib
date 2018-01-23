@@ -487,10 +487,10 @@
           <xsl:when test="@Label"><xsl:value-of select="@Label"/>
           </xsl:when>
           <xsl:when test="number(parent::ChangeStatus/@Status) &lt; number($to)">
-            <xsl:apply-templates select="@Intent"/>Advance to “<xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $to]/Name"/>”
+            <xsl:apply-templates select="@Intent"/><xsl:value-of select="/Display/Dictionary//site:Translation[@key = 'action.status.forward']"/> “<xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $to]/Name"/>”
           </xsl:when>
           <xsl:otherwise>
-            <xsl:apply-templates select="@Intent"/>Return to “<xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $to]/Name"/>”
+            <xsl:apply-templates select="@Intent"/><xsl:value-of select="/Display/Dictionary//site:Translation[@key = 'action.status.backward']"/>  “<xsl:value-of select="/Display/Dictionary/WorkflowStatus/Option[Value = $to]/Name"/>”
           </xsl:otherwise>
         </xsl:choose>
       </a>
