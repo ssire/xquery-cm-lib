@@ -248,7 +248,7 @@ declare function access:assert-user-role-for( $action as xs:string, $control as 
 :)
 declare function access:assert-workflow-state( $action as xs:string, $workflow as xs:string, $control as element(), $cur as xs:string ) as xs:boolean {
   let $rule :=
-    if ($control/@TabRef) then (: main document on accordion tab :)
+    if ($control/@TabRef and (exists(globals:doc('application-uri')//Workflow[@Id eq $workflow]/Documents/Document[@Tab eq string($control/@TabRef)]))) then (: main document on accordion tab :)
       globals:doc('application-uri')//Workflow[@Id eq $workflow]/Documents/Document[@Tab eq string($control/@TabRef)]/Action[@Type eq $action]
     else (: satellite document in modal window :)
       let $host := globals:doc('application-uri')//Workflow[@Id eq $workflow]//Host[@RootRef eq string($control/@Root)]
@@ -440,8 +440,20 @@ declare function access:check-tab-permissions( $action as xs:string, $tab as xs:
 };
 
 (: ======================================================================
-   Implements access control rules in Workflow element of application.xml
-   Checks $action is allowed in workflow $workflow on document with root $root
+   Implements access control rules of application.xml :
+   - enforce /Security/Documents/Document role access control for given $root
+   - enforce /Workflows/Workflow/Documents/Document ($root refers to a 
+     main document on an accordion tab) 
+     or /Workflows/Workflow/Documents/Document/Host action status ($root 
+     refers to a satellite document inside a main document)
+
+   Pre-condition: satellite document may define a TabRef in their
+   /Security/Documents/Document configuration for convenience (e.g.
+   to call access:check-tab-permissions for workflow status independant
+   access control), but the tab MUST NOT point to any main document, 
+   otherwise the main document policy will have priority for status 
+   compatibility checking
+
    Interprets semantic rules against optional $subject and $object elements 
    (typically a Case and an Activity) using $object as first choice 
    when it is defined and has a StatusHistory or $subject otherwise 
