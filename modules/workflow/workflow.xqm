@@ -111,15 +111,15 @@ declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang 
     if ($base) then
       attribute { 'Base' } { $base }
     else
-      let $usergroups := oppidum:get-current-user-groups()
+      let $can-see-through := access:check-entity-permissions('decode', 'Obfuscated', $item)
       return
         if ($item/Payload[@Generator eq 'email']) then (: e.g. SME Agreement Email, SME feedback form Email :)
           <Email>
           {
-          if ($usergroups = ('coaching-assistant','coaching-manager','admin-system')) then
+          if ($can-see-through) then
             $item/Payload/Message
           else
-            media:obfuscate($item/Email/Message),
+            media:obfuscate($item/Payload/Message),
           if ($item/Payload/Attachment) then
             <Attachment>{ media:message-to-plain-text($item/Payload/Attachment) }</Attachment>
           else
@@ -127,7 +127,7 @@ declare function workflow:gen-alert-for-viewing ( $workflow as xs:string, $lang 
           }
           </Email>
         (: Workflow status changes alert :)
-        else if ($usergroups = ('coaching-assistant','coaching-manager','admin-system')) then
+        else if ($can-see-through) then
           $item/Payload
         else
           media:obfuscate($item/Payload),
