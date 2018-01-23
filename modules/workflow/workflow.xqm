@@ -28,6 +28,8 @@ import module namespace access = "http://oppidoc.com/ns/xcm/access" at "../../li
 import module namespace ajax = "http://oppidoc.com/ns/xcm/ajax" at "../../lib/ajax.xqm";
 import module namespace media = "http://oppidoc.com/ns/xcm/media" at "../../lib/media.xqm";
 import module namespace alert = "http://oppidoc.com/ns/xcm/alert" at "alert.xqm";
+import module namespace check = "http://oppidoc.com/ns/xcm/check" at "../../lib/check.xqm";
+import module namespace user = "http://oppidoc.com/ns/xcm/user" at "../../lib/user.xqm";
 
 (: ======================================================================
    Returns a list of person identifiers with the given role or an empty sequence.
@@ -782,16 +784,44 @@ declare function workflow:gen-recipients( $from as xs:string, $to as xs:string, 
 (: ======================================================================
    Returns a list of person identifiers (application Person identifier 
    oe e-mail identifier) or the empty sequence
-   TODO: remove useless workflow parameter
+   DEPRECATED: remove useless workflow parameter
    ====================================================================== 
 :)
 declare function workflow:gen-recipient-refs( $rule as xs:string?, $workflow as xs:string?, $case as element(), $activity as element()? ) as xs:string*
 {
+  workflow:gen-recipient-refs($rule, $case, $activity)
+};
+
+(: ======================================================================
+   Implement Recipients tag to generate rule-based e-mail addresses
+   Returns a list of person identifiers (application Person identifier 
+   or e-mail identifier) or the empty sequence
+   ====================================================================== 
+:)
+declare function workflow:gen-recipient-refs( $rule as xs:string?, $subject as element(), $object as element()? ) as xs:string*
+{
   let $persons :=
     for $role in tokenize($rule, ' ')
-    return workflow:get-persons-for-role($role, $case, $activity)
+    return workflow:get-persons-for-role($role, $subject, $object)
   return 
     distinct-values($persons)
+};
+
+(: ======================================================================
+   Implement Recipients tag to generate rule-based e-mail addresses
+   Returns a list of e-mail addresses or the empty sequence
+   ====================================================================== 
+:)
+declare function workflow:gen-recipient-addresses( $rule as xs:string?, $subject as element(), $object as element()? ) as xs:string*
+{
+  let $refs := workflow:gen-recipient-refs($rule, $subject, $object)
+  return
+    for $ref in $refs[. != '-1']
+    return
+      if (check:is-email($ref)) then
+        $ref
+      else
+        user:get-property-for('email', $ref, $subject, $object)
 };
 
 (: ======================================================================

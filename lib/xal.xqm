@@ -17,9 +17,12 @@ declare namespace xdb = "http://exist-db.org/xquery/xmldb";
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
 import module namespace database = "http://oppidoc.com/ns/xcm/database" at "database.xqm";
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
+import module namespace workflow = "http://oppidoc.com/ns/xcm/workflow" at "../modules/workflow/workflow.xqm";
+import module namespace media = "http://oppidoc.com/ns/xcm/media" at "../../lib/media.xqm";
+import module namespace email = "http://oppidoc.com/ns/xcm/mail" at "../../lib/mail.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align', 'assert');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align', 'assert', 'email');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -369,6 +372,41 @@ declare function local:apply-xal-value( $subject as element(), $xal-spec as elem
       ()
 };
 
+(: ======================================================================
+   XAL email action implementation
+   Generate and send an e-mail
+   Throw and Return a sucess message in case of success
+   TODO: implement @Archive="yes"
+   ====================================================================== 
+:)
+declare function local:apply-xal-email( $subject as element(), $xal-spec as element(), $object as element()? ) as element()? {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert $xal-spec into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  let $to := workflow:gen-recipient-addresses($xal-spec/Recipients, $subject, $object)
+  return
+    if (exists($to)) then
+      let $email :=
+        email:render-email(
+          $xal-spec/@Template,
+          $xal-spec/@Lang,
+          $subject,
+          $object,
+          $xal-spec/Variables/var
+          )
+      return 
+        if (media:send-email($xal-spec/@Category, $xal-spec/From, $to, $email/Subject, media:message-to-plain-text($email/Message))) then
+          if (exists($xal-spec/@Message)) then (: success message :)
+            oppidum:throw-message($xal-spec/@Message, $to)
+          else
+            ()
+        else
+          oppidum:throw-error('SEND-EMAIL-FAILURE', $to)
+    else (: FIXME: is it an error ? :)
+      ()
+};
+
 (: =======================================================================
    Implements XAL (XML Aggregation Language) update protocol
    Basic version for single container element update
@@ -421,6 +459,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
             local:apply-xal-remove($pivot, $action)
           else if ($type eq 'value') then
             local:apply-xal-value($pivot, $action)
+          else if ($type eq 'email') then
+            local:apply-xal-email($pivot, $action, $object)
           else (: iterated actions on 1 or more fragments :)
             for $fragment in $action/*
             return
@@ -439,8 +479,18 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
     return
       if (empty($res)) then
         <success/>
-      else
-        $res[last()]
+      else 
+        let $last := $res[last()]
+        return
+          if ($spec/@Output eq 'flatten') then 
+            element { local-name($last) } {
+              $last/*[local-name(.) ne 'message'],
+              <message>
+                { string-join($res/message, '. ') }
+              </message>
+            }
+          else
+            $last
     )
   else
     let $mismatch := distinct-values($spec/XALAction/@Type[not(. = $xal:xal-actions)])

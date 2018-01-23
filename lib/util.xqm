@@ -616,3 +616,20 @@ declare function misc:rest-to-Root( $name as xs:string ) as xs:string {
     )
 };
 
+(: ======================================================================
+   Flatten several oppidum success messages into one
+   TODO: move to oppidum library ?
+   ====================================================================== 
+:)
+declare function misc:merge-success-messages ( $messages as element()* ) as element()* {
+  if (count($messages) > 1) then
+    element { local-name($messages[1]) } {
+      $messages[1]/*[local-name(.) ne 'message'],
+      <message>
+        { string-join($messages/message, '. ') }
+      </message>
+    }
+  else
+    $messages
+};
+
