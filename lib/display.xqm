@@ -31,7 +31,7 @@ import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "global
    ======================================================================
 :)
 declare function display:get-local-string( $key as xs:string, $lang as xs:string ) as xs:string {
-  let $res := globals:doc('dico-uri')/site:Dictionary/site:Translations[@lang = $lang]/site:Translation[@key = $key]/text()
+  let $res := globals:collection('dico-uri')/site:Dictionary/site:Translations[@lang = $lang]/site:Translation[@key = $key]/text()
   return
     if ($res) then
       $res

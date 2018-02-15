@@ -83,7 +83,7 @@ declare
         let $m := $i/Message
         return (
           if (not($m is $items/Message[1])) then
-            <Text>--- { globals:doc('dico-uri')//site:Translations[@lang eq $l]/site:Translation[@key eq $key]/text() } ---</Text>
+            <Text>--- { globals:collection('dico-uri')//site:Translations[@lang eq $l]/site:Translation[@key eq $key]/text() } ---</Text>
           else
             (),
           $m/*

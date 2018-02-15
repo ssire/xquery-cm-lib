@@ -101,7 +101,7 @@ declare function view:localize( $dict as element()?, $source as element(), $stic
    ======================================================================
 :)
 declare function view:get-local-string( $lang as xs:string, $key as xs:string ) as xs:string {
-  let $res := globals:doc('dico-uri')/site:Dictionary/site:Translations[@lang = $lang]/site:Translation[@key = $key]/text()
+  let $res := globals:collection('dico-uri')/site:Dictionary/site:Translations[@lang = $lang]/site:Translation[@key = $key]/text()
   return
     if ($res) then
       $res
