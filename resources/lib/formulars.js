@@ -1,8 +1,19 @@
 (function () {
+  var _serializer; 
+  
   function ajaxError(response, status, xhr) { 
     if (status === 'error') { $axel.error($axel.oppidum.parseError(xhr, status)) }
   }
-  
+
+  function dumpSchema() {
+    var dump = new xtiger.util.SchemaLogger ();
+    if (_serializer === undefined) {
+      _serializer = new xtiger.editor.BasicSerializer ();
+    }
+    $axel('#x-simulator').xml ( { serializer : _serializer, logger : dump } );
+    return "*** Schema generator output ***\n" + dump.dump('*');
+  }
+
   // Opens a window with an iframe to display the current template source code
   // It uses the view-source: URL protocol with relative URLs, so currently it works
   // only with Firefox (chrome does not seem to like relative URLs)
@@ -45,6 +56,7 @@
       });
     $('#x-control').bind('click', function() { $axel('#x-simulator').transform($('#x-formular').val() + '?goal=save'); });
     $('#x-dump').bind('click', function() { alert($axel('#x-simulator').xml()); });
+    $('#x-schema').bind('click', function() { alert(dumpSchema()); });
     $('#x-display').bind('click', function() { 
       var target = $('#x-simulator').get(0),
           curval = $('#x-formular').val(),

@@ -12,12 +12,15 @@
   <xsl:param name="xslt.rights"></xsl:param>
 
   <xsl:template match="/">
-    <site:view skin="formulars">
+    <xsl:variable name="schematize">
+      <xsl:if test="contains(/Formulars/@Options, 'schematize')"><xsl:text> </xsl:text>schematize</xsl:if>
+    </xsl:variable>
+    <site:view skin="formulars{$schematize}">
       <site:content>
         <h1 class="noprint">Supergrid form generator</h1>
         <form class="noprint" style="background-color:#F7E9D4;margin-bottom:2em" action="" onsubmit="return false;">
           <div class="row-fluid">
-              <div class="span8">
+              <div class="span10">
                 <div class="control-group">
                   <label class="control-label a-gap2">Form</label>
                   <div class="controls">
@@ -25,6 +28,9 @@
                     <button id="x-test" class="btn btn-primary">Test</button>
                     <button id="x-control" class="btn">Control</button>
                     <button id="x-dump" class="btn">Dump</button>
+                    <xsl:if test="contains(/Formulars/@Options, 'schematize')">
+                      <button id="x-schema" class="btn">Schema</button>
+                    </xsl:if>
                   </div>
                 </div>
               </div>
