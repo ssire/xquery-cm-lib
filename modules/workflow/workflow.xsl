@@ -584,15 +584,6 @@
       values="{Values}" i18n="{Labels}">1</xt:use>
   </xsl:template>
 
-
-  <!--**********************************-->
-  <!--****  Contract pane content  *****-->
-  <!--**********************************-->
-
-  <xsl:template match="Contract">
-    <a class="btn btn-primary" href="{/Display/Activity/No}/contract" target="_blank" loc="action.print">Imprimer</a>
-  </xsl:template>
-
   <!--**********************************-->
   <!--*****  Alerts pane content   *****-->
   <!--**********************************-->
