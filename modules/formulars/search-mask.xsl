@@ -45,6 +45,14 @@
     </xsl:apply-templates>
   </xsl:template>
 
+  <xsl:template match="Line" mode="smask">
+    <xsl:variable name="key"><xsl:value-of select="@Key"/></xsl:variable>
+    <tr>
+      <td><xsl:copy-of select="Title/@loc"/><xsl:value-of select="Title/text()"/><xsl:apply-templates select="/Form/Hints/Hint[contains(@Keys, $key)]"/></td>
+      <td colspan="2"><xsl:apply-templates select="Field"/></td>
+    </tr>
+  </xsl:template>
+
   <xsl:template match="Group" mode="smask">
     <xsl:param name="first-column-style"/>
     <xsl:param name="third-column-style"/>
@@ -105,6 +113,7 @@
       </xsl:choose>
     </td>
     <td style="{$third-column-style}">
+      <xsl:copy-of select="@*[starts-with(local-name(.), 'data-')]"/>
       <xsl:choose>
         <xsl:when test="/Form/Plugins/*[contains(@Keys, $key) or (@Prefix and starts-with($key, @Prefix))]">
           <xsl:apply-templates select="/Form/Plugins/*[contains(@Keys, $key) or (@Prefix and starts-with($key, @Prefix))]">
@@ -147,11 +156,27 @@
   <!-- we could replace @Prefix with @Use to create an intermediate component/tag instead -->
   <xsl:template match="Period">
     <div style="text-align:left">
-      <xsl:apply-templates select="@From" mode="period"/>
-      <xt:use types="input" label="{@Prefix}StartDate" param="type=date;date_region=fr;date_format=ISO_8601;filter=optional;maxDate=today;class=date span3"></xt:use>
-      <xsl:apply-templates select="@To" mode="period"/>
-      <xt:use types="input" label="{@Prefix}EndDate" param="type=date;date_region=fr;date_format=ISO_8601;filter=optional;maxDate=today;class=date span3"></xt:use>
+      <xsl:apply-templates select="@Interval" mode="period"/>
+      <div style="display:inline">
+        <xsl:if test="@Interval">
+          <xsl:attribute name="data-min-date"><xsl:value-of select="@Interval"/></xsl:attribute>
+        </xsl:if>
+        <xsl:apply-templates select="@From" mode="period"/>
+        <xt:use types="input" label="{@Prefix}StartDate" param="type=date;date_region=fr;date_format=ISO_8601;filter=optional;maxDate=today;class=date span3"></xt:use>
+      </div>
+      <div style="display:inline">
+        <xsl:if test="@Interval">
+          <xsl:attribute name="data-max-date"><xsl:value-of select="@Interval"/></xsl:attribute>
+        </xsl:if>
+        <xsl:apply-templates select="@To" mode="period"/>
+        <xt:use types="input" label="{@Prefix}EndDate" param="type=date;date_region=fr;date_format=ISO_8601;filter=optional;maxDate=today;class=date span3"></xt:use>
+      </div>
     </div>
+  </xsl:template>
+  
+  <xsl:template match="@Interval" mode="period">
+    <xsl:attribute name="data-binding">interval</xsl:attribute>
+    <xsl:attribute name="data-variable"><xsl:value-of select="."/></xsl:attribute>
   </xsl:template>
 
   <!-- TODO: localize -->
