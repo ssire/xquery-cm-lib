@@ -30,8 +30,25 @@ import module namespace user = "http://oppidoc.com/ns/xcm/user" at "user.xqm";
 declare variable $view:kick-out-delay := 5;
 
 (: ======================================================================
+   Return the $filter string minus the filters that could eventually 
+   already be declared in the $param string to avoid redundancy
+   To be called before calling local:append-param
+   ====================================================================== 
+:)
+declare function local:filter( $filter as xs:string?, $param as xs:string? ) as xs:string? {
+  if (exists($filter) and contains($param, 'filter=')) then
+    let $add := tokenize($filter, ' ')
+    let $found := replace($param, '^.*filter=([^;]*).*$', '$1')
+    let $has := tokenize($found, ' ')
+    return
+      string-join($add[not(. = $has)], ' ')
+  else
+    $filter
+};
+  
+(: ======================================================================
    Appends value $val to variable $var in XTiger param string
-   (e.g. local:insert-param("a=b;c=d"; "a"; "e") returns "a=b e;c=d"
+   (e.g. local:insert-param("a"; "e"; "a=b;c=d") returns "a=b e;c=d"
    ====================================================================== 
 :)
 declare function local:append-param( $var as xs:string, $val as xs:string?, $str as xs:string? ) as xs:string? {
@@ -41,7 +58,7 @@ declare function local:append-param( $var as xs:string, $val as xs:string?, $str
       if (contains($str, $bound)) then
         replace ($str, concat($bound, '([^;]*)'), concat($bound, '$1 ', $val))
       else
-        concat($str, if($str) then ';' else (), $bound, $val)
+        concat($str, if ($str) then ';' else (), $bound, $val)
   else
     $str
 };
@@ -215,9 +232,9 @@ declare function view:field( $cmd as element(), $source as element(), $view as e
                 if ($source/@Placeholder-loc) then concat('placeholder=',view:get-local-string($lang, $source/@Placeholder-loc)) else ()
                 )
               return
-                if (exists($ext) or exists($source/@Filter)) then
+                if (exists($ext) or exists($source/@Filter) ) then
                   attribute { 'param' } {
-                    let $filtered := local:append-param('filter', $source/@Filter, $f/xt:use/@param)
+                    let $filtered := local:append-param('filter', local:filter($source/@Filter, $f/xt:use/@param), $f/xt:use/@param)
                     let $more := if (exists($ext)) then string-join($ext, ';') else ()
                     return
                       if ($filtered) then
