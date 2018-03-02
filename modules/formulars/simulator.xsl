@@ -20,7 +20,7 @@
         <h1 class="noprint">Supergrid form generator</h1>
         <form class="noprint" style="background-color:#F7E9D4;margin-bottom:2em" action="" onsubmit="return false;">
           <div class="row-fluid">
-              <div class="span10">
+              <div class="span12">
                 <div class="control-group">
                   <label class="control-label a-gap2">Form</label>
                   <div class="controls">
@@ -31,6 +31,8 @@
                     <xsl:if test="contains(/Formulars/@Options, 'schematize')">
                       <button id="x-schema" class="btn">Schema</button>
                     </xsl:if>
+                    <button id="x-mesh" class="btn" data-base-url="{ $xslt.base-url }">Mesh</button>
+                    <button id="x-extensions" class="btn">Extensions</button>
                   </div>
                 </div>
               </div>

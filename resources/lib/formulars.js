@@ -57,6 +57,20 @@
     $('#x-control').bind('click', function() { $axel('#x-simulator').transform($('#x-formular').val() + '?goal=save'); });
     $('#x-dump').bind('click', function() { alert($axel('#x-simulator').xml()); });
     $('#x-schema').bind('click', function() { alert(dumpSchema()); });
+    $('#x-mesh').bind('click', 
+      function(ev) { 
+        var curval = $('#x-formular').val(),
+            module = $(ev.target).attr('data-base-url').match(/\/([^\/]*)?\/$/)[1],
+            tplurl = curval.replace('forms/', 'mesh/') + '.xhtml';
+        window.location.href = '/exist/rest/db/www/' + module + '/' + tplurl;
+      });
+    $('#x-extensions').bind('click', 
+      function() { 
+        var target = $('#x-simulator').get(0),
+            curval = $('#x-formular').val(),
+            tplurl = ($('#x-formular option[value="' + curval +'"]').attr('data-display') || curval.replace('forms/', 'templates/')) + '.xml?goal=' + $('#x-mode').val();
+        window.location.href = tplurl;
+      });
     $('#x-display').bind('click', function() { 
       var target = $('#x-simulator').get(0),
           curval = $('#x-formular').val(),
