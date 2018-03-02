@@ -11,6 +11,7 @@
   <xsl:param name="xslt.lang">fr</xsl:param>
   <xsl:param name="xslt.rights"></xsl:param>
 
+  <!-- TODO: improve test to discard Mesh button in production/acceptance -->
   <xsl:template match="/">
     <xsl:variable name="schematize">
       <xsl:if test="contains(/Formulars/@Options, 'schematize')"><xsl:text> </xsl:text>schematize</xsl:if>
@@ -31,7 +32,9 @@
                     <xsl:if test="contains(/Formulars/@Options, 'schematize')">
                       <button id="x-schema" class="btn">Schema</button>
                     </xsl:if>
-                    <button id="x-mesh" class="btn" data-base-url="{ $xslt.base-url }">Mesh</button>
+                    <xsl:if test="string-length($xslt.base-url) gt 1">
+                      <button id="x-mesh" class="btn" data-base-url="{ $xslt.base-url }">Mesh</button>
+                    </xsl:if>
                     <button id="x-extensions" class="btn">Extensions</button>
                   </div>
                 </div>
