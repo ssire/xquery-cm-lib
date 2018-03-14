@@ -641,8 +641,10 @@ declare function workflow:apply-transition-to( $new-status as xs:string, $case a
           </Status>
         return
           update insert $log into $history
-      else
-        update replace $status-log/Date with <Date>{current-dateTime()}</Date> 
+      else 
+        (: returning back to already visited status:)
+        ()
+        (:TODO: add a parameter on Transition to decide to update or not the Date anyway:)
       )
     else
       oppidum:throw-error("WFSTATUS-NO-HISTORY", ())
