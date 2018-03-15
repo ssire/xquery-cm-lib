@@ -1322,25 +1322,32 @@
 
     return {
       execute : function (event) {
-        var method, _successCb, _memo, 
-           _this = this,
-           url = this.spec.attr('data-src') || editor.attr('data-src') || '.';
+        var ask = this.spec.attr('data-confirm'),
+            method, _successCb, _memo,
+            _this = this,
+            url = this.spec.attr('data-src') || editor.attr('data-src') || '.',
+            proceed = true;
         if (url) {
-          method = this.spec.attr('data-method') || 'post';
-          url = $axel.resolveUrl(url, this.spec.get(0));
-          _memo = { url : url, method : method };
-          _successCb = function (data, status, jqXHR) {
-                         confirmSuccessCb.call(_this, data, status, jqXHR, _memo);
-                       };
-          this.spec.attr('disabled', 'disable');
-          $.ajax({
-            url : url,
-            type : method,
-            cache : false,
-            timeout : 50000,
-            success : _successCb,
-            error : $.proxy(confirmErrorCb, this)
-            });
+          if (ask) {
+            proceed = confirm(ask);
+          }
+          if (proceed) {
+            method = this.spec.attr('data-method') || 'post';
+            url = $axel.resolveUrl(url, this.spec.get(0));
+            _memo = { url : url, method : method };
+            _successCb = function (data, status, jqXHR) {
+                           confirmSuccessCb.call(_this, data, status, jqXHR, _memo);
+                         };
+            this.spec.attr('disabled', 'disable');
+            $.ajax({
+              url : url,
+              type : method,
+              cache : false,
+              timeout : 50000,
+              success : _successCb,
+              error : $.proxy(confirmErrorCb, this)
+              });
+          }
         } else {
           $axel.error('The command does not know where to send the data');
         }
