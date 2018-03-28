@@ -66,9 +66,11 @@ return
         for $s at $i in $selectors
         order by string($s/@Name)
         return
-          let $txt := display:gen-name-for($s/@Name, $s//*[local-name(.) eq 'Value'], $lang)
+          let $values := for $v in $s//*[local-name(.) eq 'Value']
+                         return 
+                            concat($v, ' => ', display:gen-name-for($s/@Name, $v, $lang))
           return
-            local:gen-choices(string($s/@Name), $txt)
+            local:gen-choices(string($s/@Name), string-join($values, ', '))
         }
       </div>
       <script type="text/javascript" xmlns="http://www.w3.org/1999/xhtml">
