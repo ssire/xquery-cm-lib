@@ -18,6 +18,31 @@ import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../op
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
 
 (: ======================================================================
+   Utility function which can be used to decode responses with @encoding
+   set to "URLEncoded" such as from .NET applications
+   ====================================================================== 
+:)
+declare function services:decode( $source as element()? ) as element()? {
+  if ($source/@encoding eq 'URLEncoded') then
+    element { node-name($source) }
+    {
+    $source/@*,
+    util:parse(xdb:decode-uri($source))
+    }
+  else
+    element { node-name($source) }
+    {
+    $source/@*,
+    for $child in $source/node()
+    return
+      if ($child instance of text()) then
+        $child
+      else
+        services:decode($child)
+    }
+};
+
+(: ======================================================================
    Returns a service request envelope ready to send to service producer
    This can be used for instance to generate a request to be sent with Ajax 
    from a client page consuming the service
@@ -138,9 +163,9 @@ declare function services:post-to-service-imp ( $service as element()?, $end-poi
    FIXME: log anyway in case of failure ?
    ====================================================================== 
 :)
-declare function local:log( $service-name as xs:string, $end-point-name as xs:string, $payload as element()?, $res as element()? ) as element()? {
+declare function local:log( $service as element(), $end-point as element(), $payload as element()?, $res as element()? ) as element()? {
   let $debug := globals:doc('settings-uri')/Settings/Services/Debug
-  let $log := $debug/Service[Name eq $service-name][not(EndPoint) or EndPoint eq $end-point-name]
+  let $log := $debug/Service[Name eq $service/Id][not(EndPoint) or EndPoint eq $end-point/Id]
   return
     if (exists($log)) then
       if (fn:doc-available('/db/debug/services.xml')) then
@@ -148,15 +173,15 @@ declare function local:log( $service-name as xs:string, $end-point-name as xs:st
           <service date="{ current-dateTime() }">
             {
             attribute { 'status' } { 
-              if (exists(globals:doc('settings-uri')/Settings/Services/Disallow/Service[Name eq $service-name][not(EndPoint) or EndPoint eq $end-point-name])) then
+              if (exists(globals:doc('settings-uri')/Settings/Services/Disallow/Service[Name eq $service/Id][not(EndPoint) or EndPoint eq $end-point/Id])) then
                 'unplugged'
               else if (local-name($res) eq 'error') then
                 'error'
               else
                 'done'
             },
-            <To>{ $service-name } / { $end-point-name }</To>,
-            <Payload>{ $payload }</Payload>,
+            <To>{ $service/Id/text() } / { $end-point/Id/text() }</To>,
+            <Request method="POST" url="{ $end-point/URL }">{ services:marshall($service, $payload) }</Request>,
             <Response>
               {
               if (exists($log/Logger/Assert)) then (: implements Logger syntax - only 1 for now :)
@@ -194,10 +219,9 @@ declare function services:post-to-service ( $service-name as xs:string, $end-poi
       (: filters service call through settings.xml :)
       if ($block/Service[Name eq $service-name][not(EndPoint) or EndPoint eq $end-point-name]) then
         (: fake success - only useful for services that do not return payload :)
-        local:log($service-name, $end-point-name, $payload, 
-          <success status="unplugged"/>)
+        local:log($service, $end-point, $payload, <success status="unplugged"/>)
       else
-        local:log($service-name, $end-point-name, $payload,
+        local:log($service, $end-point, $payload,
           services:post-to-service-imp($service, $end-point, $payload, $expected))
     else
       oppidum:throw-error('SERVICE-MISSING', local:gen-service-name($service-name, $end-point-name))
