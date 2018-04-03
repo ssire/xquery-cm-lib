@@ -49,7 +49,7 @@ declare function services:decode( $source as element()? ) as element()? {
    ====================================================================== 
 :)
 declare function services:gen-envelope-for ( $service-name as xs:string?, $end-point-name as xs:string?, $payload as item()* ) as element()? {
-  let $service := globals:doc('services-uri')//Service[Id eq $service-name]
+  let $service := globals:doc('services-uri')//Consumers/Service[Id eq $service-name]
   return services:marshall($service, $payload)
 };
 
@@ -60,18 +60,18 @@ declare function services:gen-envelope-for ( $service-name as xs:string?, $end-p
    ======================================================================
 :)
 declare function services:get-key-for ( $service-name as xs:string?, $end-point-name as xs:string? ) as element()? {
-  let $service := globals:doc('services-uri')//Service[Id eq $service-name]
+  let $service := globals:doc('services-uri')//Consumers/Service[Id eq $service-name]
   let $end-point := $service/EndPoint[Id eq $end-point-name]
   return $end-point/Key
 };
 
 (: ======================================================================
-   Converts a Key element received with some payload on a service producer
+   Converts a Key element received with some payload on a service provider
    end-point into a KeyRef element to some internal resource in the application
    ====================================================================== 
 :)
 declare function services:get-key-ref-for ( $service-name as xs:string?, $end-point-name as xs:string?, $key as element()? ) as element()? {
-  let $service := globals:doc('services-uri')//Service[Id eq $service-name]
+  let $service := globals:doc('services-uri')//Providers/Service[Id eq $service-name]
   let $end-point := $service/EndPoint[Id eq $end-point-name]
   return 
     if ($key) then $end-point/Keys/KeyRef[@For eq $key] else ()
@@ -211,7 +211,7 @@ declare function local:log( $service as element(), $end-point as element(), $pay
    ======================================================================
 :)
 declare function services:post-to-service ( $service-name as xs:string, $end-point-name as xs:string, $payload as element()?, $expected as xs:string+ ) as element()? {
-  let $service := globals:doc('services-uri')//Service[Id eq $service-name]
+  let $service := globals:doc('services-uri')//Consumers/Service[Id eq $service-name]
   let $end-point := $service/EndPoint[Id eq $end-point-name]
   let $block := globals:doc('settings-uri')/Settings/Services/Disallow
   return
