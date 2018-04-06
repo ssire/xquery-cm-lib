@@ -106,10 +106,13 @@ ExcellentExport = (function() {
         return window.btoa(window.unescape(encodeURIComponent(s)));
     };
     var cleanLinks = function (s) {
-      return s.replace(new RegExp('<a href="[^"]+" target="_blank">(.+)</a>', "g"), function(m, p) {
-          return p;
-      });
-    };
+      return s.replace(new RegExp('<a href="[^"]+" target="_blank">', "g"), '').replace(/<\/a>/g, '')
+      };
+    // var cleanLinks = function (s) {
+    //   return s.replace(new RegExp('<a href="[^"]+" target="_blank">(.+)</a>', "g"), function(m, p) {
+    //       return p;
+    //   });
+    // };
     var format = function(s, c) {
         return s.replace(new RegExp("{(\\w+)}", "g"), function(m, p) {
             return c[p];
