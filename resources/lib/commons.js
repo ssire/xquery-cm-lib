@@ -553,6 +553,7 @@
       var payload = $axel("#" + this.key).xml();
       $('#' + this.spec.attr('data-busy')).show();
       this.spec.attr('disabled', true);
+      this.spec.trigger('table-load');
       $.ajax({
         url : this.spec.attr('data-controller'),
         type : 'post',
