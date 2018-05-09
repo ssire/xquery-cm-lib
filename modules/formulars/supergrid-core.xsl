@@ -466,6 +466,11 @@
   <!--     Field     -->
   <!-- ************* -->
 
+  <!-- allows using HTML to generate label into Field element  -->
+  <xsl:template match="Field" mode="field-label">
+    <xsl:copy-of select="text()|*"/>
+  </xsl:template>
+
   <!--  Supergrid simulator TEST generation
         Generates with a fake <select> input field for testing or with the final plugin if it is defined -->
   <xsl:template match="Field[. != ''][$xslt.goal != 'save']">
@@ -490,7 +495,7 @@
             <xsl:if test="$gap = ''">
               <xsl:attribute name="style"><xsl:value-of select="concat(concat(concat('width:', @Gap * 60),'px'), $align)"/></xsl:attribute>
             </xsl:if>
-          <xsl:value-of select="."/>            
+          <xsl:apply-templates select="." mode="field-label"/>
           <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag) or contains(@Keys, $key)]"/>
           <xsl:apply-templates select="/Form/Hints/Hint[contains(@Keys, $key)]"/>
         </label>
@@ -548,7 +553,7 @@
           <xsl:if test="$gap = ''">
             <xsl:attribute name="style"><xsl:value-of select="concat(concat(concat('width:', @Gap * 60),'px'), $align)"/></xsl:attribute>
           </xsl:if>
-          <xsl:value-of select="."/>
+          <xsl:apply-templates select="." mode="field-label"/>
           <xsl:apply-templates select="/Form/Hints/Mandatory[contains(@Tags, $tag) or contains(@Keys, $key)]">
             <xsl:with-param name="key"><xsl:value-of select="$key"/></xsl:with-param>
           </xsl:apply-templates>
@@ -852,7 +857,7 @@
   </xsl:template>
 
   <!-- TODO: @NoTarget='1' only, implement not(@NoTarget) -->
-  <xsl:template match="SideLink[@Appearance = 'compact']">
+  <xsl:template match="SideLink[@Appearance = 'compact']" priority="1">
     <a href="{$xslt.base-url}{substring-after(@Path, '/')}" class="btn btn-primary">Download</a>
   </xsl:template>
 
