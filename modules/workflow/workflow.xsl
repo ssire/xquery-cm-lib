@@ -146,7 +146,7 @@
               data-src="{/Display/@ResourceNo}/{Controller}"
               data-with-template="{/Display/@ResourceNo}/{Template}"
               data-append-target="{@AppenderId}"
-              loc="{@loc}">Ajouter une annexe</button>
+              loc="{@loc}"><xsl:apply-templates select="@NoAnnexId"/>Ajouter une annexe</button>
           </span>
           <h3 class="c-drawer-title" loc="{Title/@loc}">
             <xsl:value-of select="Title"/>
@@ -169,7 +169,11 @@
       </div>
     </div>
   </xsl:template>
-
+  
+  <xsl:template match="@NoAnnexId">
+    <xsl:attribute name="data-no-annex-target"><xsl:value-of select="."/></xsl:attribute>
+  </xsl:template>
+  
   <!-- Drawer element directly inside a Tav -->
   <xsl:template match="Drawer">
     <xsl:variable name="Id">

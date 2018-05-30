@@ -1310,8 +1310,9 @@
     },
     // 'file' upload plugin event with response payload extracted into event.value
     updated : function (event ) {
-      var list = $('#' + this.spec.attr('data-append-target'));
-      $('#c-no-annex').hide();
+      var list = $('#' + this.spec.attr('data-append-target')),
+          no_annex = this.spec.attr('data-no-annex-target');
+      $('#' + (no_annex || 'c-no-annex')).hide();
       list.parent().removeClass('c-empty'); // show table (can't use 'header' command since no 'axel-save-done' event with 'file' plugin)
       list.prepend(event.value);
     }

@@ -17,7 +17,9 @@
   xmlns:site="http://oppidoc.com/oppidum/site"
   xmlns="http://www.w3.org/1999/xhtml">
   
-  <!-- Called from /stage -->
+  <!-- Called from /stage
+       DEPRECATED: to be unified with Formular from widget vocabulary instead 
+       -->
   <xsl:template name="formular">
     <form class="form-horizontal c-search" action="" onsubmit="return false;">
       <div id="editor" data-template="templates/search/{/Search/@Controller}?goal=update" data-src="{/Search/@Controller}/submission">
