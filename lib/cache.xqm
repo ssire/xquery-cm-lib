@@ -25,7 +25,7 @@ import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "../lib
 :)
 declare function cache:lookup( $name as xs:string, $lang as xs:string ) as element()*
 {
-  globals:doc('cache-uri')/Cache/Entry[@Id eq $name][@lang eq $lang][not(@Dirty)]
+  globals:doc('cache-uri')//Entry[@Id eq $name][@lang eq $lang][not(@Dirty)]
 };
 
 (: ======================================================================
@@ -34,7 +34,7 @@ declare function cache:lookup( $name as xs:string, $lang as xs:string ) as eleme
 :)
 declare function cache:update( $name as xs:string, $lang as xs:string, $values as xs:string,  $i18n as xs:string?) {
   if (globals:doc-available('cache-uri')) then
-    let $found := globals:doc('cache-uri')/Cache/Entry[@Id eq $name][@lang eq $lang]
+    let $found := globals:doc('cache-uri')//Entry[@Id eq $name][@lang eq $lang]
     let $fresh :=
       <Entry Id="{$name}" lang="{$lang}">
         <Values>{ $values }</Values>
@@ -55,7 +55,7 @@ declare function cache:update( $name as xs:string, $lang as xs:string, $values a
 :)
 declare function cache:invalidate( $name as xs:string, $lang as xs:string ) {
   if (globals:doc-available('cache-uri')) then
-    let $found := globals:doc('cache-uri')/Cache/Entry[@Id eq $name][@lang eq $lang]
+    let $found := globals:doc('cache-uri')//Entry[@Id eq $name][@lang eq $lang]
     return
       if ($found) then
         if ($found/@Dirty) then
