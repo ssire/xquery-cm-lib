@@ -95,6 +95,7 @@
 
   <xsl:template match="Content">
     <site:content>
+      <title><xsl:copy-of select="@loc"/><xsl:value-of select="."/></title>
       <xsl:apply-templates select="*"/>
     </site:content>
   </xsl:template>

@@ -14,16 +14,6 @@ form.c-search {
   margin: 0 auto 20px auto;
 }
 
-form {
-  background: #9EC0D9; /* rgb(142,176,201); #8EB0C9 */
-  border: none;
-  margin: 0 auto;
-  padding: 5px;
-  -webkit-border-radius: 4px;
-     -moz-border-radius: 4px;
-          border-radius: 4px;
-  outline: 0 none;
-}
 
 div.c-display-mode > form {
   background: white;
@@ -313,13 +303,19 @@ h3.a-gap1 {
 }
 
 .control-label.a-gap2, .a-cell-label.a-gap2 {
-  width: 140px;
+  color: #404040;
+  display: block;
+  font-size: 0.89rem;
+  font-weight: bold;
+  margin-bottom: 7px;
+  padding: 0;
+  text-align: left;
 }
 
 .control-label.a-gap2 + .controls,
 .a-cell-label.a-gap2 + .a-cell-body,
 h3.a-gap2 {
-  margin-left: 160px;
+  /*margin-left: 160px;*/
 }
 
 .control-label.a-gap3, .a-cell-label.a-gap3 {
@@ -369,9 +365,7 @@ input.fill {
   margin-bottom: 5px;
 }
 
-.control-group, div.af-html {
-  margin-bottom: 8px;
-}
+
 
 table div.select2-container { /* stats forms */
   margin-bottom: 0;

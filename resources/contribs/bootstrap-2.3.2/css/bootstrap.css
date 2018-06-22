@@ -66,9 +66,9 @@ audio:not([controls]) {
 }
 
 html {
-  font-size: 100%;
+  /*font-size: 100%;
   -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;*/
 }
 
 a:focus {
@@ -223,7 +223,7 @@ textarea {
 
 body {
   margin: 0;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  
   font-size: 14px;
   line-height: 20px;
   color: #333333;
@@ -231,7 +231,7 @@ body {
 }
 
 a {
-  color: #0088cc;
+  color: #004494;
   text-decoration: none;
 }
 
@@ -1091,7 +1091,7 @@ input[type="tel"],
 input[type="color"],
 .uneditable-input {
   display: inline-block;
-  height: 20px;
+  height: 25px;
   padding: 4px 6px;
   margin-bottom: 10px;
   font-size: 14px;
@@ -1935,7 +1935,7 @@ input.search-query {
 }
 
 .control-group {
-  margin-bottom: 10px;
+  margin: 10px 0px;
 }
 
 legend + .control-group {
