@@ -257,6 +257,13 @@
           }
         },
 
+        // Implement update table response with multiple rows
+        updateRows : function ( data ) {
+          for (var i = 0; i < data.length; i++) {
+            this.updateRow(data[i]);
+          }
+        },
+
         // Prepends a new row with data
         insertRow : function ( data ) {
           if (data) {
@@ -310,7 +317,11 @@
                 if (payload.Action === 'delete') {
                   this.removeRowById(payload.Users.Id);
                 } else if (payload.Action === 'update') {
-                  this.updateRow(payload.Users);
+                  if (payload.Users instanceof Array) {
+                    this.updateRows(payload.Users);
+                  } else {
+                    this.updateRow(payload.Users);
+                  }
                 } else if (payload.Action === 'create') {
                   this.insertRow(payload.Users);
                 }
@@ -542,6 +553,7 @@
       var payload = $axel("#" + this.key).xml();
       $('#' + this.spec.attr('data-busy')).show();
       this.spec.attr('disabled', true);
+      this.spec.trigger('table-load');
       $.ajax({
         url : this.spec.attr('data-controller'),
         type : 'post',

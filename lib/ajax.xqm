@@ -120,3 +120,21 @@ declare function ajax:report-validation-errors( $errors as element()* ) as eleme
   return
     oppidum:throw-error('VALIDATION-FAILED', $explain)
 };
+
+(: ======================================================================
+   Concatenate a message to an Ajax response
+   Simple pass-through if the message if empty
+   Useful to combine several feedbacks (success or error)
+   ====================================================================== 
+:)
+declare function ajax:concat-message( $ajax as element(), $msg as xs:string? ) {
+  if (exists($msg)) then
+    element { local-name($ajax) } {
+      $ajax/@*,
+      <message>{ concat($ajax/message, codepoints-to-string((13, 10, 13, 10)), $msg) }</message>,
+      $ajax/*[local-name(.) ne 'message']
+    }
+  else
+    $ajax
+};
+

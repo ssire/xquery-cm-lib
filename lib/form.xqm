@@ -83,12 +83,20 @@ declare function form:gen-radio-selector-for( $name as xs:string, $lang as xs:st
    ======================================================================
 :)
 declare function form:gen-selector-for ( $name as xs:string, $lang as xs:string, $params as xs:string ) as element() {
+  form:gen-selector-for-filter($name, $lang, $params, ())
+};
+
+(: ======================================================================
+   Filtered version
+   ======================================================================
+:)
+declare function form:gen-selector-for-filter ( $name as xs:string, $lang as xs:string, $params as xs:string, $filter as xs:string* ) as element() {
   let $defs := globals:collection('global-info-uri')//Description[@Lang = $lang]//Selector[@Name eq $name]
   let $concat := if (exists($defs/@Label) and starts-with($defs/@Label, 'V+')) then true() else false()
   let $label := if ($concat) then substring-after($defs/@Label, 'V+') else 'Name'
   return
      let $pairs :=
-        for $p in $defs//Option
+        for $p in $defs//Option[empty($filter) or not(Value = $filter)]
         let $v := $p/Value
         let $l := if ($concat) then concat($v, ' ', $p/*[local-name(.) eq $label]) else $p/Name
         return

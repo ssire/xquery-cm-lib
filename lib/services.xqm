@@ -1,4 +1,4 @@
-xquery version "1.0";
+xquery version "3.0";
 (: ------------------------------------------------------------------
    XQuery Content Management Library
 
@@ -13,8 +13,34 @@ module namespace services = "http://oppidoc.com/ns/xcm/services";
 
 declare namespace request = "http://exist-db.org/xquery/request";
 
+declare namespace xdb="http://exist-db.org/xquery/xmldb";
 import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../oppidum/lib/util.xqm";
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
+
+(: ======================================================================
+   Utility function which can be used to decode responses with @encoding
+   set to "URLEncoded" such as from .NET applications
+   ====================================================================== 
+:)
+declare function services:decode( $source as element()? ) as element()? {
+  if ($source/@encoding eq 'URLEncoded') then
+    element { node-name($source) }
+    {
+    $source/@*,
+    util:parse(xdb:decode-uri($source))
+    }
+  else
+    element { node-name($source) }
+    {
+    $source/@*,
+    for $child in $source/node()
+    return
+      if ($child instance of text()) then
+        $child
+      else
+        services:decode($child)
+    }
+};
 
 (: ======================================================================
    Returns a service request envelope ready to send to service producer
@@ -23,7 +49,7 @@ import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "global
    ====================================================================== 
 :)
 declare function services:gen-envelope-for ( $service-name as xs:string?, $end-point-name as xs:string?, $payload as item()* ) as element()? {
-  let $service := globals:doc('services-uri')//Service[Id eq $service-name]
+  let $service := globals:doc('services-uri')//Consumers/Service[Id eq $service-name]
   return services:marshall($service, $payload)
 };
 
@@ -34,18 +60,18 @@ declare function services:gen-envelope-for ( $service-name as xs:string?, $end-p
    ======================================================================
 :)
 declare function services:get-key-for ( $service-name as xs:string?, $end-point-name as xs:string? ) as element()? {
-  let $service := globals:doc('services-uri')//Service[Id eq $service-name]
+  let $service := globals:doc('services-uri')//Consumers/Service[Id eq $service-name]
   let $end-point := $service/EndPoint[Id eq $end-point-name]
   return $end-point/Key
 };
 
 (: ======================================================================
-   Converts a Key element received with some payload on a service producer
+   Converts a Key element received with some payload on a service provider
    end-point into a KeyRef element to some internal resource in the application
    ====================================================================== 
 :)
 declare function services:get-key-ref-for ( $service-name as xs:string?, $end-point-name as xs:string?, $key as element()? ) as element()? {
-  let $service := globals:doc('services-uri')//Service[Id eq $service-name]
+  let $service := globals:doc('services-uri')//Providers/Service[Id eq $service-name]
   let $end-point := $service/EndPoint[Id eq $end-point-name]
   return 
     if ($key) then $end-point/Keys/KeyRef[@For eq $key] else ()
@@ -133,15 +159,70 @@ declare function services:post-to-service-imp ( $service as element()?, $end-poi
 };
 
 (: ======================================================================
+   Log on demand (see settings.xml) and return service response
+   FIXME: log anyway in case of failure ?
+   ====================================================================== 
+:)
+declare function local:log( $service as element(), $end-point as element(), $payload as element()?, $res as element()? ) as element()? {
+  let $debug := globals:doc('settings-uri')/Settings/Services/Debug
+  let $log := $debug/Service[Name eq $service/Id][not(EndPoint) or EndPoint eq $end-point/Id]
+  return
+    if (exists($log)) then
+      if (fn:doc-available('/db/debug/services.xml')) then
+        let $archive := 
+          <service date="{ current-dateTime() }">
+            {
+            attribute { 'status' } { 
+              if (exists(globals:doc('settings-uri')/Settings/Services/Disallow/Service[Name eq $service/Id][not(EndPoint) or EndPoint eq $end-point/Id])) then
+                'unplugged'
+              else if (local-name($res) eq 'error') then
+                'error'
+              else
+                'done'
+            },
+            <To>{ $service/Id/text() } / { $end-point/Id/text() }</To>,
+            <Request method="POST" url="{ $end-point/URL }">{ services:marshall($service, $payload) }</Request>,
+            <Response>
+              {
+              if (exists($log/Logger/Assert)) then (: implements Logger syntax - only 1 for now :)
+                if (util:eval($log/Logger/Assert)) then
+                  try { util:eval($log/Logger/Format) } catch * { $res }
+                else
+                  $res
+              else
+                $res
+              }
+            </Response>
+            }
+          </service>
+        return (
+          try { update insert $archive into fn:doc('/db/debug/services.xml')/Debug }
+          catch * { () },
+          $res
+          )
+      else
+        $res
+    else
+      $res
+};
+
+(: ======================================================================
    POST XML payload to named end point of named service
    ======================================================================
 :)
 declare function services:post-to-service ( $service-name as xs:string, $end-point-name as xs:string, $payload as element()?, $expected as xs:string+ ) as element()? {
-  let $service := globals:doc('services-uri')//Service[Id eq $service-name]
+  let $service := globals:doc('services-uri')//Consumers/Service[Id eq $service-name]
   let $end-point := $service/EndPoint[Id eq $end-point-name]
+  let $block := globals:doc('settings-uri')/Settings/Services/Disallow
   return
     if ($service and $end-point) then
-      services:post-to-service-imp($service, $end-point, $payload, $expected)
+      (: filters service call through settings.xml :)
+      if ($block/Service[Name eq $service-name][not(EndPoint) or EndPoint eq $end-point-name]) then
+        (: fake success - only useful for services that do not return payload :)
+        local:log($service, $end-point, $payload, <success status="unplugged"/>)
+      else
+        local:log($service, $end-point, $payload,
+          services:post-to-service-imp($service, $end-point, $payload, $expected))
     else
       oppidum:throw-error('SERVICE-MISSING', local:gen-service-name($service-name, $end-point-name))
 };
