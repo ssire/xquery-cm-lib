@@ -18,7 +18,8 @@ import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../op
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
 
 (: ======================================================================
-   Filter response and throw error in case 
+   Filter response and throw error in case
+   Implement '###' pseudo-result code to inject response into error
    ====================================================================== 
 :)
 declare function local:filter-response( $service-name as xs:string?, $end-point-name as xs:string?, $res as element()?, $expected as xs:string+ ) as element()? {
@@ -27,12 +28,27 @@ declare function local:filter-response( $service-name as xs:string?, $end-point-
   else
     (: TODO: improve error decoding ? :)
     let $raw := normalize-space(string($res))
-    let $response := if ($raw eq '') then 'empty response' else $raw
+    let $error := oppidum:throw-error(
+                    'SERVICE-ERROR', 
+                    (
+                      local:gen-service-name($service-name, $end-point-name),
+                      concat(
+                        if ($raw eq '') then 'empty response' else $raw,
+                        ' (status ' , $res/@statusCode,')'
+                      )
+                    )
+                  )
     return
-      oppidum:throw-error('SERVICE-ERROR', 
-        (local:gen-service-name($service-name, $end-point-name),
-         concat($response, ' (status ' , $res/@statusCode,')'))
-      )
+      if ($expected = '###') then (: rewrite oppidum error to include response :)
+        <error>
+          {
+          $error/@*,
+          $error/*,
+          <response>{ $res }</response>
+          }
+        </error>
+      else
+        $error
 };
 
 (: ======================================================================
