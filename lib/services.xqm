@@ -18,6 +18,40 @@ import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../op
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
 
 (: ======================================================================
+   Filter response and throw error in case
+   Implement '###' pseudo-result code to inject response into error
+   ====================================================================== 
+:)
+declare function local:filter-response( $service-name as xs:string?, $end-point-name as xs:string?, $res as element()?, $expected as xs:string+ ) as element()? {
+  if ($res/@statusCode = $expected) then
+    $res
+  else
+    (: TODO: improve error decoding ? :)
+    let $raw := normalize-space(string($res))
+    let $error := oppidum:throw-error(
+                    'SERVICE-ERROR', 
+                    (
+                      local:gen-service-name($service-name, $end-point-name),
+                      concat(
+                        if ($raw eq '') then 'empty response' else $raw,
+                        ' (status ' , $res/@statusCode,')'
+                      )
+                    )
+                  )
+    return
+      if ($expected = '###') then (: rewrite oppidum error to include response :)
+        <error>
+          {
+          $error/@*,
+          $error/*,
+          <response>{ $res }</response>
+          }
+        </error>
+      else
+        $error
+};
+
+(: ======================================================================
    Utility function which can be used to decode responses with @encoding
    set to "URLEncoded" such as from .NET applications
    ====================================================================== 
@@ -82,7 +116,10 @@ declare function services:get-key-ref-for ( $service-name as xs:string?, $end-po
    ======================================================================
 :)
 declare function local:gen-service-name( $service as xs:string?, $end-point as xs:string? ) as xs:string {
-  concat('"', $end-point, '" end-point of service "', $service, '"')
+  if ($end-point) then
+    concat('"', $end-point, '" end-point of service "', $service, '"')
+  else
+    $service
 };
 
 (: ======================================================================
@@ -110,10 +147,9 @@ declare function services:unmarshall( $submitted as element()? ) as element()* {
 (: ======================================================================
    POST XML payload to an URL address. Low-level implementation
 
-   Returns an Oppidum error in case service is not configured properly
+   Return an Oppidum error in case service is not configured properly
    in services.xml or is not listening or if the response payload contains
-   an error raised with oppidum:throw-error (whatever its status code)
-   or, finally, if the response from the POST returns a status code not expected
+   an error raised with oppidum:throw-error (whatever status code)
 
    TODO:
    - better differentiate error messages (incl. 404)
@@ -121,6 +157,30 @@ declare function services:unmarshall( $submitted as element()? ) as element()* {
    - actually oppidum:throw-error in the service with a status code not in 200 
      results in an <httpclient:body type="text" encoding="URLEncoded"/>
      and a statusCode="500" !
+   ======================================================================
+:)
+declare function services:post-to-address ( $address as xs:string, $payload as item()?, $debug-name as xs:string ) as element()? {
+  if ($address castable as xs:anyURI) then
+    let $uri := xs:anyURI($address)
+    let $headers := ()
+    let $res := httpclient:post($uri, $payload, false(), $headers)
+    let $status := string($res/@statusCode)
+    return
+      if ($res//error/message) then (: relay Oppidum type error response :)
+        oppidum:throw-error('SERVICE-INTERNAL-ERROR', ($debug-name, concat(' (status ', $status, ') ', string($res//error/message))))
+      else if ($status eq '500' and (string($res) eq 'Connection+refused')) then
+        oppidum:throw-error('SERVICE-NOT-RESPONDING', $debug-name)
+      else
+        $res
+  else
+    oppidum:throw-error('SERVICE-MALFORMED-URL', ($debug-name, $address))
+};
+
+(: ======================================================================
+   POST XML payload to an URL address. Low-level implementation
+
+   Throw an oppidum:error in case response status code not in $expected
+   including the string content of the response
    ======================================================================
 :)
 declare function services:post-to-address ( $address as xs:string, $payload as item()?, $expected as xs:string+, $debug-name as xs:string ) as element()? {
@@ -134,13 +194,8 @@ declare function services:post-to-address ( $address as xs:string, $payload as i
         oppidum:throw-error('SERVICE-INTERNAL-ERROR', ($debug-name, concat(' (status ', $status, ') ', string($res//error/message))))
       else if ($status eq '500' and (string($res) eq 'Connection+refused')) then
         oppidum:throw-error('SERVICE-NOT-RESPONDING', $debug-name)
-      else if ($status = $expected) then
-        $res
-      else
-        let $raw := normalize-space(string($res))
-        let $response := if ($raw eq '') then 'empty response' else $raw
-        return
-          oppidum:throw-error('SERVICE-ERROR', ($debug-name, concat($response,' (status ' , $res/@statusCode,')')))
+      else 
+        local:filter-response($debug-name, (), $res, $expected)
   else
     oppidum:throw-error('SERVICE-MALFORMED-URL', ($debug-name, $address))
 };
@@ -149,11 +204,11 @@ declare function services:post-to-address ( $address as xs:string, $payload as i
    POST XML payload to a service and an end-point elements
    ======================================================================
 :)
-declare function services:post-to-service-imp ( $service as element()?, $end-point as element()?, $payload as item()?, $expected as xs:string+ ) as element()? {
+declare function services:post-to-service-imp ( $service as element()?, $end-point as element()?, $payload as item()? ) as element()? {
   if ($service and $end-point) then
-    let $service-name := local:gen-service-name($service/Name/text(), $end-point/Name/text())
+    let $service-name := local:gen-service-name($service/Name, $end-point/Name)
     let $envelope := services:marshall($service, $payload)
-    return services:post-to-address($end-point/URL/text(), $envelope, $expected, $service-name)
+    return services:post-to-address($end-point/URL/text(), $envelope, $service-name)
   else
     oppidum:throw-error('SERVICE-MISSING', 'undefined')
 };
@@ -163,7 +218,7 @@ declare function services:post-to-service-imp ( $service as element()?, $end-poi
    FIXME: log anyway in case of failure ?
    ====================================================================== 
 :)
-declare function local:log( $service as element(), $end-point as element(), $payload as element()?, $res as element()? ) as element()? {
+declare function local:log( $service as element(), $end-point as element(), $payload as element()?, $res as element()?, $expected as xs:string+ ) as element()? {
   let $debug := globals:doc('settings-uri')/Settings/Services/Debug
   let $log := $debug/Service[Name eq $service/Id][not(EndPoint) or EndPoint eq $end-point/Id]
   return
@@ -175,7 +230,7 @@ declare function local:log( $service as element(), $end-point as element(), $pay
             attribute { 'status' } { 
               if (exists(globals:doc('settings-uri')/Settings/Services/Disallow/Service[Name eq $service/Id][not(EndPoint) or EndPoint eq $end-point/Id])) then
                 'unplugged'
-              else if (local-name($res) eq 'error') then
+              else if (not($res/@statusCode = $expected)) then
                 'error'
               else
                 'done'
@@ -193,7 +248,7 @@ declare function local:log( $service as element(), $end-point as element(), $pay
                 $res
               }
             </Response>
-            }
+            } 
           </service>
         return (
           try { update insert $archive into fn:doc('/db/debug/services.xml')/Debug }
@@ -219,10 +274,20 @@ declare function services:post-to-service ( $service-name as xs:string, $end-poi
       (: filters service call through settings.xml :)
       if ($block/Service[Name eq $service-name][not(EndPoint) or EndPoint eq $end-point-name]) then
         (: fake success - only useful for services that do not return payload :)
-        local:log($service, $end-point, $payload, <success status="unplugged"/>)
+        local:log($service, $end-point, $payload, <success status="unplugged"/>, $expected)
       else
-        local:log($service, $end-point, $payload,
-          services:post-to-service-imp($service, $end-point, $payload, $expected))
+        local:filter-response(
+          $service/Name, 
+          $end-point/Name,
+          local:log(
+            $service, 
+            $end-point, 
+            $payload,
+            services:post-to-service-imp($service, $end-point, $payload), 
+            $expected
+            ),
+          $expected
+        )
     else
       oppidum:throw-error('SERVICE-MISSING', local:gen-service-name($service-name, $end-point-name))
 };
@@ -320,8 +385,15 @@ declare function services:deploy ( $base-dir as xs:string ) as element()* {
         let $expected := tokenize($task/@Expected, ',')
         return
           if (doc-available($file-uri)) then
+            let $service := $task/ancestor::Service
+            let $end-point := $task/ancestor::EndPoint
             let $payload := local:read-and-transform-file($file-uri, $task/Resource)
-            let $res := services:post-to-service-imp($task/ancestor::Service, $task/ancestor::EndPoint, $payload, $expected)
+            let $res := local:filter-response(
+                          $service/Name,
+                          $end-point/Name,
+                          services:post-to-service-imp($service, $end-point, $payload),
+                          $expected
+                        )
             return
               if (local-name($res) ne 'error') then
                 <success>{ $task/Description/text() } ({ $task/Resource/File/text() }) deployed : { $res//success/message/text() }</success>
