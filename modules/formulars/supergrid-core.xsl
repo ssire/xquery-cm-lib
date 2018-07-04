@@ -366,7 +366,7 @@
   <!-- HTLM class attribute generation -->
   <xsl:template match="Button[parent::Title]" mode="class">
     <xsl:variable name="W"><xsl:choose><xsl:when test="@W"><xsl:value-of select="@W"/></xsl:when><xsl:otherwise>12</xsl:otherwise></xsl:choose></xsl:variable>
-    <xsl:attribute name="class">btn <xsl:value-of select="@Class"/></xsl:attribute>
+    <xsl:attribute name="class">ecl-button <xsl:value-of select="@Class"/></xsl:attribute>
   </xsl:template>
 
   <xsl:template match="Button">
@@ -858,7 +858,7 @@
 
   <!-- TODO: @NoTarget='1' only, implement not(@NoTarget) -->
   <xsl:template match="SideLink[@Appearance = 'compact']" priority="1">
-    <a href="{$xslt.base-url}{substring-after(@Path, '/')}" class="btn btn-primary">Download</a>
+    <a href="{$xslt.base-url}{substring-after(@Path, '/')}" class="ecl-button ecl-button--primary">Download</a>
   </xsl:template>
 
   <!-- ************* -->
@@ -1354,7 +1354,7 @@
           <div id="{@Id}-errors" class="alert alert-error af-validation">
             <button type="button" class="close" data-dismiss="alert">x</button>
           </div>
-          <button class="btn btn-primary" data-command="save c-inhibit" data-target="{@Id}"
+          <button class="ecl-button ecl-button--primary" data-command="save c-inhibit" data-target="{@Id}"
             data-validation-output="{@Id}-errors" data-validation-label="label" loc="{$label4save}">
             <xsl:apply-templates select="@EventTarget"/>
             <xsl:choose>

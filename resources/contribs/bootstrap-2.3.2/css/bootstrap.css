@@ -265,6 +265,7 @@ a:focus {
 
 .row {
   margin-left: -20px;
+  margin-top:30px;
   *zoom: 1;
 }
 
@@ -409,8 +410,8 @@ a:focus {
   float: left;
   width: 100%;
   min-height: 45px;
-  margin-left: 7.127659574468085%;
-  *margin-left: 2.074468085106383%;
+  *margin-left: 7.127659574468085%;
+  margin-left: 2.074468085106383%;
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
           box-sizing: border-box;

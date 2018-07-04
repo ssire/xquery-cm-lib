@@ -14,6 +14,16 @@ form.c-search {
   margin: 0 auto 20px auto;
 }
 
+/*form {
+  background: #9EC0D9; /\* rgb(142,176,201); #8EB0C9 *\/
+  border: none;
+  margin: 0 auto;
+  padding: 5px;
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+  outline: 0 none;
+}*/
 
 div.c-display-mode > form {
   background: white;
@@ -373,6 +383,7 @@ table div.select2-container { /* stats forms */
 
 div.select2-container { /* select2 exception */
   margin-bottom: 10px;
+  margin-top: 5px;
 }
 
 span.a-control, input.a-control, select.a-control {
