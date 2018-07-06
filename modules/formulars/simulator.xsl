@@ -19,11 +19,11 @@
     <site:view skin="formulars{$schematize}">
       <site:content>
         <h1 class="noprint">Supergrid form generator</h1>
-        <form class="noprint" style="background-color:#F7E9D4;margin-bottom:2em" action="" onsubmit="return false;">
+        <form class="noprint" style="background-color:lightseagreen;margin-bottom:2em" action="" onsubmit="return false;">
           <div class="row-fluid">
-              <div class="span12">
+            <div class="span12"  style="margin-left:2.074468085106383%;">
                 <div class="control-group">
-                  <label class="control-label a-gap2">Form</label>
+                  <label class="control-label a-gap2" style="margin-right:30px">Form</label>
                   <div class="controls">
                     <xsl:apply-templates select="Formulars"/>
                     <button id="x-test" class="btn btn-primary">Test</button>
@@ -49,11 +49,11 @@
                 </div> -->
           </div>
           <div class="row-fluid">
-              <div class="span5">
+            <div class="span12" style="margin-left:2.074468085106383%;">
                 <div class="control-group">
-                  <label class="control-label a-gap2">Online version</label>
+                  <label class="control-label a-gap2">Online version:</label>
                   <div class="controls">
-                    <button id="x-display" class="btn">Show</button>
+                    <button id="x-display" class="btn" style="margin-left:30px">Show</button>
                     <button id="x-validate" class="btn">Validate</button>
                     <xsl:if test="$xslt.rights = 'install'">
                       <button id="x-install" class="btn btn-small btn-primary">Install</button>
@@ -61,7 +61,7 @@
                   </div>
                 </div>
               </div>
-              <div class="span3">
+              <div class="span5">
                 <div class="control-group">
                   <label class="control-label a-gap1">Mode</label>
                   <div class="controls">
