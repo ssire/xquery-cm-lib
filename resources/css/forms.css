@@ -181,7 +181,7 @@ ul.axel-choice.c-inline-choice > li {
 
 ul.axel-choice.c-inline-choice label {
   display: inline;
-  font-size: 12px;
+  
 }
 
 div.c-display-mode label.axel-choice-unset {
@@ -200,7 +200,6 @@ ul.axel-choice.c-vertical-choice {
 
 ul.axel-choice.c-vertical-choice label {
   display: inline;
-  font-size: 12px;
 }
 
 /**************************************************
@@ -211,7 +210,7 @@ textarea.sg-multitext {
   width: 100%;
   resize: vertical;
   overflow: auto;
-  min-height: 150px !important;
+  min-height: 110px !important;
 }
 
 /* supergrid Text textarea input field */
@@ -255,12 +254,12 @@ p.sg-textarea, span.sg-textarea, textarea.sg-textarea  {
 }
 
 legend, p.a-cell-legend {
- color: rgb(0,69,99);
+ color: #404040;
 }
 
 p.a-cell-legend {
  font-weight: bold;
- font-size: 1.2em;
+ font-size: 1.3em;
  line-height: 1.2em;
 }
 
@@ -391,7 +390,8 @@ span.a-control, input.a-control, select.a-control {
 }
 
 label.control-label, th.control-label, td.control-label {
-  color: #004563;
+      color: #404040;
+    font-weight: bold;
 }
 
 label.control-label.a-gap0 {

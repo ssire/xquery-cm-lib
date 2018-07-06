@@ -21,11 +21,11 @@
   line-height: 1.6;
   margin: 0;
   margin-top: 0px;
-  padding: .44rem .66rem;
+  padding: .30rem .66rem;
   width: 100%;
   cursor: text;
   overflow: hidden;
-  min-height: 45px;
+  min-height: 40px;
 }
 
 .select2-container .select2-choice div,
