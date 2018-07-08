@@ -292,11 +292,11 @@ declare function misc:prune( $nodes as item()* ) as item()* {
             element { local-name($node) } { $node/attribute()[local-name(.) ne '_Prune'], $node/node() }
           else if (empty($node/*) and normalize-space($node) ne '') then (: LEAF node with text content :)
             $node
-          else if (some $n in $node//* satisfies normalize-space($n) ne '') then
+          else if (($node/@_Prune eq 'pass') or (some $n in $node//* satisfies (normalize-space($n) ne '' or ($n/@_Prune eq 'pass')))) then
             let $tag := local-name($node)
             return
               element { $tag }
-                { $node/attribute(), misc:prune($node/node()) }
+                { $node/attribute()[local-name(.) ne '_Prune'], misc:prune($node/node()) }
           else
             ()
       default
