@@ -460,11 +460,21 @@ a:focus {
   *width: 48.88297872340425%;
 }
 
+@media (max-width: 768px) {
+  .row-fluid .span6 {
+    width: 100%;
+    margin-left: 0px; } }
+
 .row-fluid .span5 {
   width: 43.42553191489362%;
   *width: 40.37234042553192%;
 }
 
+@media (max-width: 768px) {
+  .row-fluid .span5 {
+    width: 100%;
+    margin-left: 0px; } }
+    
 .row-fluid .span4 {
   width: 31.914893617021278%;
   *width: 31.861702127659576%;
@@ -579,6 +589,10 @@ a:focus {
   margin-left: 27.659574468085104%;
   *margin-left: 27.5531914893617%;
 }
+
+@media (max-width: 768px) {
+  .row-fluid .offset3 {
+    margin-left: 0px; } }
 
 .row-fluid .offset3:first-child {
   margin-left: 25.53191489361702%;
@@ -823,9 +837,9 @@ ol ul {
   margin-bottom: 0;
 }
 
-li {
+/*li {
   line-height: 20px;
-}
+}*/
 
 ul.unstyled,
 ol.unstyled {
@@ -1967,12 +1981,21 @@ legend + .control-group {
   text-align: right;
 }
 
+@media (max-width: 768px) {
+  .form-horizontal .control-label {
+    text-align: initial;} }
+
 .form-horizontal .controls {
   *display: inline-block;
   *padding-left: 20px;
   margin-left: 180px;
   *margin-left: 0;
 }
+
+
+@media (max-width: 768px) {
+  .form-horizontal .controls {
+   margin-left:0px !important;} }
 
 .form-horizontal .controls:first-child {
   *padding-left: 180px;
