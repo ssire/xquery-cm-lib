@@ -18,24 +18,38 @@ import module namespace oppidum = "http://oppidoc.com/oppidum/util" at "../../op
 import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "globals.xqm";
 
 (: ======================================================================
+   Filter error message applying specific formater if one is specified 
+   in settings.xml. Return an error string.
+   ====================================================================== 
+:)
+declare function local:filter-error( $sid as xs:string?, $epid as xs:string?, $res as element()? ) as xs:string? {
+  let $decode := globals:doc('settings-uri')/Settings/Services/Decode
+  let $log := $decode/Service[Name eq $sid][not(EndPoint) or not($epid) or EndPoint eq $epid]
+  return
+    if (exists($log/Error/Format)) then
+      try { util:eval($log/Error/Format) } catch * { $res }
+    else
+      normalize-space(string($res))
+};
+
+(: ======================================================================
    Filter response and throw error in case
    Implement '###' pseudo-result code to inject response into error
    ====================================================================== 
 :)
-declare function local:filter-response( $service-name as xs:string?, $end-point-name as xs:string?, $res as element()?, $expected as xs:string+ ) as element()? {
+declare function local:filter-response( $sid as xs:string?, $epid as xs:string?, $res as element()?, $expected as xs:string+ ) as element()? {
   if ($res/@statusCode = $expected) then
     $res
   else
-    (: TODO: improve error decoding ? :)
-    let $raw := normalize-space(string($res))
+    let $raw := local:filter-error($sid, $epid, $res)
     let $error := oppidum:throw-error(
-                    'SERVICE-ERROR', 
+                    'SERVICE-ERROR',
                     (
-                      local:gen-service-name($service-name, $end-point-name),
-                      concat(
-                        if ($raw eq '') then 'empty response' else $raw,
-                        ' (status ' , $res/@statusCode,')'
-                      )
+                    local:gen-service-name-by-id($sid, $epid),
+                    concat(
+                      if ($raw eq '') then 'empty response' else $raw,
+                      ' (status ' , $res/@statusCode,')'
+                    )
                     )
                   )
     return
@@ -123,6 +137,17 @@ declare function local:gen-service-name( $service as xs:string?, $end-point as x
 };
 
 (: ======================================================================
+   Same as above but using service / end-point identificaiton by Id
+   ======================================================================
+:)
+declare function local:gen-service-name-by-id( $sid as xs:string?, $epid as xs:string? ) as xs:string {
+  let $service := if ($sid) then globals:doc('services-uri')//Consumers/Service[Id eq $sid] else ()
+  let $end-point := if ($epid) then $service/EndPoint[Id eq $epid] else ()
+  return
+    local:gen-service-name($service/Name, $end-point/Name)
+};
+
+(: ======================================================================
    Marshalls a single element payload content to invoke a given service using
    the service API model (i.e. including authorization token as per services.xml)
    ======================================================================
@@ -181,6 +206,9 @@ declare function services:post-to-address ( $address as xs:string, $payload as i
 
    Throw an oppidum:error in case response status code not in $expected
    including the string content of the response
+
+   DEPRECATED: not compatible with Settings/Services/Service/Decode/Error
+   configuration in local:filter-response to apply exotic error decoding
    ======================================================================
 :)
 declare function services:post-to-address ( $address as xs:string, $payload as item()?, $expected as xs:string+, $debug-name as xs:string ) as element()? {
@@ -194,7 +222,7 @@ declare function services:post-to-address ( $address as xs:string, $payload as i
         oppidum:throw-error('SERVICE-INTERNAL-ERROR', ($debug-name, concat(' (status ', $status, ') ', string($res//error/message))))
       else if ($status eq '500' and (string($res) eq 'Connection+refused')) then
         oppidum:throw-error('SERVICE-NOT-RESPONDING', $debug-name)
-      else 
+      else
         local:filter-response($debug-name, (), $res, $expected)
   else
     oppidum:throw-error('SERVICE-MALFORMED-URL', ($debug-name, $address))
@@ -277,8 +305,8 @@ declare function services:post-to-service ( $service-name as xs:string, $end-poi
         local:log($service, $end-point, $payload, <success status="unplugged"/>, $expected)
       else
         local:filter-response(
-          $service/Name, 
-          $end-point/Name,
+          $service/Id, 
+          $end-point/Id,
           local:log(
             $service, 
             $end-point, 
@@ -389,8 +417,8 @@ declare function services:deploy ( $base-dir as xs:string ) as element()* {
             let $end-point := $task/ancestor::EndPoint
             let $payload := local:read-and-transform-file($file-uri, $task/Resource)
             let $res := local:filter-response(
-                          $service/Name,
-                          $end-point/Name,
+                          $service/Id,
+                          $end-point/Id,
                           services:post-to-service-imp($service, $end-point, $payload),
                           $expected
                         )
