@@ -19,7 +19,7 @@ import module namespace database = "http://oppidoc.com/ns/xcm/database" at "data
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align', 'assert');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align', 'assert', 'message');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -368,6 +368,23 @@ declare function local:apply-xal-value( $subject as element(), $xal-spec as elem
       ()
 };
 
+
+(: ======================================================================
+   XAL message action implementation
+   Throw and return an oppidum message
+   TODO: 
+   support <parameters><param name="" value="">... syntax to pass parameters
+   ====================================================================== 
+:)
+declare function local:apply-xal-message( $subject as element(), $xal-spec as element() ) as element()? {
+  if ($xal-spec/@Debug eq 'on') then
+    update insert $xal-spec into fn:doc($xal:debug-uri)/*[1]
+  else
+    (),
+  oppidum:add-message($xal-spec/@Info, $xal-spec/parameters/param/text(), true())
+  (: FIXME: Output="direct" - oppidum:throw-message($xal-spec/@Info, ()) :)
+};
+
 (: =======================================================================
    Implements XAL (XML Aggregation Language) update protocol
    Basic version for single container element update
@@ -420,6 +437,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
             local:apply-xal-remove($pivot, $action)
           else if ($type eq 'value') then
             local:apply-xal-value($pivot, $action)
+          else if ($type eq 'message') then
+            local:apply-xal-message($pivot, $action)
           else (: iterated actions on 1 or more fragments :)
             for $fragment in $action/*
             return
