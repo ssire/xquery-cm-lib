@@ -57,7 +57,7 @@
     <xsl:param name="first-column-style"/>
     <xsl:param name="third-column-style"/>
     <tr>
-      <td class="group" style="{$first-column-style}" rowspan="{count(descendant::Criteria) - (count(descendant::SubGroup/Criteria) + count(descendant::Criteria[preceding-sibling::*[1][local-name() = 'SubGroup']]))}"><xsl:value-of select="Title/text()"/></td>
+      <td class="group" style="{$first-column-style}" rowspan="{count(descendant::Criteria) - (count(descendant::SubGroup/Criteria) + count(descendant::Criteria[preceding-sibling::*[1][local-name() = 'SubGroup']]))}"><xsl:copy-of select="Title/@loc"/><xsl:value-of select="Title/text()"/></td>
       <xsl:apply-templates select="Criteria[1]" mode="smask-row">
         <xsl:with-param name="third-column-style"><xsl:value-of select="$third-column-style"/></xsl:with-param>
       </xsl:apply-templates>
@@ -181,20 +181,20 @@
 
   <!-- TODO: localize -->
   <xsl:template match="@From" mode="period">
-    <span style="padding-right:10px"><xsl:value-of select="."/></span>
+    <span style="padding-right:10px" loc="interval.date.from"><xsl:value-of select="."/></span>
   </xsl:template>
 
   <!-- TODO: localize -->
   <xsl:template match="@To" mode="period">
-    <span style="padding-left:20px; padding-right:10px"><xsl:value-of select="."/></span>
+    <span style="padding-left:20px; padding-right:10px" loc="interval.date.to"><xsl:value-of select="."/></span>
   </xsl:template>
 
   <!-- we could replace @Prefix with @Use to create an intermediate component/tag instead -->
   <xsl:template match="Period[@Span = 'Year']">
     <div style="text-align:left">
-      <span style="padding-right:10px">between</span>
+      <span style="padding-right:10px" loc="range.between">between</span>
       <site:field Size="2" Key="creation-year" Tag="{@Prefix}StartYear" force="true"/>
-      <span style="padding-left:20px; padding-right:10px">and</span>
+      <span style="padding-left:20px; padding-right:10px" loc="range.and">and</span>
       <site:field Size="2" Key="creation-year" Tag="{@Prefix}EndYear" force="true"/>
     </div>
   </xsl:template>
@@ -226,12 +226,12 @@
 
   <!-- TODO: localize -->
   <xsl:template match="@Min" mode="period">
-    <span style="padding-right:10px"><xsl:value-of select="."/></span>
+    <span style="padding-right:10px" loc="range.gte"><xsl:value-of select="."/></span>
   </xsl:template>
 
   <!-- TODO: localize -->
   <xsl:template match="@Max" mode="period">
-    <span style="padding-left:20px; padding-right:10px"><xsl:value-of select="."/></span>
+    <span style="padding-left:20px; padding-right:10px" loc="range.lte"><xsl:value-of select="."/></span>
   </xsl:template>
 
 </xsl:stylesheet>
