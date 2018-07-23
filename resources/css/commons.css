@@ -7,6 +7,7 @@
 .xcm-search-summary {
   clear:both;
   display: none;
+  padding: 0px 0px 10px 10px;
 }
 
 .xcm-search-results {
