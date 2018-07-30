@@ -19,7 +19,7 @@ import module namespace database = "http://oppidoc.com/ns/xcm/database" at "data
 import module namespace cache = "http://oppidoc.com/ns/xcm/cache" at "cache.xqm";
 
 declare variable $xal:debug-uri := '/db/debug/xal.xml'; (: FIXME: move to globals :)
-declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align', 'assert', 'message');
+declare variable $xal:xal-actions := ('update', 'replace', 'insert', 'timestamp', 'create', 'invalidate', 'attribute', 'delete', 'remove', 'value', 'align', 'assert', 'message', 'task');
 
 (: ======================================================================
    Filters nodes and evaluates <node>{ "expression" }</node> type nodes
@@ -71,6 +71,33 @@ declare function xal:auto-increment( $subject as element()?, $name as xs:string 
   else 
     let $err := oppidum:throw-error('CUSTOM', 'xal:auto-increment $subject not found')
     return ()
+};
+
+(: ======================================================================
+   XAL task action implementation
+  
+  Sample of xal-action
+   <XALAction Type="task" Subject="/db/tasks/cockpit/community.xml" Assert="true" Exist="False" Debug="on" _Prune="none">
+     <Task context="EICCommunity" name="update" enterprise="1544" priority="1" submission-date="2018-07-30T14:59:52.441+02:00"/>
+   </XALAction>
+   @Type: Type of xal-action
+   @Subject: FIFO File where the task will be added
+   @Assert: If true then add the task to the FIFO file
+   @Exist: If true, it means the task already exist in FIFO file
+   
+    Returns the empty sequence
+   ======================================================================
+:)
+declare function local:apply-xal-task( $subject as element(), $fragment as element(), $xal-spec as element() ) as element()? {
+    if ($xal-spec/@Debug eq 'on') then
+      update insert <XALTask>{ $xal-spec/@*, $fragment }</XALTask> into fn:doc($xal:debug-uri)/*[1]
+    else
+      (),
+    if (fn:doc-available($xal-spec/@Subject)) then
+      if ((exists($fragment/@name)) and ($xal-spec/@Assert eq 'true') and ($xal-spec/@Exist eq 'false'))  then
+        update insert $fragment into fn:doc($xal-spec/@Subject)/Tasks
+      else ()
+    else oppidum:throw-error('TASK-MODULE-NOT-INSTALLED', $xal-spec/@Subject)
 };
 
 (: ======================================================================
@@ -452,6 +479,8 @@ declare function xal:apply-updates( $subject as item()*, $object as item()*, $sp
                 local:apply-xal-align($pivot, $fragment, $action)
               else if ($type eq 'assert') then
                 local:apply-xal-assert($pivot, $fragment, $action)
+               else if ($type eq 'task') then
+                local:apply-xal-task($pivot, $fragment, $action)
               else
                 ()
     return
