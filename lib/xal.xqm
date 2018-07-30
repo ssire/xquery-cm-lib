@@ -94,7 +94,7 @@ declare function local:apply-xal-task( $subject as element(), $fragment as eleme
     else
       (),
     if (fn:doc-available($xal-spec/@Subject)) then
-      if ((exists($fragment/@name)) and ($xal-spec/@Assert eq 'true') and ($xal-spec/@Exist eq 'false'))  then
+      if ((exists($fragment/@name)) and (not(exists($xal-spec/@Assert)) or ($xal-spec/@Assert eq 'true')) and (not(exists($xal-spec/@Exist)) or ($xal-spec/@Exist eq 'false')))  then
         update insert $fragment into fn:doc($xal-spec/@Subject)/Tasks
       else ()
     else oppidum:throw-error('TASK-MODULE-NOT-INSTALLED', $xal-spec/@Subject)
