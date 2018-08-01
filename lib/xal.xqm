@@ -77,7 +77,7 @@ declare function xal:auto-increment( $subject as element()?, $name as xs:string 
    XAL task action implementation
   
   Sample of xal-action
-   <XALAction Type="task" Subject="/db/tasks/cockpit/community.xml" Assert="true" Exist="False" Debug="on" _Prune="none">
+   <XALAction Type="task" Subject="/db/tasks/cockpit/community.xml" Assert="true" Exist="false" Debug="on" _Prune="none">
      <Task context="EICCommunity" name="update" enterprise="1544" priority="1" submission-date="2018-07-30T14:59:52.441+02:00"/>
    </XALAction>
    @Type: Type of xal-action
