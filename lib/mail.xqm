@@ -25,8 +25,6 @@ import module namespace globals = "http://oppidoc.com/ns/xcm/globals" at "global
 import module namespace display = "http://oppidoc.com/ns/xcm/display" at "display.xqm";
 import module namespace media = "http://oppidoc.com/ns/xcm/media" at "media.xqm";
 import module namespace services = "http://oppidoc.com/ns/xcm/services" at "services.xqm";
-import module namespace alert = "http://oppidoc.com/ns/xcm/alert" at "../modules/workflow/alert.xqm";
-import module namespace workflow = "http://oppidoc.com/ns/xcm/workflow" at "../modules/workflow/workflow.xqm";
 import module namespace enterprise = "http://oppidoc.com/ns/xcm/enterprise" at "../modules/enterprises/enterprise.xqm";
 
 (: ======================================================================
