@@ -224,7 +224,7 @@ textarea {
 body {
   margin: 0;
   
-  font-size: 14px;
+  font-size: 13px;
   line-height: 20px;
   color: #333333;
   background-color: #ffffff;
@@ -261,6 +261,12 @@ a:focus {
   -webkit-border-radius: 500px;
      -moz-border-radius: 500px;
           border-radius: 500px;
+}
+
+ #err-msg.row {
+  margin-left: 0px;
+  margin-top: 0px;
+  vertical-align:middle;
 }
 
 .row {
@@ -389,10 +395,27 @@ a:focus {
   margin-left: 100px;
 }
 
+.ecl-form  .row-fluid {
+  width: 100%;
+  *zoom: 1;
+  border: 1px solid #004494; 
+  border-radius: 2px;
+  padding: 10px 10px 0px 10px;
+}
+
 .row-fluid {
   width: 100%;
   *zoom: 1;
 }
+
+.row-fluid .row-fluid {
+   border: none; 
+}
+
+@media (max-width: 768px) {
+  .row-fluid {
+    margin-left: 0px; 
+    border: none; } }
 
 .row-fluid:before,
 .row-fluid:after {
@@ -409,9 +432,9 @@ a:focus {
   display: block;
   float: left;
   width: 100%;
-  min-height: 40px;
+  min-height: 35px;
   *margin-left: 7.127659574468085%;
-  margin-left: 2.074468085106383%;
+  margin-left: 0.5%;
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
           box-sizing: border-box;
@@ -419,7 +442,12 @@ a:focus {
 
 .row-fluid [class*="span"]:first-child {
   margin-left: 0;
+  margin-top: 0px;
 }
+
+/*.row-fluid [class*="span"]:last-child {
+  margin-top: 10px;
+}*/
 
 .row-fluid .controls-row [class*="span"] + [class*="span"] {
   margin-left: 2.127659574468085%;
@@ -456,8 +484,9 @@ a:focus {
 }
 
 .row-fluid .span6 {
-  width: 48.93617021276595%;
-  *width: 48.88297872340425%;
+  /*width: 48.93617021276595%;
+  *width: 48.88297872340425%;*/
+  width: 49.75%;
 }
 
 @media (max-width: 768px) {
@@ -478,7 +507,15 @@ a:focus {
 .row-fluid .span4 {
   width: 31.914893617021278%;
   *width: 31.861702127659576%;
+  margin-left: 2%;
 }
+
+@media (max-width: 768px) {
+  .row-fluid .span4 {
+  width: 100%;
+  padding: 0px;
+  margin-left: 0px;
+  } }
 
 .row-fluid .span3 {
   width: 23.404255319148934%;
@@ -627,6 +664,83 @@ a:focus {
 [class*="span"].pull-right,
 .row-fluid [class*="span"].pull-right {
   float: right;
+}
+
+.row-fluid .span4, .span5, .span6 {
+  position: relative;
+}
+
+
+@media (max-width: 768px) {
+  .row-fluid .span4:before {
+  content: '';
+  display:none;}
+}
+/*.row-fluid .span4:before {
+  content: '';
+  height: 92%;
+  width: 1.5px;
+  position: absolute;
+  left: -9px;
+  top: 10px;
+  background-color: #004494;
+}*/
+
+.ecl-form .row-fluid .span4:after {
+  content: '';
+  height: 92%;
+  width: 1.5px;
+  position: absolute;
+  right:-3.5%;
+  top: 10px;
+  background-color: #004494;
+}
+
+.ecl-form .row-fluid .span4:last-child:after {
+  content: '';
+  width:0px;
+}
+
+
+.ecl-form .row-fluid .span6:after {
+      content: '';
+    height: 98%;
+    width: 1.5px;
+    position: absolute;
+/*    margin: 0px 10px;*/
+    top: 10px;
+    background-color: #004494;
+    right: -9px;
+}
+
+.ecl-form .row-fluid .span4 [class*="span"]:after {
+  content: '';
+  display:none;
+}
+
+.ecl-form .row-fluid .span5 [class*="span"]:after {
+  content: '';
+  display:none;
+}
+
+.ecl-form  .row-fluid .span6 [class*="span"]:after {
+  content: '';
+  display:none;
+}
+
+/*.row-fluid .span6 [class*="span"]:after {
+  content: '';
+  display:none;
+}*/
+
+.ecl-form  .row-fluid .span6:nth-child(2):after {
+  content: '';
+  width:0px;
+}
+
+.ecl-form .row-fluid .span4 [class*="span"]:after {
+  content: '';
+  display:none;
 }
 
 .container {
@@ -1071,7 +1185,7 @@ input,
 button,
 select,
 textarea {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: normal;
   line-height: 20px;
 }
@@ -1085,7 +1199,6 @@ textarea {
 
 label {
   display: block;
-  margin-bottom: 5px;
 }
 
 select,
@@ -1950,7 +2063,7 @@ input.search-query {
 }
 
 .control-group {
-  margin: 10px 0px;
+  margin: 0px 4px;
 }
 
 legend + .control-group {
