@@ -689,7 +689,7 @@ a:focus {
 .ecl-form .row-fluid .span4:after {
   content: '';
   height: 92%;
-  width: 1.5px;
+  width: 1px;
   position: absolute;
   right:-3.5%;
   top: 10px;
@@ -705,7 +705,7 @@ a:focus {
 .ecl-form .row-fluid .span6:after {
       content: '';
     height: 98%;
-    width: 1.5px;
+    width: 1px;
     position: absolute;
 /*    margin: 0px 10px;*/
     top: 10px;
