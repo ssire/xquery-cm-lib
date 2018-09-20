@@ -4,6 +4,8 @@
 
      Creator: Stéphane Sire <s.sire@opppidoc.fr>
 
+     DEPRECATED: integrated into lib/commons.xsl
+
      Table row generation for Ajax response to Person creation and/or update
 
      NOTE

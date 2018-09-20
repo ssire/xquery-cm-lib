@@ -4,6 +4,8 @@ xquery version "1.0";
 
    Authors: Stéphane Sire <s.sire@opppidoc.fr>
 
+   DEPRECATED: move to the enterprises module in your application
+
    Shared database requests for enterprise search
 
    NOTES

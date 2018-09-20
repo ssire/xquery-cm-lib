@@ -4,6 +4,8 @@
 
      Creator: Stéphane Sire <s.sire@opppidoc.fr>
 
+     DEPRECATED: move to the persons module in your application
+
      XSL templates to generate Person table row in search results list
 
      January 2015 - (c) Copyright 2015 Oppidoc SARL. All Rights Reserved.

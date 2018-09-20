@@ -2,13 +2,15 @@ xquery version "1.0";
 (: --------------------------------------
    XQuery Content Management Library
 
+   Creator: Stéphane Sire <s.sire@oppidoc.fr>
+
+   DEPRECATED: move to the persons module in your application
+
    This is a sample file to build a person search functionality. 
    You MOST probably will need to copy this file to your 
    project to customize it to fit your application data model.
 
    Shared database requests for persons search
-
-   Creator: Stéphane Sire <s.sire@oppidoc.fr>
 
    August 2017 - (c) Copyright 2017 Oppidoc SARL. All Rights Reserved.
    ------------------------------------------------------------------ :)

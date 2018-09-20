@@ -4,6 +4,9 @@ xquery version "1.0";
 
    Creation: Stéphane Sire <s.sire@oppidoc.fr>
 
+   DEPRECATED: split and move to search-front.xql and search-api.xql in 
+   the enterprises module in your application
+
    Brings up enterprises search page with default search submission results
    or execute a search submission (POST) to return an HTML fragment.
    

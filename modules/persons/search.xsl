@@ -4,7 +4,9 @@
 
      Creator: Stéphane Sire <s.sire@opppidoc.fr>
 
-     XSL templates to generate Person search scaffold and the initial search results table
+     DEPRECATED: moved to persons.xsl in the persons module in your application
+
+     Shared XSL templates to generate a search person page
 
      January 2015 - (c) Copyright 2015 Oppidoc SARL. All Rights Reserved.
   -->
