@@ -376,14 +376,17 @@ let $rules := $assert/true
 };
 
 (: ======================================================================
-   Checks if there are some assertions that prevent document to display in
-   accordion.
-   Returns the empty sequence in case there are no assertions to check 
-   or they are all successful, returns a non-void sequence otherwise
-   ======================================================================
+   Check if there are some assertions that prevent document to display in
+   accordion. Return true() if document bar can be shown, false() otherwise. ======================================================================
 :)
 declare function workflow:validate-document($documents as element(), $doc as element(), $cur-status as xs:string+, $case as element(), $activity as element()? ) as xs:boolean {
-  count(
+  count((
+    for $assert in $doc/SecurityCheck/Assert
+    return
+      if (access:check-tab-permissions($assert, $assert/@TabRef, $case, $activity)) then
+        ()
+      else
+        '0',
     for $assert in $doc/DynamicAssert
     return
       if ($cur-status = tokenize($assert/@AtStatus, " ")) then
@@ -415,7 +418,7 @@ declare function workflow:validate-document($documents as element(), $doc as ele
           ()
       else
         ()
-  ) = 0
+  )) = 0
 };
 
 (: ======================================================================
