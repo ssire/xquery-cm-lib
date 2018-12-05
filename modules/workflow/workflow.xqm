@@ -562,6 +562,10 @@ declare function workflow:get-transition-for( $workflow as xs:string, $from as x
   globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From eq $from][@To eq $to]
 };
 
+declare function workflow:get-transition-for( $workflow as xs:string, $from as xs:string, $to as xs:string, $role as xs:string ) {
+  globals:doc('application-uri')//Workflow[@Id eq $workflow]//Transition[@From eq $from][@To eq $to][@Meet=$role]
+};
+
 (: ======================================================================
    Checks if there are some assertions that prevent transition 
    Returns the empty sequence in case there are no assertions to check 
@@ -590,7 +594,7 @@ declare function workflow:validate-transition( $transition as element(), $overwr
    Stub to call the second version below
    ======================================================================
 :)
-declare function workflow:apply-transition( $transition as element(), $case as element(), $activity as element()? ) as element()? {
+declare function workflow:apply-transition( $transition as element(), $case as element(), $activity as element()?, $lang as xs:string?) as element()? {
   if ($transition/@To eq 'last()') then
     let $history := if ($activity) then $activity/StatusHistory else $case/StatusHistory
     let $previous := if ($transition/@Group) then 
@@ -602,13 +606,13 @@ declare function workflow:apply-transition( $transition as element(), $case as e
         if ($transition/@Group) then
           workflow:apply-concurrent-transition-to($transition/@Group, $previous, $case, $activity)
         else
-          workflow:apply-transition-to($previous, $case, $activity)
+          workflow:apply-transition-to($previous, $case, $activity, $lang)
       else
         ()
   else if ($transition/@Group) then
     workflow:apply-concurrent-transition-to($transition/@Group, $transition/@To, $case, $activity)
   else
-    workflow:apply-transition-to(string($transition/@To), $case, $activity)
+    workflow:apply-transition-to(string($transition/@To), $case, $activity, $lang)
 };
 
 (: ======================================================================
@@ -617,14 +621,65 @@ declare function workflow:apply-transition( $transition as element(), $case as e
    NOTE that it does not check the transition is allowed, this must be done before
    ======================================================================
 :)
-declare function workflow:apply-transition-to( $new-status as xs:string, $case as element(), $activity as element()? ) as element()? {
+declare function workflow:apply-transition-to( $new-status as xs:string, $case as element(), $activity as element()?, $lang as xs:string? ) as element()? {
   let $history := if ($activity) then $activity/StatusHistory else $case/StatusHistory
   let $previous := $history/PreviousStatusRef
   let $current := $history/CurrentStatusRef
   let $status-log := $history/Status[ValueRef = $new-status]
   return
+ 
     if ($history) then (: sanity check :)
       (
+      if ($current=1 and ($activity/Assignment/PhaseRef=1) and not ($activity/FundingRequest/Objectives)) then
+      (
+        update insert    <FundingRequest LastModification="{substring(string(current-dateTime()), 1, 10)}"><Objectives>
+                    { globals:collection('$globals:global-info-uri')//Description[@Lang= $lang]/Selector[@Name='GoalServices']/Option[Value='-1']/Name/* }
+                    { globals:collection('$globals:global-info-uri')//Description[@Lang= $lang]/Selector[@Name="GoalServices"]/Option[Value=$activity/Assignment/ServiceRef/text()]/Name/* }
+    </Objectives>
+    
+     <SubmissionOriginRef>{
+      globals:collection('persons-uri')//Person[Id eq $activity/Assignment/ResponsibleCoachKey]//AdministrativeEntityRef/text()
+      }
+      </SubmissionOriginRef>
+                <ClientEnterprise>
+                    <EnterpriseKey>{$case/Information/ClientEnterprise/EnterpriseKey/text()}</EnterpriseKey>
+                </ClientEnterprise>
+                <ContactPerson>
+                    <PersonKey>{$activity/NeedsAnalysis/ContactPerson/PersonKey/text()
+                    }</PersonKey>
+                </ContactPerson>
+    </FundingRequest>
+    following $activity/Assignment,
+    update replace   $activity/Budget 
+   
+    
+    
+    with  <Budget>
+                <Costs>
+                    <Tasks>
+                        <Task>
+                            <Description/>
+                            <NbOfHours>12</NbOfHours>
+                        </Task>
+                        <TotalTasks>1800</TotalTasks>
+                    </Tasks>
+                    <OtherExpenses>
+                        <TotalOtherExpenses>0</TotalOtherExpenses>
+                    </OtherExpenses>
+                </Costs>
+                <Revenues>
+        <FundingSources/>
+      </Revenues>
+             <Variables>
+                    <CoachingHourlyRate>150</CoachingHourlyRate>
+                    <TotalRequested>0</TotalRequested>
+                </Variables>
+            </Budget>
+    )
+      else (: should not happen :)
+        (),
+      
+      
       if ($previous) then
         update value $previous with $current/text()
       else (: first lazy creation :)
@@ -644,6 +699,9 @@ declare function workflow:apply-transition-to( $new-status as xs:string, $case a
       else 
         (: returning back to already visited status:)
         ()
+        
+       
+       
         (:TODO: add a parameter on Transition to decide to update or not the Date anyway:)
       )
     else
@@ -967,7 +1025,34 @@ declare function workflow:gen-source ( $mode as xs:string, $case as element() ) 
    ====================================================================== 
 :)
 declare function workflow:gen-new-activity-tab ( $case as element(), $activity as element()?, $prefixUrl as xs:string ) as element()? {
-  if (access:check-document-permissions('create', 'Assignment', $case)) then
+if($activity)then
+(
+  if (access:check-document-permissions('create', 'Assignment', $case, $activity)) then
+    let $cur-status := $case/StatusHistory/CurrentStatusRef
+    let $transition := globals:doc('application-uri')//Workflow[@Id eq 'Case']//Transition[@From eq $cur-status][@To eq '-1']
+    return
+      if (exists($transition)) then
+        <Tab Id="new-activity">
+          <Name loc="workflow.tab.new.activity">Add</Name>
+          <OnClick>
+            <Command>
+              <Name>confirm</Name>
+              <Controller>{$prefixUrl}{globals:doc('application-uri')//Workflow[@Id eq 'Case']/Documents/Document[@Tab eq 'coaching-assignment']/Controller/text()}{concat('/',$activity/No,'/create')}</Controller>
+            </Command>
+          </OnClick>
+          <Heading class="case">
+            <Title loc="workflow.title.new.activity">Add</Title>
+          </Heading>
+          <Legend>Click on the tab on the left to create a new coaching activity</Legend>
+        </Tab>
+      else
+        ()
+  else
+    ()
+    
+    )
+    else(
+    if (access:check-document-permissions('create', 'Assignment', $case, $activity)) then
     let $cur-status := $case/StatusHistory/CurrentStatusRef
     let $transition := globals:doc('application-uri')//Workflow[@Id eq 'Case']//Transition[@From eq $cur-status][@To eq '-1']
     return
@@ -987,8 +1072,9 @@ declare function workflow:gen-new-activity-tab ( $case as element(), $activity a
         </Tab>
       else
         ()
-  else
-    ()
+   else
+    ()  
+    )
 };
 
 declare function workflow:gen-activities-tab ( $case as element(), $activity as element()?, $activities as element()*, $lang as xs:string ) as element() {
