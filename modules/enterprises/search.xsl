@@ -6,6 +6,8 @@
 
      Enterprise search page generation
 
+     DEPRECATED: move to enterprise.xsl in your application project depot
+
      November 2016 - (c) Copyright 2016 Oppidoc SARL. All Rights Reserved.
   -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"

@@ -2,6 +2,9 @@ xquery version "1.0";
 (: --------------------------------------
    XQuery Content Management Library
 
+   DEPRECATED: split and move to search-front.xql and search-api.xql in 
+   the persons module in your application
+
    Brings up members search page with default search submission results
    or execute a search submission (POST) to return an HTML fragment.
    

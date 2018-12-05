@@ -4,6 +4,8 @@ xquery version "1.0";
 
    Creator: Stéphane Sire <s.sire@oppidoc.fr>
 
+   DEPRECATED: move to the enterprises module in your application
+
    Generates extension points for Enterprise search and Enterprise formulars
 
    December 2014 - (c) Copyright 2014 Oppidoc SARL. All Rights Reserved.

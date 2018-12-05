@@ -355,7 +355,7 @@
   
   <!-- TODO: factorize Resource with other templates ? -->
   <xsl:template name="formular-imp">
-    <div data-template="{Template}">
+    <div data-template="{Template}" data-axel-base="{$xslt.base-url}">
       <xsl:apply-templates select="@Id"/>
       <xsl:copy-of select="@class"/>
       <xsl:if test="Resource">
