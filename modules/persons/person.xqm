@@ -79,12 +79,12 @@ declare function person:gen-person-enterprise-selector ( $lang as xs:string, $pa
       let $pe := $info/EnterpriseKey/text()
       order by $ln ascending
       return
-        let $en := if ($pe) then globals:doc('enterprises-uri')//Enterprise[Id = $pe]/Name/text() else ()
+        let $en := if ($pe) then globals:doc('enterprises-uri')//Enterprise[Id = $pe]/Information/Name else ()
         return
           <Name id="{$p/Id/text()}">{concat(replace($ln,' ','\\ '), '\ ', replace($fn,' ','\\ '))}{if ($en) then concat('::', replace($en,' ','\\ ')) else ()}</Name>
   return
     let $ids := string-join(for $n in $pairs return string($n/@id), ' ') (: FLWOR to defeat document ordering :)
     let $names := string-join(for $n in $pairs return $n/text(), ' ') (: idem :)
     return
-      <xt:use types="choice" values="{$ids}" i18n="{$names}" param="select2_complement=town;{form:setup-select2($params)}"/>
+      <xt:use types="choice" values="{$ids}" i18n="{$names}" param="select2_complement=town;select2_width=off;class=span12 a-control;filter=select2{$params}"/>
 };
