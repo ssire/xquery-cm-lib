@@ -767,11 +767,6 @@
   <!--*****  Shared Rules  *****-->
   <!--**************************-->
 
-  <!-- Id attribute converstion to id attribute -->
-  <xsl:template match="@Id">
-    <xsl:attribute name="id"><xsl:value-of select="."/></xsl:attribute>
-  </xsl:template>
-
   <xsl:template match="*|@*|text()">
     <xsl:copy>
       <xsl:apply-templates select="*|@*|text()"/>
